@@ -9,5 +9,6 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="de.westnordost:osmapi:3.11" level="project" />
+    <orderEntry type="library" name="com.io7m.jgrapht:jgrapht-io:1.2.1-MODULARIZED" level="project" />
   </component>
 </module>
