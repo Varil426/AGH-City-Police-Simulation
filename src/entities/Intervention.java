@@ -30,7 +30,7 @@ public class Intervention extends Incident {
         this.duration = duration;
         this.willChangeIntoFiring = willChangeIntoFiring;
         if (timeToChange < 0) {
-            throw new IllegalArgumentException("timeToChange must be greater thatn or equal to zero");
+            throw new IllegalArgumentException("timeToChange must be greater than or equal to zero");
         }
         this.timeToChange = timeToChange;
     }
