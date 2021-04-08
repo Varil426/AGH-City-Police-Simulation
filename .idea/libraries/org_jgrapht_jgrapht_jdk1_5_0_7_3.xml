@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="org.jgrapht:jgrapht-jdk1.5:0.7.3" type="repository">
+    <properties maven-id="org.jgrapht:jgrapht-jdk1.5:0.7.3" />
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/jgrapht-jdk1.5-0.7.3.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
