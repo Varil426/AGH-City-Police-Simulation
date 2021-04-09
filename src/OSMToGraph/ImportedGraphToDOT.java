@@ -1,26 +1,27 @@
 package OSMToGraph;
 
+import de.westnordost.osmapi.map.data.Node;
 import org.jgrapht.Graph;
 import org.jgrapht.io.DOTExporter;
+import org.jgrapht.io.DOTImporter;
+import org.jgrapht.io.ImportException;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 
 public class ImportedGraphToDOT {
 
-    public static void exportOSMGraphToFile(Graph<Long, ImportedEdge> g, String fileName, ParsingMapDataHandler nodesMapProvider) {
+    public static void exportGraphToFile(Graph<Node, ImportedEdge> g, String fileName, ParsingMapDataHandler nodesMapProvider) {
         try {
             File outputFile = new File(fileName);
             if (!outputFile.exists()) {
                 boolean newFile = outputFile.createNewFile();
                 if (!newFile) throw new IOException();
             }
-            ElementNameProvider<Long> vertexIDProvider = new ElementNameProvider<>(nodesMapProvider);
-            VertexLabelProvider<Long> vertexLabelProvider = new VertexLabelProvider<>(nodesMapProvider);
+            ElementNameProvider<Node> vertexIDProvider = new ElementNameProvider<>(nodesMapProvider);
+            VertexLabelProvider<Node> vertexLabelProvider = new VertexLabelProvider<>(nodesMapProvider);
             ElementNameProvider<ImportedEdge> edgeLabelProvider = new ElementNameProvider<>(nodesMapProvider);
             FileWriter fileWriter = new FileWriter(outputFile);
-            DOTExporter<Long, ImportedEdge> dotExporter = new DOTExporter<>(vertexIDProvider,
+            DOTExporter<Node, ImportedEdge> dotExporter = new DOTExporter<>(vertexIDProvider,
                     vertexLabelProvider,
                     edgeLabelProvider);
             dotExporter.exportGraph(g, fileWriter);

@@ -2,14 +2,19 @@ package OSMToGraph;
 
 import de.westnordost.osmapi.map.MapDataParser;
 import de.westnordost.osmapi.map.OsmMapDataFactory;
+import de.westnordost.osmapi.map.data.Node;
+import org.jgrapht.Graph;
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-public class FileBasedImportTest {
+
+public class FileBasedDOTExportTest {
     public static void main(String[] args) throws IOException {
 
+        // example of overpass data export to DOT file:
+        // START
         final String rawDataFile = "exportKrkRaw.osm";
         final String graphExportFile = "KrkGraph.gv";
 
@@ -21,9 +26,18 @@ public class FileBasedImportTest {
         MapDataParser mapDataParser = new MapDataParser(dataHandler, factory);
         mapDataParser.parse(bin);
 
-        ImportedGraphToDOT.exportOSMGraphToFile(dataHandler.getGraph(), "src/OSMToGraph/exportedGraphs/" + graphExportFile, dataHandler);
-
+        Graph<Node, ImportedEdge> graph = dataHandler.getGraph();
+        ImportedGraphToDOT.exportGraphToFile(graph, "src/OSMToGraph/exportedGraphs/" + graphExportFile, dataHandler);
         // close the file
         fin.close();
+        // END
+
+
+        //TODO liczenie trasy:
+//        HashMap<Long, Node> myNodes = dataHandler.getNodesMap();
+//
+//        AStarShortestPath<Node, ImportedEdge> path = new AStarShortestPath<>(graph, new Haversine.ownHeuristics());
+//        GraphPath<Node, ImportedEdge> path1 = path.getPath(myNodes.get(3195641657L), myNodes.get(244399516L));
+//        System.out.println(path1.getEdgeList());
     }
 }

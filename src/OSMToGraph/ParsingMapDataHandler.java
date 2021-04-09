@@ -16,13 +16,14 @@ import java.util.List;
 
 public class ParsingMapDataHandler extends DefaultMapDataHandler implements MapDataHandler {
 
-    private final Graph<Long, ImportedEdge> graph = new DirectedPseudograph<>(ImportedEdge.class);
+    private final Graph<Node, ImportedEdge> graph = new DirectedPseudograph<>(ImportedEdge.class);
+
     private final HashMap<Long, Node> myNodes = new HashMap<>();
     private final List<ImportedEdge> myEdges = new ArrayList<>();
-    Double minLatitude;
-    Double maxLatitude;
-    Double minLongitude;
-    Double maxLongitude;
+    private Double minLatitude;
+    private Double maxLatitude;
+    private Double minLongitude;
+    private Double maxLongitude;
 
     public HashMap<Long, Node> getNodesMap() {
         return this.myNodes;
@@ -48,10 +49,10 @@ public class ParsingMapDataHandler extends DefaultMapDataHandler implements MapD
         if (latitude > maxLatitude) maxLatitude = latitude;
         else if (latitude < minLatitude) minLatitude = latitude;
         if (longitude > maxLongitude) maxLongitude = longitude;
-        else if (latitude < minLatitude) maxLongitude = longitude;
+        else if (longitude < minLongitude) minLongitude = longitude;
 
         // add a node to the graph and myNodes:
-        graph.addVertex(node.getId());
+        graph.addVertex(node);
         myNodes.put(node.getId(), node);
     }
 
@@ -102,10 +103,19 @@ public class ParsingMapDataHandler extends DefaultMapDataHandler implements MapD
         super.handle(relation);
     }
 
-    public Graph<Long, ImportedEdge> getGraph() {
+    public Graph<Node, ImportedEdge> getGraph() {
+
         for (ImportedEdge edge : myEdges) {
-            graph.addEdge(edge.sourceNode, edge.targetNode, edge);
+            graph.addEdge(myNodes.get(edge.sourceNode), myNodes.get(edge.targetNode), edge);
         }
         return graph;
+    }
+
+    public Double getMinLatitude() {
+        return minLatitude;
+    }
+
+    public Double getMinLongitude() {
+        return minLongitude;
     }
 }
