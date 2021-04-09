@@ -16,8 +16,8 @@ public class ElementNameProvider<Object> implements ComponentNameProvider<Object
     public String getName(Object component) {
         if (component == null)
             return "";
-        if (component instanceof Long) {
-            return component + "";
+        if (component instanceof Node) {
+            return ((Node) component).getId() + "";
         } else if (component instanceof ImportedEdge) {
 
             ImportedEdge edge = (ImportedEdge) component;
@@ -30,13 +30,13 @@ public class ElementNameProvider<Object> implements ComponentNameProvider<Object
                     n2.getPosition().getLatitude(),
                     n2.getPosition().getLongitude());
 
-            dist *= 100000;
+            dist *= 100;
             dist = Math.round(dist);
-            return (dist / 100) + "";
+            dist /= 100;
+            ((ImportedEdge) component).setDistance((long) dist);
+            return dist + "";
         } else
             return component.toString();
-
     }
-
 }
 
