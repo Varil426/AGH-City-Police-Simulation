@@ -4,10 +4,14 @@ import de.westnordost.osmapi.map.MapDataParser;
 import de.westnordost.osmapi.map.OsmMapDataFactory;
 import de.westnordost.osmapi.map.data.Node;
 import org.jgrapht.Graph;
+import org.jgrapht.GraphPath;
+import org.jgrapht.alg.shortestpath.AStarShortestPath;
+import utils.Haversine;
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.HashMap;
 
 
 public class FileBasedDOTExportTest {
@@ -32,12 +36,13 @@ public class FileBasedDOTExportTest {
         fin.close();
         // END
 
-
-        //TODO liczenie trasy:
-//        HashMap<Long, Node> myNodes = dataHandler.getNodesMap();
-//
-//        AStarShortestPath<Node, ImportedEdge> path = new AStarShortestPath<>(graph, new Haversine.ownHeuristics());
-//        GraphPath<Node, ImportedEdge> path1 = path.getPath(myNodes.get(3195641657L), myNodes.get(244399516L));
-//        System.out.println(path1.getEdgeList());
+        // example of calculating a route between two points (the result is a graph)
+        //START
+        HashMap<Long, Node> myNodes = dataHandler.getNodesMap();
+        AStarShortestPath<Node, ImportedEdge> path = new AStarShortestPath<>(graph, new Haversine.ownHeuristics());
+        GraphPath<Node, ImportedEdge> path1 = path.getPath(myNodes.get(3195641657L), myNodes.get(244399516L));
+        System.out.println(path1.getEdgeList());
+        //END
     }
+
 }

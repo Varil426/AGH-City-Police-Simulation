@@ -30,5 +30,20 @@ public class ImportedGraphToDOT {
             System.out.println(ex.getMessage());
         }
     }
+
+    public static void importGraph(Graph<Node, ImportedEdge> graph, String fileName) throws FileNotFoundException {
+
+        BufferedReader reader = new BufferedReader(new FileReader(fileName));
+
+        ImportVertexProvider nodeProvider = new ImportVertexProvider();
+        ImportEdgeProvider edgeProvider = new ImportEdgeProvider();
+
+        DOTImporter<Node, ImportedEdge> dotImporter = new DOTImporter<>(nodeProvider, edgeProvider);
+        try {
+            dotImporter.importGraph(graph, reader);
+        } catch (ImportException ex) {
+            ex.printStackTrace();
+        }
+    }
 }
 
