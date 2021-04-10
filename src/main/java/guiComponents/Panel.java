@@ -26,8 +26,7 @@ public class Panel extends JFrame implements ItemListener {
         @Override
         public void insertUpdate(DocumentEvent e) {
             try{
-                var test =  e.getDocument().getProperty("owner");
-                checkCorrectValue(e.getDocument().getText(0,e.getDocument().getLength()), (JTextField) e.getDocument().getProperty("owner"));
+                checkCorrectValue(e.getDocument().getText(0,e.getDocument().getLength()));
             }
             catch (Exception e1){
                 //TODO logger
@@ -42,7 +41,7 @@ public class Panel extends JFrame implements ItemListener {
         @Override
         public void changedUpdate(DocumentEvent e) {
             try{
-                checkCorrectValue(e.getDocument().getText(0,e.getDocument().getLength()), (JTextField) e.getDocument().getProperty("owner"));
+                checkCorrectValue(e.getDocument().getText(0,e.getDocument().getLength()));
             }
             catch (Exception e1){
                 //TODO logger
@@ -112,7 +111,7 @@ public class Panel extends JFrame implements ItemListener {
         });
     }
 
-    private void checkCorrectValue(String text, JTextField textField) {
+    private void checkCorrectValue(String text) {
         try{
             var pattern = Pattern.compile("^[0-9]*$");
             if (!pattern.matcher(text).matches()){
