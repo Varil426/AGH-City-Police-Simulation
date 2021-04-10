@@ -1,0 +1,32 @@
+plugins {
+    id 'java'
+}
+
+compileJava.options.encoding = 'UTF-8'
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+group 'org.'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+    implementation 'de.westnordost:osmapi:3.11'
+    implementation 'org.jxmapviewer:jxmapviewer2:2.5'
+
+    implementation 'com.io7m.jgrapht:jgrapht-io:1.2.1-MODULARIZED'
+    implementation 'com.io7m.jgrapht:jgrapht-core:1.2.1-MODULARIZED'
+    implementation 'com.io7m.jgrapht:jgrapht-ext:1.2.1-MODULARIZED'
+    implementation 'com.io7m.jgrapht:jgrapht:1.2.1-MODULARIZED'
+}
+
+test {
+    useJUnitPlatform()
+}
