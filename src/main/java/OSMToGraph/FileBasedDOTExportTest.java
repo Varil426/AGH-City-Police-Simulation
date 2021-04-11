@@ -22,7 +22,7 @@ public class FileBasedDOTExportTest {
         final String rawDataFile = "exportKrkRaw.osm";
         final String graphExportFile = "KrkGraph.gv";
 
-        FileInputStream fin = new FileInputStream("src/OSMToGraph/rawData/" + rawDataFile);
+        FileInputStream fin = new FileInputStream("src/main/java/OSMToGraph/rawData/" + rawDataFile);
         BufferedInputStream bin = new BufferedInputStream(fin);
 
         ParsingMapDataHandler dataHandler = new ParsingMapDataHandler();
@@ -31,18 +31,19 @@ public class FileBasedDOTExportTest {
         mapDataParser.parse(bin);
 
         Graph<Node, ImportedEdge> graph = dataHandler.getGraph();
-        ImportedGraphToDOT.exportGraphToFile(graph, "src/OSMToGraph/exportedGraphs/" + graphExportFile, dataHandler);
+        ImportedGraphToDOT.exportGraphToFile(graph, "src/main/java/OSMToGraph/exportedGraphs/" + graphExportFile, dataHandler);
         // close the file
         fin.close();
         // END
 
-        // example of calculating a route between two points (the result is a graph)
+        // example of calculating the route between two points (the result is a GraphPath)
+        // and the distance between these points
         //START
         HashMap<Long, Node> myNodes = dataHandler.getNodesMap();
         AStarShortestPath<Node, ImportedEdge> path = new AStarShortestPath<>(graph, new Haversine.ownHeuristics());
         GraphPath<Node, ImportedEdge> path1 = path.getPath(myNodes.get(3195641657L), myNodes.get(244399516L));
         System.out.println(path1.getEdgeList());
+        System.out.println(path1.getWeight());
         //END
     }
-
 }

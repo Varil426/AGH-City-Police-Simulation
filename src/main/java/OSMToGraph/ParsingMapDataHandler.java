@@ -7,7 +7,8 @@ import de.westnordost.osmapi.map.data.Way;
 import de.westnordost.osmapi.map.handler.DefaultMapDataHandler;
 import de.westnordost.osmapi.map.handler.MapDataHandler;
 import org.jgrapht.Graph;
-import org.jgrapht.graph.DirectedPseudograph;
+import org.jgrapht.graph.DefaultDirectedWeightedGraph;
+import utils.Haversine;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,7 +17,7 @@ import java.util.List;
 
 public class ParsingMapDataHandler extends DefaultMapDataHandler implements MapDataHandler {
 
-    private final Graph<Node, ImportedEdge> graph = new DirectedPseudograph<>(ImportedEdge.class);
+    private final Graph<Node, ImportedEdge> graph = new DefaultDirectedWeightedGraph<>(ImportedEdge.class);
 
     private final HashMap<Long, Node> myNodes = new HashMap<>();
     private final List<ImportedEdge> myEdges = new ArrayList<>();
@@ -105,8 +106,31 @@ public class ParsingMapDataHandler extends DefaultMapDataHandler implements MapD
 
     public Graph<Node, ImportedEdge> getGraph() {
 
+        // adds all edges to the graph:
         for (ImportedEdge edge : myEdges) {
-            graph.addEdge(myNodes.get(edge.sourceNode), myNodes.get(edge.targetNode), edge);
+
+            Node nodeS = myNodes.get(edge.sourceNode);
+            Node nodeT = myNodes.get(edge.targetNode);
+
+            // calculates the distance (edge weight):
+            double dist = Haversine.distance(nodeS.getPosition().getLatitude(),
+                    nodeS.getPosition().getLongitude(),
+                    nodeT.getPosition().getLatitude(),
+                    nodeT.getPosition().getLongitude());
+            dist *= 100;
+            dist = Math.round(dist);
+            dist /= 100;
+
+            // adds an edge and its weight:
+            boolean b = graph.addEdge(nodeS, nodeT, edge);
+            if (b){
+                graph.setEdgeWeight(edge, dist);
+            }
+            else {
+                // TODO cztery krawędzie do Krakowa się nie dodają - nie mam pojęcia dlaczego
+                //  hint: jak jest graf ważony to dodaje się do pliku słowo kluczowe "strict"
+                System.out.println("edge has not been added to the graph");
+            }
         }
         return graph;
     }

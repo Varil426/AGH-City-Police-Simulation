@@ -2,7 +2,7 @@ package OSMToGraph;
 
 import de.westnordost.osmapi.map.data.Node;
 import org.jgrapht.Graph;
-import org.jgrapht.graph.SimpleDirectedGraph;
+import org.jgrapht.graph.SimpleDirectedWeightedGraph;
 
 import java.io.IOException;
 
@@ -10,11 +10,11 @@ import java.io.IOException;
 public class ImportDOTFileTest {
     public static void main(String[] args) throws IOException {
 
-        //TODO kurwa nie działają krawędzie
+        //TODO nie działają krawędzie
 
         // example of importing a DOT file into a graph:
         final String graphExportFile = "KrkGraph.gv";
-        Graph<Node, ImportedEdge> importGraph = new SimpleDirectedGraph<>(ImportedEdge.class);
-        ImportedGraphToDOT.importGraph(importGraph, "src/OSMToGraph/exportedGraphs/" + graphExportFile);
+        Graph<Node, ImportedEdge> importGraph = new SimpleDirectedWeightedGraph<>(ImportedEdge.class);
+        ImportedGraphToDOT.importGraph(importGraph, "src/main/java/OSMToGraph/exportedGraphs/" + graphExportFile);
     }
 }

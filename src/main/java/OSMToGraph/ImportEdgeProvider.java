@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class ImportEdgeProvider implements EdgeProvider<Node, ImportedEdge> {
 
-    // TODO kurwa nie działa
+    // TODO nie działa
 
     @Override
     public ImportedEdge buildEdge(Node node, Node v1, String s, Map<String, Attribute> map) {
