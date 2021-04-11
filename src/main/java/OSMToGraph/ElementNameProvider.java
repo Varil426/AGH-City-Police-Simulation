@@ -33,7 +33,6 @@ public class ElementNameProvider<Object> implements ComponentNameProvider<Object
             dist *= 100;
             dist = Math.round(dist);
             dist /= 100;
-            ((ImportedEdge) component).setDistance((long) dist);
             return dist + "";
         } else
             return component.toString();
