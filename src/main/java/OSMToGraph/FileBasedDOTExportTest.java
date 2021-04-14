@@ -22,6 +22,9 @@ public class FileBasedDOTExportTest {
         final String rawDataFile = "exportKrkRaw.osm";
         final String graphExportFile = "KrkGraph.gv";
 
+        // TODO dodawać jakiś konwerter do pliku wejściowego z surowymi danymi
+        //  obecnie ręcznie konwertuję w Notepad++ z UTF-8 BOM na UTF-8
+
         FileInputStream fin = new FileInputStream("src/main/java/OSMToGraph/rawData/" + rawDataFile);
         BufferedInputStream bin = new BufferedInputStream(fin);
 
