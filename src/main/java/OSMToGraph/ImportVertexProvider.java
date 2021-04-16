@@ -9,7 +9,7 @@ import org.jgrapht.io.VertexProvider;
 
 import java.util.Map;
 
-
+// TODO import grafu z pliku nie działa
 public class ImportVertexProvider implements VertexProvider<Node> {
 
     public Node buildVertex(String s, Map<String, Attribute> map) {

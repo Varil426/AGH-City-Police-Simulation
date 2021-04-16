@@ -2,6 +2,7 @@ package OSMToGraph;
 
 import org.jgrapht.graph.DefaultEdge;
 
+// the class of our "personalized" edge
 public class ImportedEdge extends DefaultEdge {
 
     Long sourceNode, targetNode, distance;

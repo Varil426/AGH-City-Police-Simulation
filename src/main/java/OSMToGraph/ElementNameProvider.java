@@ -29,7 +29,6 @@ public class ElementNameProvider<Object> implements ComponentNameProvider<Object
                     n1.getPosition().getLongitude(),
                     n2.getPosition().getLatitude(),
                     n2.getPosition().getLongitude());
-
             dist *= 100;
             dist = Math.round(dist);
             dist /= 100;

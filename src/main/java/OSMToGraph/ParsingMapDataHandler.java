@@ -127,7 +127,7 @@ public class ParsingMapDataHandler extends DefaultMapDataHandler implements MapD
                 graph.setEdgeWeight(edge, dist);
             }
             else {
-                // TODO cztery krawędzie do Krakowa się nie dodają - nie mam pojęcia dlaczego
+                // TODO kilka krawędzi dla Krakowa się nie dodają - nie mam pojęcia dlaczego
                 //  hint: jak jest graf ważony to dodaje się do pliku słowo kluczowe "strict"
                 System.out.println("edge has not been added to the graph");
             }
