@@ -21,31 +21,23 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-public class FileBasedDOTExportTest {
+public class ImportGraphFromRawData {
+
+    static String rawDataFile = "exportKrkRaw.osm";
+    static String graphExportFile = "KrkGraph.gv";
+    static String rawDataPath = "src/main/java/OSMToGraph/rawData/";
+    static String graphExportPath = "src/main/java/OSMToGraph/exportedGraphs/";
+    // area["admin_level"=6][name="Kraków"]->.a;(way(area.a)["highway"~"^(motorway|trunk|primary|secondary|tertiary|unclassified|residential|motorway_link|trunk_link|primary_link|secondary_link|tertiary_link|living_street|service|pedestrian|track|road)$"]["crossing"!~"."]["name"];);out meta;>;out meta qt;
+    static String query = "area[\"admin_level\"=6][name=\"Kraków\"]->.a;(way(area.a)[\"highway\"~\"^(motorway|trunk|primary|secondary|tertiary|unclassified|residential|motorway_link|trunk_link|primary_link|secondary_link|tertiary_link|living_street|service|pedestrian|track|road)$\"][\"crossing\"!~\".\"][\"name\"];);out meta;>;out meta qt;";
+    static String apiURL = "https://overpass-api.de/api/interpreter";
+
     public static void main(String[] args) throws IOException {
 
-        final String rawDataFile = "exportKrkRaw.osm";
-        final String graphExportFile = "KrkGraph.gv";
-        final String rawDataPath = "src/main/java/OSMToGraph/rawData/";
-        final String graphExportPath = "src/main/java/OSMToGraph/exportedGraphs/";
-        // area["admin_level"=6][name="Kraków"]->.a;(way(area.a)["highway"~"^(motorway|trunk|primary|secondary|tertiary|unclassified|residential|motorway_link|trunk_link|primary_link|secondary_link|tertiary_link|living_street|service|pedestrian|track|road)$"]["crossing"!~"."]["name"];);out meta;>;out meta qt;
-        final String query = "area[\"admin_level\"=6][name=\"Kraków\"]->.a;(way(area.a)[\"highway\"~\"^(motorway|trunk|primary|secondary|tertiary|unclassified|residential|motorway_link|trunk_link|primary_link|secondary_link|tertiary_link|living_street|service|pedestrian|track|road)$\"][\"crossing\"!~\".\"][\"name\"];);out meta;>;out meta qt;";
-        final String apiURL = "https://overpass-api.de/api/interpreter";
-
         // example of file-based data handling: (It takes about 2 seconds)
-        // START
-        InputStream fin = new FileInputStream(rawDataPath + rawDataFile);
-        ParsingMapDataHandler dataHandler = handleRawData(fin);
-        // close the file:
-        fin.close();
-        // END
+//        ParsingMapDataHandler dataHandler = handleRawDataFromFile();
 
         // example of request-based data handling: (It takes about 16 seconds)
-//        // START
-//        HttpURLConnection urlConn = makeRequest(apiURL, query);
-//        InputStream inputStream = urlConn.getInputStream();
-//        ParsingMapDataHandler dataHandler = handleRawData(inputStream);
-//        // END
+        ParsingMapDataHandler dataHandler = handleRawDataFromRequest();
 
         Graph<Node, ImportedEdge> graph = dataHandler.getGraph();
 
@@ -68,6 +60,28 @@ public class FileBasedDOTExportTest {
         Long nearestNodeId = findNearestNode(latlon, myNodes);
         System.out.println(nearestNodeId);
         //END
+    }
+
+    public static ParsingMapDataHandler handleRawDataFromFile() throws IOException {
+        return handleRawDataFromFile(rawDataPath + rawDataFile);
+    }
+
+    public static ParsingMapDataHandler handleRawDataFromFile(String rawDataFilePath) throws IOException {
+        InputStream fin = new FileInputStream(rawDataFilePath);
+        ParsingMapDataHandler dataHandler = handleRawData(fin);
+        // close the file:
+        fin.close();
+        return dataHandler;
+    }
+
+    public static ParsingMapDataHandler handleRawDataFromRequest() throws IOException {
+        return handleRawDataFromRequest(apiURL, query);
+    }
+
+    public static ParsingMapDataHandler handleRawDataFromRequest(String apiURL, String query) throws IOException {
+        HttpURLConnection urlConn = makeRequest(apiURL, query);
+        InputStream inputStream = urlConn.getInputStream();
+        return handleRawData(inputStream);
     }
 
     public static ParsingMapDataHandler handleRawData(InputStream inputStream) throws IOException {
