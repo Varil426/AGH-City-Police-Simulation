@@ -2,7 +2,9 @@ package OSMToGraph;
 
 import de.westnordost.osmapi.map.MapDataParser;
 import de.westnordost.osmapi.map.OsmMapDataFactory;
+import de.westnordost.osmapi.map.data.LatLon;
 import de.westnordost.osmapi.map.data.Node;
+import de.westnordost.osmapi.map.data.OsmLatLon;
 import org.jgrapht.Graph;
 import org.jgrapht.GraphPath;
 import org.jgrapht.alg.shortestpath.AStarShortestPath;
@@ -11,30 +13,44 @@ import utils.Haversine;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.Map;
 
 
 public class FileBasedDOTExportTest {
     public static void main(String[] args) throws IOException {
 
-        // example of overpass data export to DOT file:
-        // START
         final String rawDataFile = "exportKrkRaw.osm";
         final String graphExportFile = "KrkGraph.gv";
+        final String rawDataPath = "src/main/java/OSMToGraph/rawData/";
+        final String graphExportPath = "src/main/java/OSMToGraph/exportedGraphs/";
+        // area["admin_level"=6][name="Kraków"]->.a;(way(area.a)["highway"~"^(motorway|trunk|primary|secondary|tertiary|unclassified|residential|motorway_link|trunk_link|primary_link|secondary_link|tertiary_link|living_street|service|pedestrian|track|road)$"]["crossing"!~"."]["name"];);out meta;>;out meta qt;
+        final String query = "area[\"admin_level\"=6][name=\"Kraków\"]->.a;(way(area.a)[\"highway\"~\"^(motorway|trunk|primary|secondary|tertiary|unclassified|residential|motorway_link|trunk_link|primary_link|secondary_link|tertiary_link|living_street|service|pedestrian|track|road)$\"][\"crossing\"!~\".\"][\"name\"];);out meta;>;out meta qt;";
+        final String apiURL = "https://overpass-api.de/api/interpreter";
 
-        FileInputStream fin = new FileInputStream("src/main/java/OSMToGraph/rawData/" + rawDataFile);
-        BufferedInputStream bin = new BufferedInputStream(fin);
-
-        ParsingMapDataHandler dataHandler = new ParsingMapDataHandler();
-        OsmMapDataFactory factory = new OsmMapDataFactory();
-        MapDataParser mapDataParser = new MapDataParser(dataHandler, factory);
-        mapDataParser.parse(bin);
-
-        Graph<Node, ImportedEdge> graph = dataHandler.getGraph();
-        ImportedGraphToDOT.exportGraphToFile(graph, "src/main/java/OSMToGraph/exportedGraphs/" + graphExportFile, dataHandler);
-        // close the file
+        // example of file-based data handling: (It takes about 2 seconds)
+        // START
+        InputStream fin = new FileInputStream(rawDataPath + rawDataFile);
+        ParsingMapDataHandler dataHandler = handleRawData(fin);
+        // close the file:
         fin.close();
         // END
+
+        // example of request-based data handling: (It takes about 16 seconds)
+//        // START
+//        HttpURLConnection urlConn = makeRequest(apiURL, query);
+//        InputStream inputStream = urlConn.getInputStream();
+//        ParsingMapDataHandler dataHandler = handleRawData(inputStream);
+//        // END
+
+        Graph<Node, ImportedEdge> graph = dataHandler.getGraph();
+
+        // exporting the graph to a DOT file:
+        ImportedGraphToDOT.exportGraphToFile(graph, graphExportPath + graphExportFile, dataHandler);
 
         // example of calculating the route between two points (the result is a GraphPath)
         // and the distance between these points
@@ -45,5 +61,52 @@ public class FileBasedDOTExportTest {
         System.out.println(path1.getEdgeList());
         System.out.println(path1.getWeight());
         //END
+
+        // an example of searching for the nearest node for a selected point
+        //START
+        LatLon latlon = new OsmLatLon(80.001769, 100.8174569);
+        Long nearestNodeId = findNearestNode(latlon, myNodes);
+        System.out.println(nearestNodeId);
+        //END
+    }
+
+    public static ParsingMapDataHandler handleRawData(InputStream inputStream) throws IOException {
+
+        // TODO dodać jakiś konwerter do pliku wejściowego z surowymi danymi
+        //  obecnie ręcznie konwertuję w Notepad++ z UTF-8 BOM na UTF-8
+
+        BufferedInputStream bin = new BufferedInputStream(inputStream);
+        ParsingMapDataHandler dataHandler = new ParsingMapDataHandler();
+        OsmMapDataFactory factory = new OsmMapDataFactory();
+        MapDataParser mapDataParser = new MapDataParser(dataHandler, factory);
+        mapDataParser.parse(bin);
+
+        return dataHandler;
+    }
+
+    public static HttpURLConnection makeRequest(String apiURL, String query) throws IOException {
+        URL url = new URL(apiURL);
+        HttpURLConnection urlConn = (HttpURLConnection) url.openConnection();
+        urlConn.setRequestMethod("POST");
+        urlConn.setDoOutput(true);
+        urlConn.setRequestProperty("data", query);
+        urlConn.setRequestProperty("Content-Length", Integer.toString(query.length()));
+        urlConn.getOutputStream().write(query.getBytes(StandardCharsets.UTF_8));
+        return urlConn;
+    }
+
+    public static Long findNearestNode(LatLon point, HashMap<Long, Node> myNodes) {
+        double distance = Double.MAX_VALUE;
+        Long id = null;
+        for (Map.Entry<Long, Node> me : myNodes.entrySet()) {
+            LatLon nodePosition = me.getValue().getPosition();
+            double tmpDistance = Haversine.distance(point.getLatitude(), point.getLongitude(), nodePosition.getLatitude(), nodePosition.getLongitude());
+            if (tmpDistance < distance) {
+                distance = tmpDistance;
+                id = me.getValue().getId();
+            }
+        }
+        System.out.println(distance);
+        return id;
     }
 }

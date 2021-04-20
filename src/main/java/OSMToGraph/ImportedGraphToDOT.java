@@ -31,6 +31,7 @@ public class ImportedGraphToDOT {
         }
     }
 
+    //TODO import grafu z pliku nie działa
     public static void importGraph(Graph<Node, ImportedEdge> graph, String fileName) throws FileNotFoundException {
 
         BufferedReader reader = new BufferedReader(new FileReader(fileName));
