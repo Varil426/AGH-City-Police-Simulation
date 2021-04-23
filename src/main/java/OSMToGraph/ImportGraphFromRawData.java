@@ -54,6 +54,9 @@ public class ImportGraphFromRawData {
         entities.Map map = createMap(defaultCityName);
         Graph<Node, ImportedEdge> graph = map.getGraph();
         HashMap<Long, Node> myNodes = map.getMyNodes();
+        List<District> districts = map.getDistricts();
+        System.out.println(districts.get(0).contains(new OsmLatLon(50.0192, 19.9258)));
+        System.out.println(districts.get(0).contains(new OsmLatLon(50.0385, 19.9155)));
 
         // example of calculating the route between two points (the result is a GraphPath)
         // and the distance between these points
