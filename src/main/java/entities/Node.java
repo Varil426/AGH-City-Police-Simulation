@@ -3,6 +3,8 @@ package entities;
 import java.util.ArrayList;
 import java.util.List;
 
+// TODO do usunięcia najprawdopodobniej
+
 public class Node extends Entity {
     private List<Edge> edges;
 

@@ -1,17 +1,17 @@
 package OSMToGraph;
 
-import de.westnordost.osmapi.map.data.BoundingBox;
-import de.westnordost.osmapi.map.data.Node;
-import de.westnordost.osmapi.map.data.Relation;
-import de.westnordost.osmapi.map.data.Way;
+import de.westnordost.osmapi.map.data.*;
 import de.westnordost.osmapi.map.handler.DefaultMapDataHandler;
 import de.westnordost.osmapi.map.handler.MapDataHandler;
+import entities.District;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultDirectedWeightedGraph;
 import utils.Haversine;
 
+import java.awt.geom.Path2D;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 
@@ -19,12 +19,35 @@ public class ParsingMapDataHandler extends DefaultMapDataHandler implements MapD
 
     private final Graph<Node, ImportedEdge> graph = new DefaultDirectedWeightedGraph<>(ImportedEdge.class);
 
+    private final List<Relation> relations = new ArrayList<>();
+
+    private final HashMap<Long, List<Long>> waysInRelation = new HashMap<>();
+
     private final HashMap<Long, Node> myNodes = new HashMap<>();
     private final List<ImportedEdge> myEdges = new ArrayList<>();
+
+    private final HashMap<Long, Way> myWays = new HashMap<>();
+
+
     private Double minLatitude;
     private Double maxLatitude;
     private Double minLongitude;
     private Double maxLongitude;
+
+    public static int findNearestNode(Node node, List<Node> nodes) {
+        double distance = Double.MAX_VALUE;
+        int id = 0;
+        double latitude = node.getPosition().getLatitude();
+        double longitude = node.getPosition().getLongitude();
+        for (int i = 0; i < nodes.size(); i++) {
+            double tmpDistance = Haversine.distance(latitude, longitude, nodes.get(i).getPosition().getLatitude(), nodes.get(i).getPosition().getLongitude());
+            if (tmpDistance < distance) {
+                distance = tmpDistance;
+                id = i;
+            }
+        }
+        return id;
+    }
 
     public HashMap<Long, Node> getNodesMap() {
         return this.myNodes;
@@ -60,6 +83,8 @@ public class ParsingMapDataHandler extends DefaultMapDataHandler implements MapD
     @Override
     public void handle(Way way) {
         super.handle(way);
+
+        myWays.put(way.getId(), way);
 
         long previousNodeID = -1;
         boolean oneway = false;
@@ -101,7 +126,15 @@ public class ParsingMapDataHandler extends DefaultMapDataHandler implements MapD
 
     @Override
     public void handle(Relation relation) {
-        super.handle(relation);
+        List<RelationMember> members = relation.getMembers();
+        List<Long> ways = new ArrayList<>();
+        for (RelationMember r : members) {
+            if (r.getType().name().equals("WAY") && r.getRole().equals("outer")) {
+                ways.add(r.getRef());
+            }
+        }
+        waysInRelation.put(relation.getId(), ways);
+        relations.add(relation);
     }
 
     public Graph<Node, ImportedEdge> getGraph() {
@@ -123,13 +156,12 @@ public class ParsingMapDataHandler extends DefaultMapDataHandler implements MapD
 
             // adds an edge and its weight:
             boolean b = graph.addEdge(nodeS, nodeT, edge);
-            if (b){
+            if (b) {
                 graph.setEdgeWeight(edge, dist);
-            }
-            else {
+            } else {
                 // TODO kilka krawędzi dla Krakowa się nie dodają - nie mam pojęcia dlaczego
                 //  hint: jak jest graf ważony to dodaje się do pliku słowo kluczowe "strict"
-                System.out.println("edge has not been added to the graph");
+//                System.out.println("edge has not been added to the graph");
             }
         }
         return graph;
@@ -141,5 +173,64 @@ public class ParsingMapDataHandler extends DefaultMapDataHandler implements MapD
 
     public Double getMinLongitude() {
         return minLongitude;
+    }
+
+    public Double getMaxLatitude() {
+        return maxLatitude;
+    }
+
+    public Double getMaxLongitude() {
+        return maxLongitude;
+    }
+
+    public List<Relation> getRelations() {
+        return relations;
+    }
+
+    public List<District> getDistricts() {
+
+        List<District> districts = new ArrayList<>();
+
+        for (Relation r : relations) {
+            List<Node> unorderedNodes = new ArrayList<>();
+            List<Long> ways = waysInRelation.get(r.getId());
+
+            for (Long wayID : ways) {
+                Way way = myWays.get(wayID);
+                List<Long> nodeIds = way.getNodeIds();
+                for (Long node : nodeIds) {
+                    unorderedNodes.add(myNodes.get(node));
+                }
+            }
+
+            unorderedNodes = new ArrayList<>(new HashSet<>(unorderedNodes));
+
+            List<Node> sortedNodes = new ArrayList<>();
+            Node removed1 = unorderedNodes.remove(0);
+            sortedNodes.add(removed1);
+            int size = unorderedNodes.size();
+            for (int i = 0; i < size; i++) {
+                Node node = sortedNodes.get(sortedNodes.size() - 1);
+                int nearestNode = findNearestNode(node, unorderedNodes);
+                sortedNodes.add(unorderedNodes.remove(nearestNode));
+            }
+
+            double[] lats = new double[sortedNodes.size()];
+            double[] lons = new double[sortedNodes.size()];
+            for (int i = 0; i < sortedNodes.size(); ++i) {
+                LatLon position = sortedNodes.get(i).getPosition();
+                lats[i] = position.getLatitude();
+                lons[i] = position.getLongitude();
+            }
+
+            Path2D path = new Path2D.Double();
+            path.moveTo(lats[0], lons[0]);
+            for (int i = 1; i < lats.length; ++i) {
+                path.lineTo(lats[i], lons[i]);
+            }
+            path.closePath();
+            districts.add(new District(r.getId(), r.getTags().get("name"), path));
+        }
+        return districts;
     }
 }

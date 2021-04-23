@@ -2,52 +2,66 @@ package OSMToGraph;
 
 import de.westnordost.osmapi.map.MapDataParser;
 import de.westnordost.osmapi.map.OsmMapDataFactory;
+import de.westnordost.osmapi.map.data.BoundingBox;
 import de.westnordost.osmapi.map.data.LatLon;
 import de.westnordost.osmapi.map.data.Node;
 import de.westnordost.osmapi.map.data.OsmLatLon;
+import entities.District;
+import org.apache.commons.io.FileUtils;
 import org.jgrapht.Graph;
 import org.jgrapht.GraphPath;
 import org.jgrapht.alg.shortestpath.AStarShortestPath;
 import utils.Haversine;
 
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
 public class ImportGraphFromRawData {
 
-    static String rawDataFile = "exportKrkRaw.osm";
+    static String defaultCityName = "Kraków";
+    static String rawDataFile1 = "export";
+    static String rawDataFile2 = "Raw.osm";
+    static String rawDataDistrictFile1 = "export";
+    static String rawDataDistrictFile2 = "DistrictsRaw.osm";
     static String graphExportFile = "KrkGraph.gv";
     static String rawDataPath = "src/main/java/OSMToGraph/rawData/";
     static String graphExportPath = "src/main/java/OSMToGraph/exportedGraphs/";
     // area["admin_level"=6][name="Kraków"]->.a;(way(area.a)["highway"~"^(motorway|trunk|primary|secondary|tertiary|unclassified|residential|motorway_link|trunk_link|primary_link|secondary_link|tertiary_link|living_street|service|pedestrian|track|road)$"]["crossing"!~"."]["name"];);out meta;>;out meta qt;
-    static String query = "area[\"admin_level\"=6][name=\"Kraków\"]->.a;(way(area.a)[\"highway\"~\"^(motorway|trunk|primary|secondary|tertiary|unclassified|residential|motorway_link|trunk_link|primary_link|secondary_link|tertiary_link|living_street|service|pedestrian|track|road)$\"][\"crossing\"!~\".\"][\"name\"];);out meta;>;out meta qt;";
+    static String query1 = "area[\"admin_level\"=6][name=\"";
+    static String query2 = "\"]->.a;(way(area.a)[\"highway\"~\"^(motorway|trunk|primary|secondary|tertiary|unclassified|residential|motorway_link|trunk_link|primary_link|secondary_link|tertiary_link|living_street|service|pedestrian|track|road)$\"][\"crossing\"!~\".\"][\"name\"];);out meta;>;out meta qt;";
     static String apiURL = "https://overpass-api.de/api/interpreter";
+    // area["admin_level"=6][name="Kraków"]->.a;(relation(area.a)["admin_level"=9][boundary=administrative]["name"];);out meta;>;out meta qt;
+    static String queryDistrict1 = "area[\"admin_level\"=6][name=\"";
+    static String queryDistrict2 = "]->.a;(relation(area.a)[\"admin_level\"=9][boundary=administrative][\"name\"];);out meta;>;out meta qt;";
 
-    public static void main(String[] args) throws IOException {
 
-        // example of file-based data handling: (It takes about 2 seconds)
-//        ParsingMapDataHandler dataHandler = handleRawDataFromFile();
+    public static void main(String[] args) throws IOException, InterruptedException {
 
-        // example of request-based data handling: (It takes about 16 seconds)
-        ParsingMapDataHandler dataHandler = handleRawDataFromRequest();
+//        // example of file-based data handling: (It takes about 2 seconds)
+//        ParsingMapDataHandler dataHandler = handleRawDataFromFile(defaultCityName);
+//
+//        // example of request-based data handling: (It takes about 16 seconds)
+////        ParsingMapDataHandler dataHandler = handleRawDataFromRequest();
+//
+//        Graph<Node, ImportedEdge> graph = dataHandler.getGraph();
 
-        Graph<Node, ImportedEdge> graph = dataHandler.getGraph();
-
-        // exporting the graph to a DOT file:
-        ImportedGraphToDOT.exportGraphToFile(graph, graphExportPath + graphExportFile, dataHandler);
+        entities.Map map = createMap(defaultCityName);
+        Graph<Node, ImportedEdge> graph = map.getGraph();
+        HashMap<Long, Node> myNodes = map.getMyNodes();
+        List<District> districts = map.getDistricts();
+        System.out.println(districts.get(0).contains(new OsmLatLon(50.0192, 19.9258)));
+        System.out.println(districts.get(0).contains(new OsmLatLon(50.0385, 19.9155)));
 
         // example of calculating the route between two points (the result is a GraphPath)
         // and the distance between these points
         //START
-        HashMap<Long, Node> myNodes = dataHandler.getNodesMap();
+//        HashMap<Long, Node> myNodes = dataHandler.getNodesMap();
         AStarShortestPath<Node, ImportedEdge> path = new AStarShortestPath<>(graph, new Haversine.ownHeuristics());
         GraphPath<Node, ImportedEdge> path1 = path.getPath(myNodes.get(3195641657L), myNodes.get(244399516L));
         System.out.println(path1.getEdgeList());
@@ -62,41 +76,76 @@ public class ImportGraphFromRawData {
         //END
     }
 
-    public static ParsingMapDataHandler handleRawDataFromFile() throws IOException {
-        return handleRawDataFromFile(rawDataPath + rawDataFile);
+    public static entities.Map createMap(String cityName) throws IOException, InterruptedException {
+        ParsingMapDataHandler dataHandler = handleRawData(rawDataPath + rawDataFile1 + cityName + rawDataFile2, query1 + cityName + query2, cityName, false);
+        ParsingMapDataHandler districtDataHandler = handleRawData(rawDataPath + rawDataDistrictFile1 + cityName + rawDataDistrictFile2, queryDistrict1 + cityName + queryDistrict2, cityName, true);
+
+        List<District> districts = districtDataHandler.getDistricts();
+
+        // exporting the graph to a DOT file:
+        ImportedGraphToDOT.exportGraphToFile(dataHandler.getGraph(), graphExportPath + graphExportFile, dataHandler);
+
+        BoundingBox boundingBox = new BoundingBox(dataHandler.getMinLatitude(), dataHandler.getMinLongitude(), dataHandler.getMaxLatitude(), dataHandler.getMaxLongitude());
+        return new entities.Map(dataHandler.getGraph(), dataHandler.getNodesMap(), boundingBox, districts);
     }
 
-    public static ParsingMapDataHandler handleRawDataFromFile(String rawDataFilePath) throws IOException {
-        InputStream fin = new FileInputStream(rawDataFilePath);
-        ParsingMapDataHandler dataHandler = handleRawData(fin);
-        // close the file:
-        fin.close();
+    public static ParsingMapDataHandler handleRawData(String rawDataFilePath, String query, String cityName, boolean districtData) throws IOException, InterruptedException {
+        ParsingMapDataHandler dataHandler;
+        try {
+            InputStream fin = new FileInputStream(rawDataFilePath);
+            dataHandler = handleInputStream(cityName, fin, true, districtData);
+            // close the file:
+            fin.close();
+        } catch (FileNotFoundException | InterruptedException e) {
+            dataHandler = handleRawDataFromRequest(query, cityName, districtData);
+        }
         return dataHandler;
     }
 
-    public static ParsingMapDataHandler handleRawDataFromRequest() throws IOException {
-        return handleRawDataFromRequest(apiURL, query);
-    }
-
-    public static ParsingMapDataHandler handleRawDataFromRequest(String apiURL, String query) throws IOException {
+    public static ParsingMapDataHandler handleRawDataFromRequest(String query, String cityName, boolean districtData) throws IOException, InterruptedException {
         HttpURLConnection urlConn = makeRequest(apiURL, query);
         InputStream inputStream = urlConn.getInputStream();
-        return handleRawData(inputStream);
+        return handleInputStream(cityName, inputStream, false, districtData);
     }
 
-    public static ParsingMapDataHandler handleRawData(InputStream inputStream) throws IOException {
+    public static ParsingMapDataHandler handleInputStream(String cityName, InputStream inputStream, boolean doesFileExist, boolean districtData) throws IOException, InterruptedException {
 
         // TODO dodać jakiś konwerter do pliku wejściowego z surowymi danymi
         //  obecnie ręcznie konwertuję w Notepad++ z UTF-8 BOM na UTF-8
+        //  UPDATE: chyba już po problemie, zostawię to, żeby pamiętać na wszelki
 
-        BufferedInputStream bin = new BufferedInputStream(inputStream);
+        BufferedInputStream bin;
+
+        if (!doesFileExist) {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            inputStream.transferTo(baos);
+            InputStream firstClone = new ByteArrayInputStream(baos.toByteArray());
+            InputStream secondClone = new ByteArrayInputStream(baos.toByteArray());
+
+            writeRawDataToFile(cityName, firstClone, districtData);
+
+            bin = new BufferedInputStream(secondClone);
+        } else {
+            bin = new BufferedInputStream(inputStream);
+        }
+
         ParsingMapDataHandler dataHandler = new ParsingMapDataHandler();
         OsmMapDataFactory factory = new OsmMapDataFactory();
         MapDataParser mapDataParser = new MapDataParser(dataHandler, factory);
         mapDataParser.parse(bin);
-
         return dataHandler;
     }
+
+    public static void writeRawDataToFile(String cityName, InputStream inputStream, boolean districtData) throws IOException {
+        File myObj;
+        if (districtData) {
+            myObj = new File(rawDataPath + rawDataDistrictFile1 + cityName + rawDataDistrictFile2);
+        } else {
+            myObj = new File(rawDataPath + rawDataFile1 + cityName + rawDataFile2);
+        }
+        FileUtils.copyInputStreamToFile(inputStream, myObj);
+    }
+
 
     public static HttpURLConnection makeRequest(String apiURL, String query) throws IOException {
         URL url = new URL(apiURL);
