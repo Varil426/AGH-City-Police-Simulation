@@ -2,9 +2,11 @@ package OSMToGraph;
 
 import de.westnordost.osmapi.map.MapDataParser;
 import de.westnordost.osmapi.map.OsmMapDataFactory;
-import de.westnordost.osmapi.map.data.*;
+import de.westnordost.osmapi.map.data.BoundingBox;
+import de.westnordost.osmapi.map.data.LatLon;
+import de.westnordost.osmapi.map.data.Node;
+import de.westnordost.osmapi.map.data.OsmLatLon;
 import entities.District;
-import math.geom2d.polygon.SimplePolygon2D;
 import org.apache.commons.io.FileUtils;
 import org.jgrapht.Graph;
 import org.jgrapht.GraphPath;
@@ -15,7 +17,6 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -73,31 +74,15 @@ public class ImportGraphFromRawData {
     }
 
     public static entities.Map createMap(String cityName) throws IOException, InterruptedException {
-        ParsingMapDataHandler dataHandler = handleRawData(rawDataPath+rawDataFile1 + cityName + rawDataFile2, query1 + cityName + query2, cityName, false);
-        ParsingMapDataHandler districtDataHandler = handleRawData(rawDataPath+rawDataDistrictFile1 + cityName + rawDataDistrictFile2, queryDistrict1 + cityName + queryDistrict2, cityName, true);
+        ParsingMapDataHandler dataHandler = handleRawData(rawDataPath + rawDataFile1 + cityName + rawDataFile2, query1 + cityName + query2, cityName, false);
+        ParsingMapDataHandler districtDataHandler = handleRawData(rawDataPath + rawDataDistrictFile1 + cityName + rawDataDistrictFile2, queryDistrict1 + cityName + queryDistrict2, cityName, true);
 
-        System.out.println(districtDataHandler.getDistricts().size());
         List<District> districts = districtDataHandler.getDistricts();
-
-//        List<RelationMember> members = districtDataHandler.getRelations().get(0).getMembers();
-//        Map<String, String> tags = districtDataHandler.getRelations().get(0).getTags();
-//        System.out.println(Arrays.toString(members.toArray()));
-//        System.out.println(districtDataHandler.getRelations().get(0).getId());
-//
-//        for (Map.Entry<String, String> entry : tags.entrySet()) {
-//            System.out.print(entry.getKey() + ":" + entry.getValue().toString()+" ; ");
-//        }
-
-//        List<RelationMember> members = districtDataHandler.getRelations().get(0).getMembers();
-//        RelationMember relationMember = members.get(0);
-//        System.out.println(relationMember.getRef() + " ; " + relationMember.getRole() + " " + relationMember.getType());
-
-
-        BoundingBox boundingBox = new BoundingBox(dataHandler.getMinLatitude(), dataHandler.getMinLongitude(), dataHandler.getMaxLatitude(), dataHandler.getMaxLongitude());
 
         // exporting the graph to a DOT file:
         ImportedGraphToDOT.exportGraphToFile(dataHandler.getGraph(), graphExportPath + graphExportFile, dataHandler);
 
+        BoundingBox boundingBox = new BoundingBox(dataHandler.getMinLatitude(), dataHandler.getMinLongitude(), dataHandler.getMaxLatitude(), dataHandler.getMaxLongitude());
         return new entities.Map(dataHandler.getGraph(), dataHandler.getNodesMap(), boundingBox, districts);
     }
 
@@ -115,7 +100,7 @@ public class ImportGraphFromRawData {
     }
 
     public static ParsingMapDataHandler handleRawDataFromRequest(String query, String cityName, boolean districtData) throws IOException, InterruptedException {
-        HttpURLConnection urlConn = makeRequest(apiURL,query);
+        HttpURLConnection urlConn = makeRequest(apiURL, query);
         InputStream inputStream = urlConn.getInputStream();
         return handleInputStream(cityName, inputStream, false, districtData);
     }
@@ -150,9 +135,9 @@ public class ImportGraphFromRawData {
 
     public static void writeRawDataToFile(String cityName, InputStream inputStream, boolean districtData) throws IOException {
         File myObj;
-        if (districtData){
+        if (districtData) {
             myObj = new File(rawDataPath + rawDataDistrictFile1 + cityName + rawDataDistrictFile2);
-        }else{
+        } else {
             myObj = new File(rawDataPath + rawDataFile1 + cityName + rawDataFile2);
         }
         FileUtils.copyInputStreamToFile(inputStream, myObj);

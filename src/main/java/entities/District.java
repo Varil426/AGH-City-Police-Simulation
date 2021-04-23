@@ -1,17 +1,15 @@
 package entities;
 
-import math.geom2d.polygon.SimplePolygon2D;
-
-import java.util.List;
+import java.awt.geom.Path2D;
 
 public class District {
     private Long id;
     private String name;
 
-    private SimplePolygon2D simplePolygon2D;
+    private Path2D boundaries;
 
-    public District(Long id, String name, SimplePolygon2D simplePolygon2D) {
-        this.simplePolygon2D = simplePolygon2D;
+    public District(Long id, String name, Path2D boundaries) {
+        this.boundaries = boundaries;
         this.id = id;
         this.name = name;
     }
@@ -20,8 +18,8 @@ public class District {
         return id;
     }
 
-    public SimplePolygon2D getSimplePolygon2D() {
-        return simplePolygon2D;
+    public Path2D getBoundaries() {
+        return boundaries;
     }
 
     public String getName() {
