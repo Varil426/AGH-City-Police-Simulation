@@ -1,23 +1,31 @@
 package entities;
 
+import math.geom2d.polygon.SimplePolygon2D;
+
 import java.util.List;
 
-public class District extends Entity {
+public class District {
+    private Long id;
+    private String name;
 
-    private List<Point> borders;
+    private SimplePolygon2D simplePolygon2D;
 
-    public District(List<Point> borders, double x, double y) {
-        super(x,y);
-        this.borders = borders;
+    public District(Long id, String name, SimplePolygon2D simplePolygon2D) {
+        this.simplePolygon2D = simplePolygon2D;
+        this.id = id;
+        this.name = name;
     }
 
-    public District(List<Point> borders) {
-        this.borders = borders;
+    public Long getId() {
+        return id;
     }
 
-    public List<Point> getBorders() {
-        return borders;
+    public SimplePolygon2D getSimplePolygon2D() {
+        return simplePolygon2D;
     }
 
+    public String getName() {
+        return name;
+    }
     // TODO Get all nodes in district (?)
 }

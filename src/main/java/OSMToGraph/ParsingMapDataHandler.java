@@ -1,26 +1,38 @@
 package OSMToGraph;
 
-import de.westnordost.osmapi.map.data.BoundingBox;
-import de.westnordost.osmapi.map.data.Node;
-import de.westnordost.osmapi.map.data.Relation;
-import de.westnordost.osmapi.map.data.Way;
+import de.westnordost.osmapi.map.data.*;
 import de.westnordost.osmapi.map.handler.DefaultMapDataHandler;
 import de.westnordost.osmapi.map.handler.MapDataHandler;
+import entities.District;
+import math.geom2d.polygon.Polygon2D;
+import math.geom2d.polygon.SimplePolygon2D;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultDirectedWeightedGraph;
 import utils.Haversine;
 
+import java.awt.*;
+import java.awt.geom.Path2D;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 
 public class ParsingMapDataHandler extends DefaultMapDataHandler implements MapDataHandler {
 
     private final Graph<Node, ImportedEdge> graph = new DefaultDirectedWeightedGraph<>(ImportedEdge.class);
 
+    private final List<Relation> relations = new ArrayList<>();
+    private final HashMap<Long, Relation> myRelations = new HashMap<>();
+
+    private final HashMap<Long, List<Long>> waysInRelation = new HashMap<>();
+
     private final HashMap<Long, Node> myNodes = new HashMap<>();
     private final List<ImportedEdge> myEdges = new ArrayList<>();
+
+    private final HashMap<Long, Way> myWays = new HashMap<>();
+
+
     private Double minLatitude;
     private Double maxLatitude;
     private Double minLongitude;
@@ -60,6 +72,8 @@ public class ParsingMapDataHandler extends DefaultMapDataHandler implements MapD
     @Override
     public void handle(Way way) {
         super.handle(way);
+
+        myWays.put(way.getId(), way);
 
         long previousNodeID = -1;
         boolean oneway = false;
@@ -101,7 +115,15 @@ public class ParsingMapDataHandler extends DefaultMapDataHandler implements MapD
 
     @Override
     public void handle(Relation relation) {
-        super.handle(relation);
+        List<RelationMember> members = relation.getMembers();
+        List<Long> ways = new ArrayList<>();
+        for (RelationMember r: members) {
+            if (r.getType().name().equals("way") && r.getRole().equals("outer")){
+                ways.add(r.getRef());
+            }
+        }
+        waysInRelation.put(relation.getId(), ways);
+        relations.add(relation);
     }
 
     public Graph<Node, ImportedEdge> getGraph() {
@@ -129,7 +151,7 @@ public class ParsingMapDataHandler extends DefaultMapDataHandler implements MapD
             else {
                 // TODO kilka krawędzi dla Krakowa się nie dodają - nie mam pojęcia dlaczego
                 //  hint: jak jest graf ważony to dodaje się do pliku słowo kluczowe "strict"
-                System.out.println("edge has not been added to the graph");
+//                System.out.println("edge has not been added to the graph");
             }
         }
         return graph;
@@ -141,5 +163,46 @@ public class ParsingMapDataHandler extends DefaultMapDataHandler implements MapD
 
     public Double getMinLongitude() {
         return minLongitude;
+    }
+
+    public Double getMaxLatitude() {
+        return maxLatitude;
+    }
+
+    public Double getMaxLongitude() {
+        return maxLongitude;
+    }
+
+    public List<Relation> getRelations() {
+        return relations;
+    }
+
+    public List<District> getDistricts(){
+
+        List<District> districts = new ArrayList<>();
+
+        for (Relation r:relations) {
+            List<Node> nodes = new ArrayList<>();
+
+            List<Long> ways = waysInRelation.get(r.getId());
+            for (Long way: ways) {
+                Way way1 = myWays.get(way);
+                List<Long> nodeIds = way1.getNodeIds();
+                for (Long node: nodeIds) {
+                    nodes.add(myNodes.get(node));
+                }
+            }
+            double[] lats = new double[nodes.size()];
+            double[] lons = new double[nodes.size()];
+            for(int i = 0; i < nodes.size(); ++i) {
+                LatLon position = nodes.get(i).getPosition();
+                lats[i] = position.getLatitude();
+                lats[i] = position.getLatitude();
+            }
+
+            SimplePolygon2D simplePolygon2D = new SimplePolygon2D(lats, lons);
+            districts.add(new District(r.getId(), r.getTags().get("name"), simplePolygon2D));
+        }
+        return districts;
     }
 }
