@@ -2,6 +2,8 @@ package entities;
 
 import utils.Pair;
 
+// TODO do usunięcia najprawdopodobniej
+
 public class Edge {
 
     private Pair<Node, Node> nodes;

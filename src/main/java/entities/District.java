@@ -1,22 +1,35 @@
 package entities;
 
-import java.util.List;
+import de.westnordost.osmapi.map.data.LatLon;
 
-public class District extends Entity {
+import java.awt.geom.Path2D;
 
-    private List<Point> borders;
+public class District {
+    private final Long id;
+    private final String name;
 
-    public District(List<Point> borders, double x, double y) {
-        super(x,y);
-        this.borders = borders;
+    private final Path2D boundaries;
+
+    public District(Long id, String name, Path2D boundaries) {
+        this.boundaries = boundaries;
+        this.id = id;
+        this.name = name;
     }
 
-    public District(List<Point> borders) {
-        this.borders = borders;
+    public Long getId() {
+        return id;
     }
 
-    public List<Point> getBorders() {
-        return borders;
+    public Path2D getBoundaries() {
+        return boundaries;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public boolean contains(LatLon latLon) {
+        return this.boundaries.contains(latLon.getLatitude(), latLon.getLongitude());
     }
 
     // TODO Get all nodes in district (?)
