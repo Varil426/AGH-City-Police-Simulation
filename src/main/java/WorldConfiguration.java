@@ -5,17 +5,13 @@ import java.util.HashMap;
 public class WorldConfiguration {
 
     private String cityName;
-    private HashMap<District, Integer> districtsDangerLevels;
+    private HashMap<District, Integer> districtsDangerLevels = new HashMap<>();
     private int numberOfPolicePatrols;
     private int timeRate;
     private long simulationDuration;
 
-    public WorldConfiguration(String cityName, HashMap<District, Integer> districtsDangerLevels, int numberOfPolicePatrols, int timeRate, long simulationDuration) {
+    public WorldConfiguration(String cityName) {
         this.cityName = cityName;
-        this.districtsDangerLevels = districtsDangerLevels;
-        this.numberOfPolicePatrols = numberOfPolicePatrols;
-        this.timeRate = timeRate;
-        this.simulationDuration = simulationDuration;
     }
 
     public String getCityName() {
@@ -32,5 +28,24 @@ public class WorldConfiguration {
 
     public int getNumberOfPolicePatrols() {
         return numberOfPolicePatrols;
+    }
+
+    public void setNumberOfPolicePatrols(int numberOfPolicePatrols) {
+        this.numberOfPolicePatrols = numberOfPolicePatrols;
+    }
+
+    public int getTimeRate() {
+        return timeRate;
+    }
+
+    public void setTimeRate(int timeRate) {
+        if (timeRate <= 0 ) {
+            throw new IllegalArgumentException("Time rate must be of positive value.");
+        }
+        this.timeRate = timeRate;
+    }
+
+    public void setSimulationDuration(long simulationDuration) {
+        this.simulationDuration = simulationDuration;
     }
 }

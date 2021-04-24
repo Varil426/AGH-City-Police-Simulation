@@ -1,6 +1,6 @@
 import entities.District;
 import entities.Entity;
-import entities.Node;
+import entities.Map;
 import utils.Pair;
 
 import java.awt.geom.Point2D;
@@ -35,7 +35,7 @@ public class World {
     private Pair<Double, Double> latitudes;
 
     // TODO To be discussed
-    private List<Node> map;
+    private Map map;
     private List<District> districts;
 
     // TODO After config is known
