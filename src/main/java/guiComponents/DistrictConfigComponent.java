@@ -48,7 +48,6 @@ public class DistrictConfigComponent extends JPanel {
             district.setThreatLevel(value);
             districtThreatLevelInput.setBorder(UIManager.getLookAndFeel().getDefaults().getBorder("TextField.border"));
         } catch (IllegalArgumentException exception) {
-            //districtThreatLevelInput.setText("");
             districtThreatLevelInput.setBorder(new LineBorder(Color.RED, 2));
         }
     }

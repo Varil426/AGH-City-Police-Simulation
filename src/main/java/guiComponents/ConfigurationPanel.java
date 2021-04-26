@@ -6,13 +6,11 @@ import World.*;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.Arrays;
 
 public class ConfigurationPanel extends JFrame {
 
-    private JFrame frame;
+    private JFrame frame = new JFrame("City Police Simulation");
 
     private JPanel citySelectionPanel;
     private JPanel districtConfigurationPanel;
@@ -32,7 +30,6 @@ public class ConfigurationPanel extends JFrame {
 
     // TODO Add validation for input data
     public void createWindow(){
-        frame = new JFrame("City Police Simulation");
         frame.setSize( 1200, 600);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setResizable(false);
@@ -127,7 +124,12 @@ public class ConfigurationPanel extends JFrame {
     }
 
     private void runSimulationButtonClicked() {
-        // TODO
+        var mapPanel = new MapPanel();
+        mapPanel.createMapWindow();
+
+        // TODO Map panel select points for HQ
+        // TODO Start UI thread that redraws MapPanel
+        // TODO Start simulation
     }
 
     private boolean loadMapIntoWorld(String cityName) {
