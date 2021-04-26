@@ -7,7 +7,6 @@ import org.jxmapviewer.viewer.DefaultTileFactory;
 import org.jxmapviewer.viewer.GeoPosition;
 
 import javax.swing.*;
-import java.util.HashSet;
 
 public class MapPanel extends JFrame {
 

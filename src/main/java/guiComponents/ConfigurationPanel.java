@@ -24,9 +24,10 @@ public class ConfigurationPanel extends JFrame {
 
     private JComboBox<String> countrySelectionComboBox;
     private JComboBox<String> citySelectionComboBox;
-    private JTextField numberOfCityPatrolsTextField;
-    private JTextField timeRateTextField;
-    private JTextField simulationDurationTextField;
+    private JTextField numberOfCityPatrolsTextField = new JTextField();
+    private JTextField timeRateTextField = new JTextField();
+    private JTextField simulationDurationTextField = new JTextField();
+    private JCheckBox drawDistrictsBoundaries = new JCheckBox();;
 
     // TODO Add validation for input data
     public void createWindow(){
@@ -67,20 +68,21 @@ public class ConfigurationPanel extends JFrame {
         frame.add(simulationConfigurationPanel);
 
         simulationConfigurationPanel.add(new JLabel("Simulation Time Rate"));
-        timeRateTextField = new JTextField();
         timeRateTextField.setColumns(textInputColumns);
         simulationConfigurationPanel.add(timeRateTextField);
 
         // TODO Change into better input type than plain seconds
         simulationConfigurationPanel.add(new JLabel("Simulation Duration [sec]"));
-        simulationDurationTextField = new JTextField();
         simulationDurationTextField.setColumns(textInputColumns);
         simulationConfigurationPanel.add(simulationDurationTextField);
 
         simulationConfigurationPanel.add(new JLabel("Number of City Patrols"));
-        numberOfCityPatrolsTextField = new JTextField();
         numberOfCityPatrolsTextField.setColumns(textInputColumns);
         simulationConfigurationPanel.add(numberOfCityPatrolsTextField);
+
+        simulationConfigurationPanel.add(new JLabel("Draw districts boundaries"));
+        simulationConfigurationPanel.add(drawDistrictsBoundaries);
+
 
         buttonsPanel = new JPanel();
         frame.add(buttonsPanel);
@@ -127,6 +129,7 @@ public class ConfigurationPanel extends JFrame {
         var mapPanel = new MapPanel();
         mapPanel.createMapWindow();
 
+        // TODO Set world config from inputs
         // TODO Map panel select points for HQ
         // TODO Start UI thread that redraws MapPanel
         // TODO Start simulation
