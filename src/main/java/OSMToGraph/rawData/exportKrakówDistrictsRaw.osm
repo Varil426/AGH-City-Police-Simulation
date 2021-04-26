@@ -1,6 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?><osm version="0.6" generator="Overpass API 0.7.56.9 76e5016d">
+<?xml version="1.0" encoding="UTF-8"?>
+<osm version="0.6" generator="Overpass API 0.7.56.9 76e5016d">
 <note>The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.</note>
-<meta osm_base="2021-04-22T00:00:49Z" areas="2021-04-21T23:00:41Z"/>
+<meta osm_base="2021-04-26T18:06:42Z" areas="2021-04-26T17:01:27Z"/>
 
   <relation id="2398480" version="33" timestamp="2019-07-23T14:52:41Z" changeset="72563252" uid="693154" user="Władysław Komorek">
     <member type="way" ref="301977106" role="outer"/>
@@ -8195,7 +8196,7 @@
   <node id="2000385869" lat="50.1113020" lon="19.9244441" version="2" timestamp="2013-09-29T14:47:25Z" changeset="18094020" uid="693154" user="Władysław Komorek"/>
   <node id="2471540917" lat="50.1072968" lon="19.9275065" version="1" timestamp="2013-09-25T20:43:26Z" changeset="18035266" uid="693154" user="Władysław Komorek"/>
   <node id="2471540919" lat="50.1077074" lon="19.9293568" version="2" timestamp="2013-09-29T14:47:26Z" changeset="18094020" uid="693154" user="Władysław Komorek"/>
-  <node id="2471540920" lat="50.1078647" lon="19.9279985" version="3" timestamp="2019-07-22T12:56:54Z" changeset="72514307" uid="693154" user="Władysław Komorek"/>
+  <node id="2471540920" lat="50.1078647" lon="19.9279985" version="4" timestamp="2021-04-22T12:28:33Z" changeset="103412940" uid="1722488" user="Mateusz Konieczny"/>
   <node id="2471540921" lat="50.1081842" lon="19.9260525" version="2" timestamp="2013-09-29T14:47:26Z" changeset="18094020" uid="693154" user="Władysław Komorek"/>
   <node id="2471540922" lat="50.1083796" lon="19.9290749" version="2" timestamp="2013-09-29T14:47:26Z" changeset="18094020" uid="693154" user="Władysław Komorek"/>
   <node id="2471540923" lat="50.1102489" lon="19.9252105" version="2" timestamp="2013-09-29T14:47:26Z" changeset="18094020" uid="693154" user="Władysław Komorek"/>
@@ -8214,7 +8215,7 @@
   <node id="2476596660" lat="50.1076529" lon="19.9278850" version="1" timestamp="2013-09-29T14:47:15Z" changeset="18094020" uid="693154" user="Władysław Komorek"/>
   <node id="2476596664" lat="50.1076791" lon="19.9278958" version="1" timestamp="2013-09-29T14:47:15Z" changeset="18094020" uid="693154" user="Władysław Komorek"/>
   <node id="2476596668" lat="50.1077298" lon="19.9291543" version="1" timestamp="2013-09-29T14:47:15Z" changeset="18094020" uid="693154" user="Władysław Komorek"/>
-  <node id="2476596671" lat="50.1077537" lon="19.9279504" version="1" timestamp="2013-09-29T14:47:15Z" changeset="18094020" uid="693154" user="Władysław Komorek"/>
+  <node id="2476596671" lat="50.1077560" lon="19.9279493" version="2" timestamp="2021-04-22T12:28:33Z" changeset="103412940" uid="1722488" user="Mateusz Konieczny"/>
   <node id="2476596673" lat="50.1077803" lon="19.9293758" version="1" timestamp="2013-09-29T14:47:16Z" changeset="18094020" uid="693154" user="Władysław Komorek"/>
   <node id="2476596677" lat="50.1077994" lon="19.9286060" version="2" timestamp="2019-07-22T12:56:55Z" changeset="72514307" uid="693154" user="Władysław Komorek"/>
   <node id="2476596680" lat="50.1078150" lon="19.9264593" version="1" timestamp="2013-09-29T14:47:16Z" changeset="18094020" uid="693154" user="Władysław Komorek"/>
@@ -8270,6 +8271,7 @@
   <node id="6637517322" lat="50.1103128" lon="19.9251179" version="1" timestamp="2019-07-22T12:56:54Z" changeset="72514307" uid="693154" user="Władysław Komorek"/>
   <node id="6637517323" lat="50.1104710" lon="19.9249579" version="1" timestamp="2019-07-22T12:56:54Z" changeset="72514307" uid="693154" user="Władysław Komorek"/>
   <node id="6637517324" lat="50.1105573" lon="19.9249123" version="1" timestamp="2019-07-22T12:56:54Z" changeset="72514307" uid="693154" user="Władysław Komorek"/>
+  <node id="8655451599" lat="50.1073074" lon="19.9270659" version="1" timestamp="2021-04-22T12:27:52Z" changeset="103412889" uid="1722488" user="Mateusz Konieczny"/>
   <node id="2000385838" lat="50.1085195" lon="19.9311095" version="2" timestamp="2013-09-29T14:47:25Z" changeset="18094020" uid="693154" user="Władysław Komorek"/>
   <node id="2471540916" lat="50.1068660" lon="19.9305141" version="2" timestamp="2013-09-29T14:47:26Z" changeset="18094020" uid="693154" user="Władysław Komorek"/>
   <node id="2471540918" lat="50.1074736" lon="19.9312038" version="2" timestamp="2013-09-29T14:47:26Z" changeset="18094020" uid="693154" user="Władysław Komorek"/>
@@ -19747,7 +19749,7 @@
     <nd ref="2473550512"/>
     <tag k="source" v="emuia"/>
   </way>
-  <way id="239883608" version="4" timestamp="2021-03-24T23:26:53Z" changeset="101678014" uid="3199858" user="Mateusz Konieczny - bot account">
+  <way id="239883608" version="5" timestamp="2021-04-22T12:27:52Z" changeset="103412889" uid="1722488" user="Mateusz Konieczny">
     <nd ref="2000385790"/>
     <nd ref="2476596534"/>
     <nd ref="2476596540"/>
@@ -19828,6 +19830,7 @@
     <nd ref="2476596631"/>
     <nd ref="2476596633"/>
     <nd ref="2476596642"/>
+    <nd ref="8655451599"/>
     <nd ref="2000385819"/>
     <nd ref="2476596680"/>
     <nd ref="2476596724"/>
