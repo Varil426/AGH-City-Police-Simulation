@@ -1,6 +1,8 @@
+package World;
+
 import entities.District;
 import entities.Entity;
-import entities.Node;
+import entities.Map;
 import utils.Pair;
 
 import java.awt.geom.Point2D;
@@ -34,12 +36,10 @@ public class World {
     private Pair<Double, Double> longitudes;
     private Pair<Double, Double> latitudes;
 
-    // TODO To be discussed
-    private List<Node> map;
+    private Map map;
     private List<District> districts;
 
-    // TODO After config is known
-    //private Config worldConfig;
+    private WorldConfiguration worldConfig;
 
 
     private World() {
@@ -49,8 +49,12 @@ public class World {
         this.startTime = LocalDateTime.now();
     }
 
-    public void setConfig() {
-        // TODO After config is known
+    public void setConfig(WorldConfiguration worldConfig) {
+        this.worldConfig = worldConfig;
+    }
+
+    public WorldConfiguration getConfig() {
+        return worldConfig;
     }
 
     public List<Entity> getAllEntities() {
@@ -70,4 +74,11 @@ public class World {
         return (long)(duration.getSeconds() + duration.getNano() / Math.pow(10, 9)); //TODO When config * this.config.getTimeRate();
     }
 
+    public Map getMap() {
+        return map;
+    }
+
+    public void setMap(Map map) {
+        this.map = map;
+    }
 }
