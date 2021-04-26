@@ -38,7 +38,7 @@ public class ImportGraphFromRawData {
     static String apiURL = "https://overpass-api.de/api/interpreter";
     // area["admin_level"=6][name="Kraków"]->.a;(relation(area.a)["admin_level"=9][boundary=administrative]["name"];);out meta;>;out meta qt;
     static String queryDistrict1 = "area[\"admin_level\"=6][name=\"";
-    static String queryDistrict2 = "]->.a;(relation(area.a)[\"admin_level\"=9][boundary=administrative][\"name\"];);out meta;>;out meta qt;";
+    static String queryDistrict2 = "\"]->.a;(relation(area.a)[\"admin_level\"=9][boundary=administrative][\"name\"];);out meta;>;out meta qt;";
 
 
     public static void main(String[] args) throws IOException, InterruptedException {
