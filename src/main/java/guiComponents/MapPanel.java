@@ -3,10 +3,13 @@ package guiComponents;
 import World.World;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.OSMTileFactoryInfo;
+import org.jxmapviewer.input.PanMouseInputListener;
+import org.jxmapviewer.input.ZoomMouseWheelListenerCursor;
 import org.jxmapviewer.viewer.DefaultTileFactory;
 import org.jxmapviewer.viewer.GeoPosition;
 
 import javax.swing.*;
+import java.util.HashSet;
 
 public class MapPanel extends JFrame {
 
@@ -17,6 +20,8 @@ public class MapPanel extends JFrame {
         var info = new OSMTileFactoryInfo();
         var tileFactory = new DefaultTileFactory(info);
         mapViewer.setTileFactory(tileFactory);
+        mapViewer.addMouseWheelListener(new ZoomMouseWheelListenerCursor(mapViewer));
+        mapViewer.addMouseMotionListener(new PanMouseInputListener(mapViewer));
     }
 
     public void createMapWindow() {
@@ -39,14 +44,14 @@ public class MapPanel extends JFrame {
         ));
 
         // TODO Add automatic zoom calculation
-        /*mapViewer.calculateZoomFrom(new HashSet<GeoPosition>() {
+        /*mapViewer.calculateZoomFrom(new HashSet<>() {
             {
                 add(minCoordinates);
                 add(maxCoordinates);
             }
-        });
+        });*/
         //mapViewer.setZoom(mapViewer.getZoom() / 2);
-        mapViewer.setZoom(mapViewer.getZoom());*/
+        //mapViewer.setZoom(mapViewer.getZoom());
         mapViewer.setZoom(7);
 
         frame.getContentPane().add(mapViewer);
