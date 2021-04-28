@@ -28,9 +28,6 @@ public abstract class Entity {
     }
 
     public void setLatitude(double latitude) {
-        if (latitude < 0) {
-            throw new IllegalArgumentException("X must be greater than 0.");
-        }
         this.latitude = latitude;
     }
 
@@ -39,9 +36,6 @@ public abstract class Entity {
     }
 
     public void setLongitude(double longitude) {
-        if (longitude < 0) {
-            throw new IllegalArgumentException("X must be greater than 0.");
-        }
         this.longitude = longitude;
     }
 
