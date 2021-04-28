@@ -62,11 +62,11 @@ public class World {
     }
 
     public List<Entity> getEntitiesNear(double x, double y, double range) {
-        return this.allEntities.stream().filter(entity -> Point2D.distance(entity.getX(), entity.getY(), x, y) <= range).collect(Collectors.toList());
+        return this.allEntities.stream().filter(entity -> Point2D.distance(entity.getLatitude(), entity.getLongitude(), x, y) <= range).collect(Collectors.toList());
     }
 
     public List<Entity> getEntitiesNear(Entity target, double range) {
-        return getEntitiesNear(target.getX(), target.getY(), range);
+        return getEntitiesNear(target.getLatitude(), target.getLongitude(), range);
     }
 
     public long getSimulationTime() {

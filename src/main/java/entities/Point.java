@@ -2,7 +2,7 @@ package entities;
 
 public class Point extends Entity {
 
-    public Point(double x, double y) {
-        super(x,y);
+    public Point(double latitude, double longitude) {
+        super(latitude,longitude);
     }
 }

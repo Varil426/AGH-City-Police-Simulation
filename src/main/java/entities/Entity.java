@@ -1,44 +1,52 @@
 package entities;
 
+import de.westnordost.osmapi.map.data.LatLon;
+import de.westnordost.osmapi.map.data.OsmLatLon;
+
 import java.util.UUID;
 
 // TODO Add entities in code documentation
 public abstract class Entity {
 
-    private UUID uniqueID;
-    private double x = 0;
-    private double y = 0;
+    private UUID uniqueID = UUID.randomUUID();;
+    private double latitude = 0;
+    private double longitude = 0;
 
-    public Entity() {
-        uniqueID = UUID.randomUUID();
+    protected Entity() {}
+
+    public Entity(double latitude, double longitude) {
+        this.setLatitude(latitude);
+        this.setLongitude(longitude);
     }
 
-    public Entity(double x, double y) {
-        this();
-        this.setX(x);
-        this.setY(y);
+    public Entity(LatLon position) {
+        this(position.getLatitude(), position.getLongitude());
     }
 
-    public double getX() {
-        return x;
+    public double getLatitude() {
+        return latitude;
     }
 
-    public void setX(double x) {
-        if (x < 0) {
+    public void setLatitude(double latitude) {
+        if (latitude < 0) {
             throw new IllegalArgumentException("X must be greater than 0.");
         }
-        this.x = x;
+        this.latitude = latitude;
     }
 
-    public double getY() {
-        return y;
+    public double getLongitude() {
+        return longitude;
     }
 
-    public void setY(double y) {
-        if (y < 0) {
+    public void setLongitude(double longitude) {
+        if (longitude < 0) {
             throw new IllegalArgumentException("X must be greater than 0.");
         }
-        this.y = y;
+        this.longitude = longitude;
+    }
+
+    public LatLon getPosition() {
+        return new OsmLatLon(latitude, longitude);
     }
 
     public UUID getUniqueID() {

@@ -4,7 +4,7 @@ import de.westnordost.osmapi.map.data.LatLon;
 
 import java.awt.geom.Path2D;
 
-public class District {
+public class District extends Entity {
     private final Long id;
     private final String name;
 
@@ -13,6 +13,8 @@ public class District {
     private int threatLevel = 0;
 
     public District(Long id, String name, Path2D boundaries) {
+        // TODO super(x, y) - calculate center of a district
+
         this.boundaries = boundaries;
         this.id = id;
         this.name = name;

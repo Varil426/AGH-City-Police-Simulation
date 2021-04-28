@@ -6,13 +6,12 @@ public abstract class Incident extends Entity implements IEvent {
     private long startTime;
 
     public Incident() {
-        super();
 
         // TODO set time of last update to creation time from world, set start time
     }
 
-    public Incident(double x, double y) {
-        super(x,y);
+    public Incident(double latitude, double longitude) {
+        super(latitude,longitude);
 
         // TODO set time of last update to creation time from world, set start time
     }

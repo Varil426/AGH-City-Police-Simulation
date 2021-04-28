@@ -9,16 +9,16 @@ public class Firing extends Incident {
     private final int requiredPatrols;
     private List<Patrol> patrolsSolving = new ArrayList<>();
 
-    public Firing(double x, double y) {
-        super(x, y);
+    public Firing(double latitude, double longitude) {
+        super(latitude, longitude);
 
         // TODO Parameters random selection
         this.requiredPatrols = 2;
         this.strength = 500;
     }
 
-    public Firing(double x, double y, int requiredPatrols, int initialStrength) {
-        super(x, y);
+    public Firing(double latitude, double longitude, int requiredPatrols, int initialStrength) {
+        super(latitude, longitude);
         this.requiredPatrols = requiredPatrols;
         this.strength = initialStrength;
     }

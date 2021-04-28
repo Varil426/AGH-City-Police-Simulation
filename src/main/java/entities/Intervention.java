@@ -8,8 +8,8 @@ public class Intervention extends Incident {
 
     private Patrol patrolSolving;
 
-    public Intervention(double x, double y) {
-        super(x, y);
+    public Intervention(double latitude, double longitude) {
+        super(latitude, longitude);
 
         // TODO Random parameters selection
         this.duration = 0;
@@ -17,16 +17,16 @@ public class Intervention extends Incident {
         this.timeToChange = -1;
     }
 
-    public Intervention(double x, double y, long duration) {
-        super(x, y);
+    public Intervention(double latitude, double longitude, long duration) {
+        super(latitude, longitude);
         this.duration = duration;
 
         this.willChangeIntoFiring = false;
         this.timeToChange = -1;
     }
 
-    public Intervention(double x, double y, long duration, boolean willChangeIntoFiring, long timeToChange) {
-        super(x, y);
+    public Intervention(double latitude, double longitude, long duration, boolean willChangeIntoFiring, long timeToChange) {
+        super(latitude, longitude);
         this.duration = duration;
         this.willChangeIntoFiring = willChangeIntoFiring;
         if (timeToChange < 0) {

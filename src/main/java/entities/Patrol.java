@@ -27,15 +27,15 @@ public class Patrol extends Entity implements IAgent {
         basePrivilegedSpeed = 0;
     }
 
-    public Patrol(double x, double y) {
+    public Patrol(double latitude, double longitude) {
         this();
-        this.setX(x);
-        this.setY(y);
+        this.setLatitude(latitude);
+        this.setLongitude(longitude);
     }
 
     public Patrol(double x, double y, double baseTransferSpeed, double basePatrollingSpeed, double basePrivilegedSpeed) {
-        this.setX(x);
-        this.setY(y);
+        this.setLatitude(x);
+        this.setLongitude(y);
         this.basePatrollingSpeed = basePatrollingSpeed;
         this.baseTransferSpeed = baseTransferSpeed;
         this.basePrivilegedSpeed = basePrivilegedSpeed;
