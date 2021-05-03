@@ -7,6 +7,7 @@ import World.*;
 import javax.swing.*;
 import java.awt.*;
 import java.util.Arrays;
+import java.util.HashMap;
 
 public class ConfigurationPanel extends JFrame {
 
@@ -19,8 +20,7 @@ public class ConfigurationPanel extends JFrame {
 
     private final int textInputColumns = 20;
     // TODO Change into dynamically generated
-    private final String[] availableCountries = {"Poland", "Great Britain"};
-    private final String[] availableCities = {"Kraków", "Warszawa", "Rzeszów"};
+    private final HashMap<String, String[]> availablePlaces = new HashMap<>();
 
     private JComboBox<String> countrySelectionComboBox;
     private JComboBox<String> citySelectionComboBox;
@@ -28,6 +28,17 @@ public class ConfigurationPanel extends JFrame {
     private JTextField timeRateTextField = new JTextField();
     private JTextField simulationDurationTextField = new JTextField();
     private JCheckBox drawDistrictsBoundaries = new JCheckBox();;
+
+    public ConfigurationPanel() {
+        availablePlaces.put("Poland", new String[]{"Kraków", "Warszawa", "Rzeszów"});
+        availablePlaces.put("United Kingdom", new String[]{"London", "Sheffield", "Manchester"});
+    }
+
+    private void setDefaultValues() {
+        numberOfCityPatrolsTextField.setText("10");
+        timeRateTextField.setText("450");
+        simulationDurationTextField.setText("86400");
+    }
 
     // TODO Add validation for input data
     public void createWindow(){
@@ -40,9 +51,14 @@ public class ConfigurationPanel extends JFrame {
         citySelectionPanel = new JPanel();
         frame.add(citySelectionPanel);
 
-        countrySelectionComboBox = new JComboBox<>(availableCountries);
+        countrySelectionComboBox = new JComboBox<>(availablePlaces.keySet().toArray(new String[availablePlaces.size()]));
+        countrySelectionComboBox.addActionListener(e -> {
+            var selectedItem = countrySelectionComboBox.getSelectedItem().toString();
+            var newModel = new DefaultComboBoxModel<>(availablePlaces.get(selectedItem));
+            citySelectionComboBox.setModel(newModel);
+        });
         citySelectionPanel.add(countrySelectionComboBox);
-        citySelectionComboBox = new JComboBox<>(availableCities);
+        citySelectionComboBox = new JComboBox<>(availablePlaces.get(availablePlaces.keySet().stream().findFirst().get()));
         citySelectionPanel.add(citySelectionComboBox);
         var citySelectionButton = new Button("Select");
 
@@ -94,6 +110,8 @@ public class ConfigurationPanel extends JFrame {
         setComponentEnabledRecursively(districtConfigurationPanel, false);
         setComponentEnabledRecursively(simulationConfigurationPanel, false);
         setComponentEnabledRecursively(buttonsPanel, false);
+
+        setDefaultValues();
 
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setVisible(true);
