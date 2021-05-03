@@ -51,7 +51,7 @@ public class ConfigurationPanel extends JFrame {
         citySelectionPanel = new JPanel();
         frame.add(citySelectionPanel);
 
-        countrySelectionComboBox = new JComboBox<>(availablePlaces.keySet().toArray(new String[availablePlaces.size()]));
+        countrySelectionComboBox = new JComboBox<>(availablePlaces.keySet().toArray(new String[0]));
         countrySelectionComboBox.addActionListener(e -> {
             var selectedItem = countrySelectionComboBox.getSelectedItem().toString();
             var newModel = new DefaultComboBoxModel<>(availablePlaces.get(selectedItem));
@@ -147,8 +147,13 @@ public class ConfigurationPanel extends JFrame {
         var mapPanel = new MapPanel();
         mapPanel.createMapWindow();
 
-        // TODO Set world config from inputs
-        // TODO Map panel select points for HQ
+        var config = World.getInstance().getConfig();
+        config.setNumberOfPolicePatrols(Integer.parseInt(numberOfCityPatrolsTextField.getText()));
+        config.setTimeRate(Integer.parseInt(timeRateTextField.getText()));
+        config.setSimulationDuration(Long.parseLong(simulationDurationTextField.getText()));
+
+        mapPanel.selectHQLocation();
+
         // TODO Start UI thread that redraws MapPanel
         // TODO Start simulation
     }
