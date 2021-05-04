@@ -39,15 +39,11 @@ public class World {
     private LatLon position;
 
     private Map map;
-    private List<District> districts;
 
     private WorldConfiguration worldConfig;
 
 
     private World() {
-        // TODO
-
-        // TODO Maybe move it to separate method called just after clicking start
         this.startTime = LocalDateTime.now();
     }
 
@@ -71,13 +67,17 @@ public class World {
         allEntities.add(entity);
     }
 
+    public void removeEntity(Entity entity) {
+        allEntities.remove(entity);
+    }
+
     public List<Entity> getEntitiesNear(Entity target, double range) {
         return getEntitiesNear(target.getLatitude(), target.getLongitude(), range);
     }
 
     public long getSimulationTime() {
         var duration = Duration.between(this.startTime, LocalDateTime.now());
-        return (long)(duration.getSeconds() + duration.getNano() / Math.pow(10, 9)); //TODO When config * this.config.getTimeRate();
+        return (long)(duration.getSeconds() + duration.getNano() / Math.pow(10, 9)) * worldConfig.getTimeRate();
     }
 
     public Map getMap() {
@@ -104,5 +104,13 @@ public class World {
 
     public LatLon getPosition() {
         return position;
+    }
+
+    public List<District> getDistricts() {
+        return map.getDistricts();
+    }
+
+    public void setStartTime() {
+        startTime = LocalDateTime.now();
     }
 }

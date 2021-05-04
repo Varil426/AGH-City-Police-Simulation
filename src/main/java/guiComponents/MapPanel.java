@@ -10,6 +10,7 @@ import org.jxmapviewer.input.ZoomMouseWheelListenerCursor;
 import org.jxmapviewer.painter.Painter;
 import org.jxmapviewer.viewer.DefaultTileFactory;
 import org.jxmapviewer.viewer.GeoPosition;
+import simulation.SimulationThread;
 
 import javax.swing.*;
 import java.awt.*;
@@ -71,9 +72,22 @@ public class MapPanel extends JFrame {
 
                 var HQ = new Headquarters(position.getLatitude(), position.getLongitude());
                 World.getInstance().addEntity(HQ);
-                // TODO Start simulation
 
-                mapViewer.repaint();
+                // GUI Drawing thread
+                new Thread(() -> {
+                    while (true) {
+                        // TODO Exit condition
+                        mapViewer.repaint();
+                        try {
+                            Thread.sleep(1000/30);
+                        } catch (Exception exception) {
+                            // Ignore
+                        }
+                    }
+                }).start();
+
+                // Simulation thread
+                new SimulationThread().start();
 
                 mapViewer.removeMouseListener(this);
             }

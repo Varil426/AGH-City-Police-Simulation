@@ -6,6 +6,7 @@ import World.*;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowEvent;
 import java.util.Arrays;
 import java.util.HashMap;
 
@@ -151,6 +152,8 @@ public class ConfigurationPanel extends JFrame {
         config.setNumberOfPolicePatrols(Integer.parseInt(numberOfCityPatrolsTextField.getText()));
         config.setTimeRate(Integer.parseInt(timeRateTextField.getText()));
         config.setSimulationDuration(Long.parseLong(simulationDurationTextField.getText()));
+
+        frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
 
         mapPanel.selectHQLocation();
 

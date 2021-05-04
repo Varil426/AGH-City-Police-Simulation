@@ -1,6 +1,13 @@
 package entities;
 
-public class Patrol extends Entity implements IAgent {
+import de.westnordost.osmapi.map.data.LatLon;
+import org.jxmapviewer.JXMapViewer;
+import org.jxmapviewer.viewer.GeoPosition;
+
+import java.awt.*;
+import java.awt.geom.Ellipse2D;
+
+public class Patrol extends Entity implements IAgent, IDrawable {
 
     public enum State {
         // TODO
@@ -33,6 +40,10 @@ public class Patrol extends Entity implements IAgent {
         this.setLongitude(longitude);
     }
 
+    public Patrol(LatLon position) {
+        this(position.getLatitude(), position.getLongitude());
+    }
+
     public Patrol(double x, double y, double baseTransferSpeed, double basePatrollingSpeed, double basePrivilegedSpeed) {
         this.setLatitude(x);
         this.setLongitude(y);
@@ -54,8 +65,19 @@ public class Patrol extends Entity implements IAgent {
         this.state = state;
     }
 
-    public long getTimeSinceLastMove() {
+    public long getTimeSinceLastActive() {
         // TODO Calc based on world state
         throw  new UnsupportedOperationException();
+    }
+
+    @Override
+    public void drawSelf(Graphics2D g, JXMapViewer mapViewer) {
+        final var size = 10;
+        var point = mapViewer.convertGeoPositionToPoint(new GeoPosition(getLatitude(), getLongitude()));
+
+        var mark = new Ellipse2D.Double((int)(point.getX() - size/2), (int)(point.getY() - size/2), size, size);
+
+        g.setColor(Color.MAGENTA);
+        g.fill(mark);
     }
 }
