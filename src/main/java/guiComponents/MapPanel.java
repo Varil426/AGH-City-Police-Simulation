@@ -24,6 +24,9 @@ public class MapPanel extends JFrame {
         @Override
         public void paint(Graphics2D g, JXMapViewer mapViewer, int width, int height) {
             World.getInstance().getAllEntities().stream().filter(x -> x instanceof IDrawable).forEach(x -> ((IDrawable) x).drawSelf(g, mapViewer));
+            if (World.getInstance().getConfig().isDrawDistrictsBorders()) {
+                World.getInstance().getMap().getDistricts().forEach(x -> x.drawSelf(g, mapViewer));
+            }
         }
     }
 

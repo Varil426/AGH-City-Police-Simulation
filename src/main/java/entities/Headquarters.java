@@ -19,13 +19,16 @@ public class Headquarters extends Entity implements IDrawable {
 
     @Override
     public void drawSelf(Graphics2D g, JXMapViewer mapViewer) {
+        var oldColor = g.getColor();
+        g.setColor(Color.BLUE);
+
         final var size = 10;
         var point = mapViewer.convertGeoPositionToPoint(new GeoPosition(getLatitude(), getLongitude()));
 
         var mark = new Ellipse2D.Double((int)(point.getX() - size/2), (int)(point.getY() - size/2), size, size);
-
-        g.setColor(Color.BLUE);
         g.fill(mark);
+
+        g.setColor(oldColor);
     }
 
     // TODO Lists methods

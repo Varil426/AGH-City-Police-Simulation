@@ -40,15 +40,11 @@ public class World {
 
     private Map map;
 
-    private WorldConfiguration worldConfig;
+    private WorldConfiguration worldConfig = new WorldConfiguration();
 
 
     private World() {
         this.startTime = LocalDateTime.now();
-    }
-
-    public void setConfig(WorldConfiguration worldConfig) {
-        this.worldConfig = worldConfig;
     }
 
     public WorldConfiguration getConfig() {
