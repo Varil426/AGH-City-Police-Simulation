@@ -1,8 +1,11 @@
 package World;
 
+import de.westnordost.osmapi.map.data.LatLon;
+import de.westnordost.osmapi.map.data.OsmLatLon;
 import entities.District;
 import entities.Entity;
 import entities.Map;
+import org.jxmapviewer.viewer.GeoPosition;
 import utils.Pair;
 
 import java.awt.geom.Point2D;
@@ -30,27 +33,18 @@ public class World {
         }
     }
 
-    private List<Entity> allEntities;
+    private List<Entity> allEntities = new ArrayList<>();
     private LocalDateTime startTime;
 
-    private Pair<Double, Double> longitudes;
-    private Pair<Double, Double> latitudes;
+    private LatLon position;
 
     private Map map;
-    private List<District> districts;
 
-    private WorldConfiguration worldConfig;
+    private WorldConfiguration worldConfig = new WorldConfiguration();
 
 
     private World() {
-        // TODO
-
-        // TODO Maybe move it to separate method called just after clicking start
         this.startTime = LocalDateTime.now();
-    }
-
-    public void setConfig(WorldConfiguration worldConfig) {
-        this.worldConfig = worldConfig;
     }
 
     public WorldConfiguration getConfig() {
@@ -65,13 +59,21 @@ public class World {
         return this.allEntities.stream().filter(entity -> Point2D.distance(entity.getLatitude(), entity.getLongitude(), x, y) <= range).collect(Collectors.toList());
     }
 
+    public void addEntity(Entity entity) {
+        allEntities.add(entity);
+    }
+
+    public void removeEntity(Entity entity) {
+        allEntities.remove(entity);
+    }
+
     public List<Entity> getEntitiesNear(Entity target, double range) {
         return getEntitiesNear(target.getLatitude(), target.getLongitude(), range);
     }
 
     public long getSimulationTime() {
         var duration = Duration.between(this.startTime, LocalDateTime.now());
-        return (long)(duration.getSeconds() + duration.getNano() / Math.pow(10, 9)); //TODO When config * this.config.getTimeRate();
+        return (long)(duration.getSeconds() + duration.getNano() / Math.pow(10, 9)) * worldConfig.getTimeRate();
     }
 
     public Map getMap() {
@@ -80,5 +82,31 @@ public class World {
 
     public void setMap(Map map) {
         this.map = map;
+
+        // Set world position to center of a map
+        var minCoordinates = new GeoPosition(
+                map.getGraph().vertexSet().stream().map(x -> x.getPosition().getLatitude()).min(Double::compare).get(),
+                map.getGraph().vertexSet().stream().map(x -> x.getPosition().getLongitude()).min(Double::compare).get());
+
+        var maxCoordinates = new GeoPosition(
+                map.getGraph().vertexSet().stream().map(x -> x.getPosition().getLatitude()).max(Double::compare).get(),
+                map.getGraph().vertexSet().stream().map(x -> x.getPosition().getLongitude()).max(Double::compare).get());
+
+        var latitude = (minCoordinates.getLatitude() + maxCoordinates.getLatitude())/2;
+        var longitude = (minCoordinates.getLongitude() + maxCoordinates.getLongitude())/2;
+
+        position = new OsmLatLon(latitude, longitude);
+    }
+
+    public LatLon getPosition() {
+        return position;
+    }
+
+    public List<District> getDistricts() {
+        return map.getDistricts();
+    }
+
+    public void setStartTime() {
+        startTime = LocalDateTime.now();
     }
 }

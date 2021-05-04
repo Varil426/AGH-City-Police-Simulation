@@ -1,17 +1,34 @@
 package guiComponents;
 
 import World.World;
+import entities.Headquarters;
+import entities.IDrawable;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.OSMTileFactoryInfo;
 import org.jxmapviewer.input.PanMouseInputListener;
 import org.jxmapviewer.input.ZoomMouseWheelListenerCursor;
+import org.jxmapviewer.painter.Painter;
 import org.jxmapviewer.viewer.DefaultTileFactory;
 import org.jxmapviewer.viewer.GeoPosition;
+import simulation.SimulationThread;
 
 import javax.swing.*;
-import java.util.HashSet;
+import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
 public class MapPanel extends JFrame {
+
+    class MapPainter implements Painter<JXMapViewer> {
+
+        @Override
+        public void paint(Graphics2D g, JXMapViewer mapViewer, int width, int height) {
+            World.getInstance().getAllEntities().stream().filter(x -> x instanceof IDrawable).forEach(x -> ((IDrawable) x).drawSelf(g, mapViewer));
+            if (World.getInstance().getConfig().isDrawDistrictsBorders()) {
+                World.getInstance().getMap().getDistricts().forEach(x -> x.drawSelf(g, mapViewer));
+            }
+        }
+    }
 
     private JFrame frame = new JFrame();
     private JXMapViewer mapViewer = new JXMapViewer();
@@ -22,6 +39,8 @@ public class MapPanel extends JFrame {
         mapViewer.setTileFactory(tileFactory);
         mapViewer.addMouseWheelListener(new ZoomMouseWheelListenerCursor(mapViewer));
         mapViewer.addMouseMotionListener(new PanMouseInputListener(mapViewer));
+
+        mapViewer.setOverlayPainter(new MapPainter());
     }
 
     public void createMapWindow() {
@@ -29,19 +48,9 @@ public class MapPanel extends JFrame {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setResizable(false);
 
-        var map = World.getInstance().getMap();
-        var minCoordinates = new GeoPosition(
-                map.getGraph().vertexSet().stream().map(x -> x.getPosition().getLatitude()).min(Double::compare).get(),
-                map.getGraph().vertexSet().stream().map(x -> x.getPosition().getLongitude()).min(Double::compare).get());
+        var position = World.getInstance().getPosition();
 
-        var maxCoordinates = new GeoPosition(
-                map.getGraph().vertexSet().stream().map(x -> x.getPosition().getLatitude()).max(Double::compare).get(),
-                map.getGraph().vertexSet().stream().map(x -> x.getPosition().getLongitude()).max(Double::compare).get());
-
-        mapViewer.setAddressLocation(new GeoPosition(
-                (minCoordinates.getLatitude() + maxCoordinates.getLatitude())/2,
-                (minCoordinates.getLongitude() + maxCoordinates.getLongitude())/2
-        ));
+        mapViewer.setAddressLocation(new GeoPosition(position.getLatitude(), position.getLongitude()));
 
         // TODO Add automatic zoom calculation
         /*mapViewer.calculateZoomFrom(new HashSet<>() {
@@ -56,6 +65,57 @@ public class MapPanel extends JFrame {
 
         frame.getContentPane().add(mapViewer);
         frame.setVisible(true);
+    }
+
+    public void selectHQLocation() {
+        mapViewer.addMouseListener(new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                var position = mapViewer.convertPointToGeoPosition(e.getPoint());
+
+                var HQ = new Headquarters(position.getLatitude(), position.getLongitude());
+                World.getInstance().addEntity(HQ);
+
+                // GUI Drawing thread
+                new Thread(() -> {
+                    while (true) {
+                        // TODO Exit condition
+                        mapViewer.repaint();
+                        try {
+                            Thread.sleep(1000/30);
+                        } catch (Exception exception) {
+                            // Ignore
+                        }
+                    }
+                }).start();
+
+                // Simulation thread
+                new SimulationThread().start();
+
+                mapViewer.removeMouseListener(this);
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+
+            }
+        });
+        JOptionPane.showMessageDialog(this, "Please select HQ location.");
     }
 
 }

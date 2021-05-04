@@ -1,10 +1,15 @@
 package entities;
 
 import de.westnordost.osmapi.map.data.LatLon;
+import org.jxmapviewer.JXMapViewer;
+import org.jxmapviewer.viewer.GeoPosition;
 
+import java.awt.*;
+import java.awt.Point;
 import java.awt.geom.Path2D;
+import java.awt.geom.Point2D;
 
-public class District extends Entity {
+public class District implements IDrawable {
     private final Long id;
     private final String name;
 
@@ -13,8 +18,6 @@ public class District extends Entity {
     private int threatLevel = 0;
 
     public District(Long id, String name, Path2D boundaries) {
-        // TODO super(x, y) - calculate center of a district
-
         this.boundaries = boundaries;
         this.id = id;
         this.name = name;
@@ -45,6 +48,31 @@ public class District extends Entity {
             throw new IllegalArgumentException("Thread level must be between 0 and 10");
         }
         this.threatLevel = threatLevel;
+    }
+
+    @Override
+    public void drawSelf(Graphics2D g, JXMapViewer mapViewer) {
+        var oldStroke = g.getStroke();
+        g.setStroke(new BasicStroke(2));
+
+        var iterator = boundaries.getPathIterator(null);
+        var line = new double[6];
+        iterator.currentSegment(line);
+        iterator.next();
+
+        Point2D last = mapViewer.convertGeoPositionToPoint(new GeoPosition(line[0], line[1]));
+
+        while (!iterator.isDone())
+        {
+            iterator.currentSegment(line);
+            iterator.next();
+            var current = mapViewer.convertGeoPositionToPoint(new GeoPosition(line[0], line[1]));
+
+            g.drawLine((int)current.getX(), (int)current.getY(), (int)last.getX(), (int)last.getY());
+            last = current;
+        }
+
+        g.setStroke(oldStroke);
     }
 
     // TODO Get all nodes in district (?)

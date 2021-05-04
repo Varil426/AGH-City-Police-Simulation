@@ -8,16 +8,17 @@ public class WorldConfiguration {
 
     private String cityName;
     private HashMap<District, Integer> districtsDangerLevels = new HashMap<>();
-    private int numberOfPolicePatrols;
-    private int timeRate;
-    private long simulationDuration;
-
-    public WorldConfiguration(String cityName) {
-        this.cityName = cityName;
-    }
+    private int numberOfPolicePatrols = 10;
+    private int timeRate = 450;
+    private long simulationDuration = 86400;
+    private boolean drawDistrictsBorders = false;
 
     public String getCityName() {
         return cityName;
+    }
+
+    public void setCityName(String cityName) {
+        this.cityName = cityName;
     }
 
     public long getSimulationTime() {
@@ -49,5 +50,13 @@ public class WorldConfiguration {
 
     public void setSimulationDuration(long simulationDuration) {
         this.simulationDuration = simulationDuration;
+    }
+
+    public boolean isDrawDistrictsBorders() {
+        return drawDistrictsBorders;
+    }
+
+    public void setDrawDistrictsBorders(boolean drawDistrictsBorders) {
+        this.drawDistrictsBorders = drawDistrictsBorders;
     }
 }

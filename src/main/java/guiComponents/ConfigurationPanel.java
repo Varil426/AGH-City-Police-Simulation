@@ -6,6 +6,7 @@ import World.*;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowEvent;
 import java.util.Arrays;
 import java.util.HashMap;
 
@@ -27,7 +28,7 @@ public class ConfigurationPanel extends JFrame {
     private JTextField numberOfCityPatrolsTextField = new JTextField();
     private JTextField timeRateTextField = new JTextField();
     private JTextField simulationDurationTextField = new JTextField();
-    private JCheckBox drawDistrictsBoundaries = new JCheckBox();;
+    private JCheckBox drawDistrictsBoundariesCheckBox = new JCheckBox();;
 
     public ConfigurationPanel() {
         availablePlaces.put("Poland", new String[]{"Kraków", "Warszawa", "Rzeszów"});
@@ -35,9 +36,10 @@ public class ConfigurationPanel extends JFrame {
     }
 
     private void setDefaultValues() {
-        numberOfCityPatrolsTextField.setText("10");
-        timeRateTextField.setText("450");
-        simulationDurationTextField.setText("86400");
+        var worldConfig = World.getInstance().getConfig();
+        numberOfCityPatrolsTextField.setText(Integer.toString(worldConfig.getNumberOfPolicePatrols()));
+        timeRateTextField.setText(Integer.toString(worldConfig.getTimeRate()));
+        simulationDurationTextField.setText(Long.toString(worldConfig.getSimulationTime()));
     }
 
     // TODO Add validation for input data
@@ -51,7 +53,7 @@ public class ConfigurationPanel extends JFrame {
         citySelectionPanel = new JPanel();
         frame.add(citySelectionPanel);
 
-        countrySelectionComboBox = new JComboBox<>(availablePlaces.keySet().toArray(new String[availablePlaces.size()]));
+        countrySelectionComboBox = new JComboBox<>(availablePlaces.keySet().toArray(new String[0]));
         countrySelectionComboBox.addActionListener(e -> {
             var selectedItem = countrySelectionComboBox.getSelectedItem().toString();
             var newModel = new DefaultComboBoxModel<>(availablePlaces.get(selectedItem));
@@ -97,7 +99,7 @@ public class ConfigurationPanel extends JFrame {
         simulationConfigurationPanel.add(numberOfCityPatrolsTextField);
 
         simulationConfigurationPanel.add(new JLabel("Draw districts boundaries"));
-        simulationConfigurationPanel.add(drawDistrictsBoundaries);
+        simulationConfigurationPanel.add(drawDistrictsBoundariesCheckBox);
 
 
         buttonsPanel = new JPanel();
@@ -128,7 +130,7 @@ public class ConfigurationPanel extends JFrame {
 
     private void citySelectionButtonClicked() {
         var cityName = citySelectionComboBox.getSelectedItem().toString();
-        World.getInstance().setConfig(new WorldConfiguration(cityName));
+        World.getInstance().getConfig().setCityName(cityName);
         if (loadMapIntoWorld(cityName)) {
             var scrollContent = (JPanel) ((JScrollPane)Arrays.stream(districtConfigurationPanel.getComponents()).filter(x -> x instanceof JScrollPane).findFirst().get()).getViewport().getView();
             scrollContent.removeAll();
@@ -147,8 +149,16 @@ public class ConfigurationPanel extends JFrame {
         var mapPanel = new MapPanel();
         mapPanel.createMapWindow();
 
-        // TODO Set world config from inputs
-        // TODO Map panel select points for HQ
+        var config = World.getInstance().getConfig();
+        config.setNumberOfPolicePatrols(Integer.parseInt(numberOfCityPatrolsTextField.getText()));
+        config.setTimeRate(Integer.parseInt(timeRateTextField.getText()));
+        config.setSimulationDuration(Long.parseLong(simulationDurationTextField.getText()));
+        config.setDrawDistrictsBorders(drawDistrictsBoundariesCheckBox.isSelected());
+
+        frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+
+        mapPanel.selectHQLocation();
+
         // TODO Start UI thread that redraws MapPanel
         // TODO Start simulation
     }
