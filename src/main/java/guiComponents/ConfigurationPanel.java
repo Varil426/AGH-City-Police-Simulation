@@ -10,7 +10,7 @@ import java.awt.event.WindowEvent;
 import java.util.Arrays;
 import java.util.HashMap;
 
-public class ConfigurationPanel extends JFrame {
+public class ConfigurationPanel {
 
     private JFrame frame = new JFrame("City Police Simulation");
 

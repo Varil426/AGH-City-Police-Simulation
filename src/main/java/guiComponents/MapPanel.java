@@ -17,7 +17,7 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
-public class MapPanel extends JFrame {
+public class MapPanel {
 
     class MapPainter implements Painter<JXMapViewer> {
 
@@ -115,7 +115,7 @@ public class MapPanel extends JFrame {
 
             }
         });
-        JOptionPane.showMessageDialog(this, "Please select HQ location.");
+        JOptionPane.showMessageDialog(frame, "Please select HQ location.");
     }
 
 }
