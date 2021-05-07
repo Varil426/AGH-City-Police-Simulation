@@ -71,7 +71,9 @@ public class World {
         return getEntitiesNear(target.getLatitude(), target.getLongitude(), range);
     }
 
-    public long getSimulationTime() {
+    // TODO Refactor into not using that method. Use (long)getSimulationTime()
+    // TODO If simulation hasn't started yet, then return -1.
+    public long getSimulationTimeLong() {
         var duration = Duration.between(this.startTime, LocalDateTime.now());
         return (long)(duration.getSeconds() + duration.getNano() / Math.pow(10, 9)) * worldConfig.getTimeRate();
     }

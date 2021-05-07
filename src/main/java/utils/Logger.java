@@ -65,7 +65,7 @@ public class Logger {
 
     public void logNewMessage(String message) {
         var realDate = LocalDateTime.now();
-        var simulationTime = World.getInstance().getSimulationTime();
+        var simulationTime = World.getInstance().getSimulationTimeLong();
 
         var messageBuilder = new StringBuilder();
         messageBuilder.append(realDate.format(dateFormat));
