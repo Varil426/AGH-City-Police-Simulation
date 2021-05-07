@@ -138,12 +138,11 @@ public class ParsingMapDataHandler extends DefaultMapDataHandler implements MapD
     }
 
     public Graph<Node, ImportedEdge> getGraph() {
-
         // adds all edges to the graph:
         for (ImportedEdge edge : myEdges) {
 
-            Node nodeS = myNodes.get(edge.sourceNode);
-            Node nodeT = myNodes.get(edge.targetNode);
+            Node nodeS = myNodes.get(edge.sourceNodeID);
+            Node nodeT = myNodes.get(edge.targetNodeID);
 
             // calculates the distance (edge weight):
             double dist = Haversine.distance(nodeS.getPosition().getLatitude(),
@@ -154,6 +153,8 @@ public class ParsingMapDataHandler extends DefaultMapDataHandler implements MapD
             dist = Math.round(dist);
             dist /= 100;
 
+            edge.setDistance(dist);
+
             // adds an edge and its weight:
             boolean b = graph.addEdge(nodeS, nodeT, edge);
             if (b) {
@@ -161,7 +162,7 @@ public class ParsingMapDataHandler extends DefaultMapDataHandler implements MapD
             } else {
                 // TODO kilka krawędzi dla Krakowa się nie dodają - nie mam pojęcia dlaczego
                 //  hint: jak jest graf ważony to dodaje się do pliku słowo kluczowe "strict"
-//                System.out.println("edge has not been added to the graph");
+//                System.out.println("edge has not been added to the graph "+nodeS.getId()+" "+nodeT.getId());
             }
         }
         return graph;
