@@ -2,10 +2,12 @@ package simulation;
 
 import World.World;
 import de.westnordost.osmapi.map.data.Node;
+import entities.Entity;
+import entities.IAgent;
 import entities.Patrol;
 
-import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 public class SimulationThread extends Thread {
 
@@ -13,32 +15,44 @@ public class SimulationThread extends Thread {
     public void run() {
         // TODO Set simulation stage
         var world = World.getInstance();
+        World.getInstance().setStartTime();
+
         for (int i = 0; i < world.getConfig().getNumberOfPolicePatrols(); i++) {
             // TODO Change to HQ when movement is ready
-            var startingPoint = (Node)world.getMap().getMyNodes().values().toArray()[ThreadLocalRandom.current().nextInt(world.getMap().getMyNodes().size())];
+            var startingPoint = (Node) world.getMap().getMyNodes().values().toArray()[ThreadLocalRandom.current().nextInt(world.getMap().getMyNodes().size())];
             var newPatrol = new Patrol(startingPoint.getPosition());
+            newPatrol.setState(Patrol.State.PATROLLING);
             world.addEntity(newPatrol);
         }
 
-        World.getInstance().setStartTime();
         while (true) {
             // TODO Exit condition
-            updateStatesOfAgents();
-            performAgentsActions();
             try {
-                sleep(100);
+                updateStatesOfAgents();
+                performAgentsActions();
+                sleep(40);
             } catch (Exception e) {
                 // Ignore
             }
         }
     }
 
-    private void updateStatesOfAgents() {
+    private void updateStatesOfAgents() throws Exception {
         // TODO
+
+        // HQ
+
+        var allPatrols = World.getInstance().getAllEntities().stream().filter(x -> x instanceof Patrol).collect(Collectors.toList());
+        for (Entity patrol : allPatrols) {
+            ((IAgent) patrol).updateStateSelf();
+        }
     }
 
-    private void performAgentsActions() {
+    private void performAgentsActions() throws Exception {
         // TODO
+        var allPatrols = World.getInstance().getAllEntities().stream().filter(x -> x instanceof Patrol).collect(Collectors.toList());
+        for (Entity patrol : allPatrols) {
+            ((IAgent) patrol).performAction();
+        }
     }
-
 }
