@@ -5,29 +5,22 @@ import de.westnordost.osmapi.map.handler.DefaultMapDataHandler;
 import de.westnordost.osmapi.map.handler.MapDataHandler;
 import entities.District;
 import org.jgrapht.Graph;
+import org.jgrapht.alg.connectivity.ConnectivityInspector;
 import org.jgrapht.graph.DefaultDirectedWeightedGraph;
 import utils.Haversine;
 
 import java.awt.geom.Path2D;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 
 public class ParsingMapDataHandler extends DefaultMapDataHandler implements MapDataHandler {
 
     private final Graph<Node, ImportedEdge> graph = new DefaultDirectedWeightedGraph<>(ImportedEdge.class);
-
     private final List<Relation> relations = new ArrayList<>();
-
     private final HashMap<Long, List<Long>> waysInRelation = new HashMap<>();
-
     private final HashMap<Long, Node> myNodes = new HashMap<>();
     private final List<ImportedEdge> myEdges = new ArrayList<>();
-
     private final HashMap<Long, Way> myWays = new HashMap<>();
-
 
     private Double minLatitude;
     private Double maxLatitude;
@@ -160,12 +153,34 @@ public class ParsingMapDataHandler extends DefaultMapDataHandler implements MapD
             if (b) {
                 graph.setEdgeWeight(edge, dist);
             } else {
-                // TODO kilka krawędzi dla Krakowa się nie dodają - nie mam pojęcia dlaczego
-                //  hint: jak jest graf ważony to dodaje się do pliku słowo kluczowe "strict"
-//                System.out.println("edge has not been added to the graph "+nodeS.getId()+" "+nodeT.getId());
+                if (!graph.containsEdge(nodeS, nodeT)) {
+                    System.out.println("edge has not been added to the graph " + nodeS.getId() + " " + nodeT.getId());
+                }
             }
         }
+        checkConnectivity();
         return graph;
+    }
+
+    public void checkConnectivity() {
+        ConnectivityInspector<Node, ImportedEdge> connectivityInspector = new ConnectivityInspector<>(graph);
+        List<Set<Node>> sets = connectivityInspector.connectedSets();
+        int index = 0;
+        int size = 0;
+        for (int i = 0; i < sets.size(); i++) {
+            int sizeTemp = sets.get(i).size();
+            if (size < sizeTemp) {
+                index = i;
+                size = sizeTemp;
+            }
+        }
+        sets.remove(index);
+        for (Set<Node> set : sets) {
+            for (Node n : set) {
+                myNodes.remove(n.getId());
+                graph.removeVertex(n);
+            }
+        }
     }
 
     public Double getMinLatitude() {
