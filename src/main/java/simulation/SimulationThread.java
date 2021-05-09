@@ -39,20 +39,19 @@ public class SimulationThread extends Thread {
 
     private void updateStatesOfAgents() throws Exception {
         // TODO
-
         // HQ
 
-        var allPatrols = World.getInstance().getAllEntities().stream().filter(x -> x instanceof Patrol).collect(Collectors.toList());
-        for (Entity patrol : allPatrols) {
-            ((IAgent) patrol).updateStateSelf();
+        var allAgents = World.getInstance().getAllEntities().stream().filter(x -> x instanceof IAgent).collect(Collectors.toList());
+        for (Entity agents : allAgents) {
+            ((IAgent) agents).updateStateSelf();
         }
     }
 
     private void performAgentsActions() throws Exception {
         // TODO
-        var allPatrols = World.getInstance().getAllEntities().stream().filter(x -> x instanceof Patrol).collect(Collectors.toList());
-        for (Entity patrol : allPatrols) {
-            ((IAgent) patrol).performAction();
+        var allAgents = World.getInstance().getAllEntities().stream().filter(x -> x instanceof IAgent).collect(Collectors.toList());
+        for (Entity agents : allAgents) {
+            ((IAgent) agents).performAction();
         }
     }
 }
