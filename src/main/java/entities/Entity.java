@@ -8,11 +8,12 @@ import java.util.UUID;
 // TODO Add entities in code documentation
 public abstract class Entity {
 
-    private UUID uniqueID = UUID.randomUUID();;
+    private final UUID uniqueID = UUID.randomUUID();
     private double latitude = 0;
     private double longitude = 0;
 
-    protected Entity() {}
+    protected Entity() {
+    }
 
     public Entity(double latitude, double longitude) {
         this.setLatitude(latitude);
@@ -41,6 +42,11 @@ public abstract class Entity {
 
     public LatLon getPosition() {
         return new OsmLatLon(latitude, longitude);
+    }
+
+    public void setPosition(LatLon position) {
+        this.latitude = position.getLatitude();
+        this.longitude = position.getLongitude();
     }
 
     public UUID getUniqueID() {

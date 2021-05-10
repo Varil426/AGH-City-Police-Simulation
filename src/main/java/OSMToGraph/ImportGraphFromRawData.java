@@ -63,7 +63,9 @@ public class ImportGraphFromRawData {
         //START
 //        HashMap<Long, Node> myNodes = dataHandler.getNodesMap();
         AStarShortestPath<Node, ImportedEdge> path = new AStarShortestPath<>(graph, new Haversine.ownHeuristics());
-        GraphPath<Node, ImportedEdge> path1 = path.getPath(myNodes.get(3195641657L), myNodes.get(244399516L));
+//        GraphPath<Node, ImportedEdge> path1 = path.getPath(myNodes.get(3195641657L), myNodes.get(244399516L)); // DZIALA
+        GraphPath<Node, ImportedEdge> path1 = path.getPath(myNodes.get(288621572L), myNodes.get(288161697L)); // NIE DZIALA
+//        GraphPath<Node, ImportedEdge> path1 = path.getPath(myNodes.get(3195641657L), myNodes.get(244399516L));
         System.out.println(path1.getEdgeList());
         System.out.println(path1.getWeight());
         //END
@@ -83,7 +85,7 @@ public class ImportGraphFromRawData {
         List<District> districts = districtDataHandler.getDistricts();
 
         // exporting the graph to a DOT file:
-        ImportedGraphToDOT.exportGraphToFile(dataHandler.getGraph(), graphExportPath + graphExportFile, dataHandler);
+        // ImportedGraphToDOT.exportGraphToFile(dataHandler.getGraph(), graphExportPath + graphExportFile, dataHandler);
 
         BoundingBox boundingBox = new BoundingBox(dataHandler.getMinLatitude(), dataHandler.getMinLongitude(), dataHandler.getMaxLatitude(), dataHandler.getMaxLongitude());
         return new entities.Map(dataHandler.getGraph(), dataHandler.getNodesMap(), boundingBox, districts);
