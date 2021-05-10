@@ -3,9 +3,9 @@ package entities;
 import de.westnordost.osmapi.map.data.LatLon;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.viewer.GeoPosition;
+import utils.Logger;
 
 import java.awt.*;
-import java.awt.Point;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 
@@ -48,6 +48,7 @@ public class District implements IDrawable {
             throw new IllegalArgumentException("Thread level must be between 0 and 10");
         }
         this.threatLevel = threatLevel;
+        Logger.getInstance().logNewMessage(name + " district's thread level has been set to " + threatLevel);
     }
 
     @Override

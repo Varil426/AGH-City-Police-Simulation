@@ -13,6 +13,7 @@ import java.time.format.DateTimeFormatterBuilder;
 import java.util.ArrayList;
 import java.util.List;
 
+// TODO Add debug logger
 public class Logger {
 
     private static volatile Logger instance;

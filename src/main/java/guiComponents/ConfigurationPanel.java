@@ -3,6 +3,7 @@ package guiComponents;
 
 import OSMToGraph.ImportGraphFromRawData;
 import World.*;
+import utils.Logger;
 
 import javax.swing.*;
 import java.awt.*;
@@ -154,6 +155,7 @@ public class ConfigurationPanel {
         config.setTimeRate(Integer.parseInt(timeRateTextField.getText()));
         config.setSimulationDuration(Long.parseLong(simulationDurationTextField.getText()));
         config.setDrawDistrictsBorders(drawDistrictsBoundariesCheckBox.isSelected());
+        Logger.getInstance().logNewMessage("World config has been set.");
 
         frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
 

@@ -1,6 +1,7 @@
 package World;
 
 import entities.District;
+import utils.Logger;
 
 import java.util.HashMap;
 
@@ -19,6 +20,7 @@ public class WorldConfiguration {
 
     public void setCityName(String cityName) {
         this.cityName = cityName;
+        Logger.getInstance().logNewMessage("City has been set.");
     }
 
     public long getSimulationTime() {

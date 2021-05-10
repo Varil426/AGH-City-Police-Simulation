@@ -15,7 +15,7 @@ public class SimulationThread extends Thread {
     public void run() {
         // TODO Set simulation stage
         var world = World.getInstance();
-        World.getInstance().setStartTime();
+        World.getInstance().simulationStart();
 
         for (int i = 0; i < world.getConfig().getNumberOfPolicePatrols(); i++) {
             // TODO Change to HQ when movement is ready

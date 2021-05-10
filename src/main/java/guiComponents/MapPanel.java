@@ -11,6 +11,7 @@ import org.jxmapviewer.painter.Painter;
 import org.jxmapviewer.viewer.DefaultTileFactory;
 import org.jxmapviewer.viewer.GeoPosition;
 import simulation.SimulationThread;
+import utils.Logger;
 
 import javax.swing.*;
 import java.awt.*;
@@ -72,6 +73,7 @@ public class MapPanel {
             @Override
             public void mouseClicked(MouseEvent e) {
                 var position = mapViewer.convertPointToGeoPosition(e.getPoint());
+                Logger.getInstance().logNewMessage("HQ position has been selected.");
 
                 var HQ = new Headquarters(position.getLatitude(), position.getLongitude());
                 World.getInstance().addEntity(HQ);
