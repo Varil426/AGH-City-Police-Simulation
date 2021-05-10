@@ -6,7 +6,7 @@ import entities.District;
 import entities.Entity;
 import entities.Map;
 import org.jxmapviewer.viewer.GeoPosition;
-import utils.Pair;
+import utils.Logger;
 
 import java.awt.geom.Point2D;
 import java.time.Duration;
@@ -42,6 +42,7 @@ public class World {
 
     private WorldConfiguration worldConfig = new WorldConfiguration();
 
+    private boolean isSimulationStarted = false;
 
     private World() {
         this.startTime = LocalDateTime.now();
@@ -61,20 +62,31 @@ public class World {
 
     public void addEntity(Entity entity) {
         allEntities.add(entity);
+        //Logger.getInstance().logNewMessage("Added new entity with id: " + entity.getUniqueID());
+        Logger.getInstance().logNewMessage("Added new " + entity.getClass().toString());
     }
 
     public void removeEntity(Entity entity) {
-        allEntities.remove(entity);
+        if (allEntities.remove(entity)) {
+            Logger.getInstance().logNewMessage("Removed " + entity.getClass().toString());
+        }
     }
 
     public List<Entity> getEntitiesNear(Entity target, double range) {
         return getEntitiesNear(target.getLatitude(), target.getLongitude(), range);
     }
 
+    // TODO Refactor into not using that method. Use (long)getSimulationTime()
+    // TODO If simulation hasn't started yet, then return -1.
     public long getSimulationTimeLong() {
         return (long) getSimulationTime();
     }
+
     public double getSimulationTime() {
+        if (!isSimulationStarted) {
+            return 0;
+        }
+
         var duration = Duration.between(this.startTime, LocalDateTime.now());
         return (duration.getSeconds() + duration.getNano() / Math.pow(10, 9)) * worldConfig.getTimeRate();
     }
@@ -99,6 +111,7 @@ public class World {
         var longitude = (minCoordinates.getLongitude() + maxCoordinates.getLongitude())/2;
 
         position = new OsmLatLon(latitude, longitude);
+        Logger.getInstance().logNewMessage("Map has been set.");
     }
 
     public LatLon getPosition() {
@@ -109,7 +122,9 @@ public class World {
         return map.getDistricts();
     }
 
-    public void setStartTime() {
+    public void simulationStart() {
         startTime = LocalDateTime.now();
+        isSimulationStarted = true;
+        Logger.getInstance().logNewMessage("Simulation has started.");
     }
 }

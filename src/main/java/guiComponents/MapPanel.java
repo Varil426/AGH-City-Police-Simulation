@@ -11,13 +11,14 @@ import org.jxmapviewer.painter.Painter;
 import org.jxmapviewer.viewer.DefaultTileFactory;
 import org.jxmapviewer.viewer.GeoPosition;
 import simulation.SimulationThread;
+import utils.Logger;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
-public class MapPanel extends JFrame {
+public class MapPanel {
 
     class MapPainter implements Painter<JXMapViewer> {
 
@@ -72,6 +73,7 @@ public class MapPanel extends JFrame {
             @Override
             public void mouseClicked(MouseEvent e) {
                 var position = mapViewer.convertPointToGeoPosition(e.getPoint());
+                Logger.getInstance().logNewMessage("HQ position has been selected.");
 
                 var HQ = new Headquarters(position.getLatitude(), position.getLongitude());
                 World.getInstance().addEntity(HQ);
@@ -115,7 +117,7 @@ public class MapPanel extends JFrame {
 
             }
         });
-        JOptionPane.showMessageDialog(this, "Please select HQ location.");
+        JOptionPane.showMessageDialog(frame, "Please select HQ location.");
     }
 
 }

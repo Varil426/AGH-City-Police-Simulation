@@ -1,4 +1,6 @@
 import guiComponents.ConfigurationPanel;
+import guiComponents.LoggerPanel;
+import utils.Logger;
 
 public class Main {
 
@@ -9,5 +11,9 @@ public class Main {
     public static void main(String[] args) {
         var panel = new ConfigurationPanel();
         panel.createWindow();
+
+        var logPan = new LoggerPanel();
+        logPan.createWindow();
+        Logger.getInstance().addLoggingPanel(logPan);
     }
 }

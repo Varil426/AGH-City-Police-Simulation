@@ -70,3 +70,5 @@ fabric.properties
 build
 .gradle
 *.jar
+
+logs

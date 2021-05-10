@@ -12,6 +12,7 @@ import org.jgrapht.Graph;
 import org.jgrapht.GraphPath;
 import org.jgrapht.alg.shortestpath.AStarShortestPath;
 import utils.Haversine;
+import utils.Logger;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -81,6 +82,7 @@ public class ImportGraphFromRawData {
     public static entities.Map createMap(String cityName) throws IOException, InterruptedException {
         ParsingMapDataHandler dataHandler = handleRawData(rawDataPath + rawDataFile1 + cityName + rawDataFile2, query1 + cityName + query2, cityName, false);
         ParsingMapDataHandler districtDataHandler = handleRawData(rawDataPath + rawDataDistrictFile1 + cityName + rawDataDistrictFile2, queryDistrict1 + cityName + queryDistrict2, cityName, true);
+        Logger.getInstance().logNewMessage("Loaded map data.");
 
         List<District> districts = districtDataHandler.getDistricts();
 
