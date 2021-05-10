@@ -5,36 +5,38 @@ import org.jgrapht.graph.DefaultEdge;
 // the class of our "personalized" edge
 public class ImportedEdge extends DefaultEdge {
 
-    Long sourceNode, targetNode, distance;
+    Long sourceNodeID;
+    Long targetNodeID;
+    double distance;
 
-    public ImportedEdge(Long source, Long target) {
-        this.sourceNode = source;
-        this.targetNode = target;
+    public ImportedEdge(Long sourceID, Long targetID) {
+        this.sourceNodeID = sourceID;
+        this.targetNodeID = targetID;
     }
 
-    public ImportedEdge(Long source, Long target, Long distance) {
+    public ImportedEdge(Long source, Long target, double distance) {
         this(source, target);
         this.distance = distance;
     }
 
-    public Object getSource() {
-        return this.sourceNode;
+    public Long getSourceNodeID() {
+        return this.sourceNodeID;
     }
 
-    public Object getTarget() {
-        return this.targetNode;
+    public Long getTargetNodeID() {
+        return this.targetNodeID;
     }
 
-    public Object getDistance() {
+    public double getDistance() {
         return this.distance;
     }
 
-    public void setDistance(Long distance) {
+    public void setDistance(double distance) {
         this.distance = distance;
     }
 
     @Override
     public String toString() {
-        return this.sourceNode + "->" + this.targetNode;
+        return this.sourceNodeID + "->" + this.targetNodeID;
     }
 }

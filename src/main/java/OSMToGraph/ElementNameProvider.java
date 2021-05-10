@@ -22,8 +22,8 @@ public class ElementNameProvider<Object> implements ComponentNameProvider<Object
 
             ImportedEdge edge = (ImportedEdge) component;
 
-            Node n1 = nodesMapProvider.getNodesMap().get(edge.sourceNode);
-            Node n2 = nodesMapProvider.getNodesMap().get(edge.targetNode);
+            Node n1 = nodesMapProvider.getNodesMap().get(edge.sourceNodeID);
+            Node n2 = nodesMapProvider.getNodesMap().get(edge.targetNodeID);
 
             double dist = Haversine.distance(n1.getPosition().getLatitude(),
                     n1.getPosition().getLongitude(),

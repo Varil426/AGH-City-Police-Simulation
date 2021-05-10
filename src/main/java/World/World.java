@@ -74,8 +74,11 @@ public class World {
     // TODO Refactor into not using that method. Use (long)getSimulationTime()
     // TODO If simulation hasn't started yet, then return -1.
     public long getSimulationTimeLong() {
+        return (long) getSimulationTime();
+    }
+    public double getSimulationTime() {
         var duration = Duration.between(this.startTime, LocalDateTime.now());
-        return (long)(duration.getSeconds() + duration.getNano() / Math.pow(10, 9)) * worldConfig.getTimeRate();
+        return (duration.getSeconds() + duration.getNano() / Math.pow(10, 9)) * worldConfig.getTimeRate();
     }
 
     public Map getMap() {
