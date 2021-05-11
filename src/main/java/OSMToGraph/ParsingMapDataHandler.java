@@ -228,7 +228,10 @@ public class ParsingMapDataHandler extends DefaultMapDataHandler implements MapD
             for (int i = 0; i < size; i++) {
                 Node node = sortedNodes.get(sortedNodes.size() - 1);
                 int nearestNode = findNearestNode(node, unorderedNodes);
-                sortedNodes.add(unorderedNodes.remove(nearestNode));
+                Node removedTemp = unorderedNodes.remove(nearestNode);
+                if (!(Haversine.distance(node.getPosition().getLatitude(), node.getPosition().getLongitude(), removedTemp.getPosition().getLatitude(), removedTemp.getPosition().getLongitude()) > Haversine.distance(node.getPosition().getLatitude(), node.getPosition().getLongitude(), removed1.getPosition().getLatitude(), removed1.getPosition().getLongitude()) && i > 100)) {
+                    sortedNodes.add(removedTemp);
+                }
             }
 
             double[] lats = new double[sortedNodes.size()];
@@ -241,12 +244,13 @@ public class ParsingMapDataHandler extends DefaultMapDataHandler implements MapD
 
             Path2D path = new Path2D.Double();
             path.moveTo(lats[0], lons[0]);
-            for (int i = 1; i < lats.length; ++i) {
+            for (int i = 1; i < lats.length; i++) {
                 path.lineTo(lats[i], lons[i]);
             }
             path.closePath();
             districts.add(new District(r.getId(), r.getTags().get("name"), path));
         }
+//        for (District d: districts) d.getBoundaries().closePath();
         return districts;
     }
 }

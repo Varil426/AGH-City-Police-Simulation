@@ -114,10 +114,6 @@ public class ImportGraphFromRawData {
 
     public static ParsingMapDataHandler handleInputStream(String cityName, InputStream inputStream, boolean doesFileExist, boolean districtData) throws IOException, InterruptedException {
 
-        // TODO dodać jakiś konwerter do pliku wejściowego z surowymi danymi
-        //  obecnie ręcznie konwertuję w Notepad++ z UTF-8 BOM na UTF-8
-        //  UPDATE: chyba już po problemie, zostawię to, żeby pamiętać na wszelki
-
         BufferedInputStream bin;
 
         if (!doesFileExist) {
