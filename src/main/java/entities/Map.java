@@ -56,7 +56,7 @@ public class Map {
         Node nearTargetNode1 = findNearestNode(new OsmLatLon(targetLatitude, targetLongitude));
         GraphPath<Node, ImportedEdge> path = pathCalculator.getPath(nearSourceNode, nearTargetNode1);
 
-        // the case where the route between nodes does not exist (TODO why?)
+        // the case where the route between nodes does not exist
         if (path == null) {
             List<Node> forbiddenNodes = new ArrayList<>();
             while (path == null) {
@@ -65,8 +65,8 @@ public class Map {
                 nearSourceNode = findNearestNode(new OsmLatLon(sourceLatitude, sourceLongitude), forbiddenNodes);
                 nearTargetNode1 = findNearestNode(new OsmLatLon(targetLatitude, targetLongitude), forbiddenNodes);
 
-                // tu się sypał
-                System.out.println("XD?" + nearSourceNode + " " + nearTargetNode1);
+                // calculation of the route between two points in the case where initially there is no route between them, the simulation stops working smoothly
+                System.out.println(nearSourceNode + " -to- " + nearTargetNode1+ " route calculation");
 
                 while (nearSourceNode.equals(nearTargetNode1)) {
                     forbiddenNodes.add(nearSourceNode);
