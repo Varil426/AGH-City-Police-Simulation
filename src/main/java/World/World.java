@@ -6,6 +6,7 @@ import entities.District;
 import entities.Entity;
 import entities.Map;
 import org.jxmapviewer.viewer.GeoPosition;
+import utils.Haversine;
 import utils.Logger;
 
 import java.awt.geom.Point2D;
@@ -57,7 +58,8 @@ public class World {
     }
 
     public List<Entity> getEntitiesNear(double x, double y, double range) {
-        return this.allEntities.stream().filter(entity -> Point2D.distance(entity.getLatitude(), entity.getLongitude(), x, y) <= range).collect(Collectors.toList());
+//        return this.allEntities.stream().filter(entity -> Point2D.distance(entity.getLatitude(), entity.getLongitude(), x, y) <= range).collect(Collectors.toList());
+        return this.allEntities.stream().filter(entity -> Haversine.distance(entity.getLatitude(), entity.getLongitude(), x, y) <= range).collect(Collectors.toList());
     }
 
     public void addEntity(Entity entity) {
