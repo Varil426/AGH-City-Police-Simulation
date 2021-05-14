@@ -7,6 +7,7 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.viewer.GeoPosition;
 import utils.Haversine;
+import utils.Logger;
 
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
@@ -63,18 +64,18 @@ public class Patrol extends Entity implements IAgent, IDrawable {
                 // if action is not defined then patrol goes to HQ
                 Entity HQ = World.getInstance().getAllEntities().stream().filter(x -> x instanceof Headquarters).collect(Collectors.toList()).get(0);
                 action = new Transfer(World.getInstance().getSimulationTimeLong(), new Point(HQ.getPosition().getLatitude(), HQ.getPosition().getLongitude()));
-            } else {
-                if (action instanceof Transfer) {
-                    // if pathNodeList is empty, it draws a new patrol target
-                    if (((Transfer) action).pathNodeList.size() == 0) {
-                        var world = World.getInstance();
-                        Random generator = new Random();
-                        var node = (Node) world.getMap().getMyNodes().values().toArray()[generator.nextInt(world.getMap().getMyNodes().size())];
-                        action = new Transfer(World.getInstance().getSimulationTimeLong(), new Point(node.getPosition().getLatitude(), node.getPosition().getLongitude()));
-                    }
-                } else {
-                    throw new Exception("Action should be 'Transfer' and it is not");
+                Logger.getInstance().logNewMessage(this.toString() + " action set to " + action.getClass().toString() + " target: " + action.target.toString());
+            } else if (action instanceof Transfer) {
+                // if pathNodeList is empty, it draws a new patrol target
+                if (((Transfer) action).pathNodeList.size() == 0) {
+                    var world = World.getInstance();
+                    Random generator = new Random();
+                    var node = (Node) world.getMap().getMyNodes().values().toArray()[generator.nextInt(world.getMap().getMyNodes().size())];
+                    action = new Transfer(World.getInstance().getSimulationTimeLong(), new Point(node.getPosition().getLatitude(), node.getPosition().getLongitude()));
+                    Logger.getInstance().logNewMessage(this.toString() + " action set to " + action.getClass().toString() + " target: " + action.target.toString());
                 }
+            } else {
+                throw new Exception("Action should be 'Transfer' and it is not");
             }
         }
     }
@@ -198,6 +199,7 @@ public class Patrol extends Entity implements IAgent, IDrawable {
 
     public class Action {
         public Long startTime;
+        public Entity target;
 
         public Action(Long startTime) {
             this.startTime = startTime;
@@ -205,7 +207,6 @@ public class Patrol extends Entity implements IAgent, IDrawable {
     }
 
     public class Transfer extends Action {
-        public Entity target;
         public ArrayList<Node> pathNodeList;
 
         public Transfer(Long startTime, Entity target) {
@@ -217,11 +218,10 @@ public class Patrol extends Entity implements IAgent, IDrawable {
     }
 
     public class IncidentParticipation extends Action {
-        public Incident incident;
 
         public IncidentParticipation(Long startTime, Incident incident) {
             super(startTime);
-            this.incident = incident;
+            this.target = incident;
         }
     }
 }

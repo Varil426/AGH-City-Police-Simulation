@@ -11,8 +11,8 @@ public class LoggerMessageComponent extends JPanel {
     private static DateTimeFormatter dateFormat = new DateTimeFormatterBuilder().appendPattern("HH:mm:ss dd MM yyyy").toFormatter();
 
     public LoggerMessageComponent(String message, LocalDateTime realWorldDate, long simulationTime) {
-        setPreferredSize(new Dimension(100, 50));
-        setMaximumSize(new Dimension(1000, 50));
+        setPreferredSize(new Dimension(800, 50));
+        setMaximumSize(new Dimension(2000, 50));
         setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 

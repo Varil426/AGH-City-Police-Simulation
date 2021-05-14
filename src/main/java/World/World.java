@@ -63,12 +63,12 @@ public class World {
     public void addEntity(Entity entity) {
         allEntities.add(entity);
         //Logger.getInstance().logNewMessage("Added new entity with id: " + entity.getUniqueID());
-        Logger.getInstance().logNewMessage("Added new " + entity.getClass().toString());
+        Logger.getInstance().logNewMessage("Added new " + entity.toString());
     }
 
     public void removeEntity(Entity entity) {
         if (allEntities.remove(entity)) {
-            Logger.getInstance().logNewMessage("Removed " + entity.getClass().toString());
+            Logger.getInstance().logNewMessage("Removed " + entity.toString());
         }
     }
 
