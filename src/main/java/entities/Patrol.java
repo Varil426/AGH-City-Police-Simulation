@@ -55,8 +55,6 @@ public class Patrol extends Entity implements IAgent, IDrawable {
 
     public void updateStateSelf() throws Exception {
         // TODO
-        //  - sprawdzenie czy jest na miejscu
-        //  - nwm co jeszcze
 
         if (state == State.PATROLLING) {
             if (action == null) {
@@ -67,16 +65,64 @@ public class Patrol extends Entity implements IAgent, IDrawable {
                 if (action instanceof Transfer) {
                     // if pathNodeList is empty, it draws a new patrol target
                     if (((Transfer) action).pathNodeList.size() == 0) {
-                        var world = World.getInstance();
-                        Random generator = new Random();
-                        var node = (Node) world.getMap().getMyNodes().values().toArray()[generator.nextInt(world.getMap().getMyNodes().size())];
-                        action = new Transfer(World.getInstance().getSimulationTimeLong(), new Point(node.getPosition().getLatitude(), node.getPosition().getLongitude()));
+                        drawNewTarget();
                     }
                 } else {
                     throw new Exception("Action should be 'Transfer' and it is not");
                 }
             }
+        } else if (state == State.TRANSFER_TO_INTERVENTION) {
+            // if patrol has reached his destination, patrol changes state to INTERVENTION
+            if (action instanceof Transfer) {
+                if (((Transfer) action).pathNodeList.size() == 0) {
+                    setState(State.INTERVENTION);
+                    action = new IncidentParticipation(World.getInstance().getSimulationTimeLong(), (Incident) ((Transfer) action).target);
+                }
+            } else {
+                throw new Exception("Action should be 'Transfer' and it is not");
+            }
+        } else if (state == State.INTERVENTION) {
+            // if the duration of the intervention is over, patrol changes state to PATROLLING
+            if (action instanceof IncidentParticipation) {
+                long duration = ((Intervention) ((IncidentParticipation) action).incident).getDuration();
+                if (action.startTime + duration < World.getInstance().getSimulationTime()) {
+                    setState(State.PATROLLING);
+                    drawNewTarget();
+                }
+            } else {
+                throw new Exception("Action should be 'IncidentParticipation' and it is not");
+            }
+        } else if (state == State.TRANSFER_TO_FIRING) {
+            // if patrol has reached his destination, patrol changes state to FIRING
+            if (action instanceof Transfer) {
+                if (((Transfer) action).pathNodeList.size() == 0) {
+                    setState(State.FIRING);
+                    ((Firing) ((Transfer) action).target).removeReachingPatrol(this);
+                    ((Firing) ((Transfer) action).target).addSolvingPatrol(this);
+                    action = new IncidentParticipation(World.getInstance().getSimulationTimeLong(), (Incident) ((Transfer) action).target);
+                }
+            } else {
+                throw new Exception("Action should be 'Transfer' and it is not");
+            }
+        } else if (state == State.FIRING) {
+            // when the firing strength drops to zero, patrol changes state to PATROLLING
+            if (action instanceof IncidentParticipation) {
+                long strength = ((Firing) ((IncidentParticipation) action).incident).getStrength();
+                if (strength == 0) {
+                    setState(State.PATROLLING);
+                    drawNewTarget();
+                }
+            } else {
+                throw new Exception("Action should be 'IncidentParticipation' and it is not");
+            }
         }
+    }
+
+    private void drawNewTarget() {
+        var world = World.getInstance();
+        Random generator = new Random();
+        var node = (Node) world.getMap().getMyNodes().values().toArray()[generator.nextInt(world.getMap().getMyNodes().size())];
+        action = new Transfer(World.getInstance().getSimulationTimeLong(), new Point(node.getPosition().getLatitude(), node.getPosition().getLongitude()));
     }
 
     public void performAction() throws Exception {
@@ -84,45 +130,14 @@ public class Patrol extends Entity implements IAgent, IDrawable {
 
         double simulationTime = World.getInstance().getSimulationTime();
         switch (state) {
-            case PATROLLING -> {
-                // speed changed from km/h to m/s
-                double traveledDistance = getSpeed() * 1000 / 3600 * Math.abs(simulationTime - timeOfLastMove);
-                if (action instanceof Transfer) {
-
-                    double distanceToNearestNode = getDistanceToNearestNode();
-                    while (distanceToNearestNode < traveledDistance) {
-                        if (((Transfer) action).pathNodeList.size() == 1) break;
-
-                        traveledDistance -= distanceToNearestNode;
-                        Node removedNode = ((Transfer) action).pathNodeList.remove(0);
-                        setPosition(removedNode.getPosition());
-                        distanceToNearestNode = getDistanceToNearestNode();
-                    }
-
-                    LatLon nearestNodePosition = ((Transfer) action).pathNodeList.get(0).getPosition();
-                    if (distanceToNearestNode > traveledDistance) {
-                        double distanceFactor = traveledDistance / distanceToNearestNode;
-                        setLatitude((getLatitude() + (nearestNodePosition.getLatitude() - getLatitude()) * distanceFactor));
-                        setLongitude((getLongitude() + (nearestNodePosition.getLongitude() - getLongitude()) * distanceFactor));
-                    } else {
-                        setPosition(nearestNodePosition);
-                        ((Transfer) action).pathNodeList.remove(0);
-                    }
-                } else {
-                    throw new Exception("Action should be 'Transfer' and it is not");
-                }
-            }
-            case TRANSFER_TO_INTERVENTION -> {
-                throw new NotImplementedException("new implemented");
-            }
-            case TRANSFER_TO_FIRING -> {
-                throw new NotImplementedException("new implemented");
+            case PATROLLING, TRANSFER_TO_INTERVENTION, TRANSFER_TO_FIRING -> {
+                move(simulationTime);
             }
             case INTERVENTION -> {
-                throw new NotImplementedException("new implemented");
+                // tu się chyba nic nie będzie działo
             }
             case FIRING -> {
-                throw new NotImplementedException("new implemented");
+                // tu nie wiem co się będzie działo, zależy gdzie będzie tracone "HP" przez strzelaninę
             }
             case NEUTRALIZED -> {
                 throw new NotImplementedException("new implemented");
@@ -132,6 +147,41 @@ public class Patrol extends Entity implements IAgent, IDrawable {
             }
         }
         timeOfLastMove = simulationTime;
+    }
+
+    private void move(double simulationTime) throws Exception {
+        // speed changed from km/h to m/s
+        double traveledDistance = getSpeed() * 1000 / 3600 * Math.abs(simulationTime - timeOfLastMove);
+        if (action instanceof Transfer) {
+
+            double distanceToNearestNode = getDistanceToNearestNode();
+            while (distanceToNearestNode < traveledDistance) {
+                if (((Transfer) action).pathNodeList.size() == 1) break;
+
+                traveledDistance -= distanceToNearestNode;
+                Node removedNode = ((Transfer) action).pathNodeList.remove(0);
+                setPosition(removedNode.getPosition());
+                distanceToNearestNode = getDistanceToNearestNode();
+            }
+
+            LatLon nearestNodePosition = ((Transfer) action).pathNodeList.get(0).getPosition();
+            if (distanceToNearestNode > traveledDistance) {
+                double distanceFactor = traveledDistance / distanceToNearestNode;
+                setLatitude((getLatitude() + (nearestNodePosition.getLatitude() - getLatitude()) * distanceFactor));
+                setLongitude((getLongitude() + (nearestNodePosition.getLongitude() - getLongitude()) * distanceFactor));
+            } else {
+                setPosition(nearestNodePosition);
+                ((Transfer) action).pathNodeList.remove(0);
+            }
+        } else {
+            throw new Exception("Action should be 'Transfer' and it is not");
+        }
+    }
+
+    @Override
+    public void takeOrder(State state, Action action) {
+        this.state = state;
+        this.action = action;
     }
 
     private double getDistanceToNearestNode() throws Exception {
@@ -175,8 +225,20 @@ public class Patrol extends Entity implements IAgent, IDrawable {
     @Override
     public void drawSelf(Graphics2D g, JXMapViewer mapViewer) {
         var oldColor = g.getColor();
-        //TODO hejka
-        g.setColor(Color.MAGENTA);
+
+        //TODO wybrać kolory patroli dla poszczególnych czynności
+        switch (this.state) {
+            case PATROLLING -> g.setColor(Color.MAGENTA);
+            case TRANSFER_TO_INTERVENTION -> g.setColor(Color.PINK);
+            case TRANSFER_TO_FIRING -> g.setColor(Color.WHITE);
+            case INTERVENTION -> g.setColor(Color.YELLOW);
+            case FIRING -> g.setColor(Color.GREEN);
+            case NEUTRALIZED -> g.setColor(Color.CYAN);
+            default -> {
+                g.setColor(Color.BLACK);
+                System.out.println("the patrol has no State");
+            }
+        }
 
         final var size = 10;
         var point = mapViewer.convertGeoPositionToPoint(new GeoPosition(getLatitude(), getLongitude()));
