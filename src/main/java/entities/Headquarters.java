@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 public class Headquarters extends Entity implements IDrawable {
 
+    //TODO improve value of 'range'
     private final double range = 600.0;
     private List<Patrol> patrols = new ArrayList<>();
     private List<Incident> incidents = new ArrayList<>();
@@ -44,7 +45,7 @@ public class Headquarters extends Entity implements IDrawable {
 
             if (((Intervention) intervention).getPatrolSolving() == null) {
                 Patrol availablePatrol = null;
-                for (int i = 1; i < 4; i++) {
+                for (int i = 1; i < 10; i++) {
                     availablePatrol = World.getInstance().getEntitiesNear(intervention, range * i)
                             .stream()
                             .filter(x -> x instanceof Patrol && ((Patrol) x).getState() == Patrol.State.PATROLLING)
@@ -56,7 +57,10 @@ public class Headquarters extends Entity implements IDrawable {
                 }
 
                 if (availablePatrol != null) {
-                    availablePatrol.takeOrder(Patrol.State.TRANSFER_TO_INTERVENTION, availablePatrol.new Transfer(World.getInstance().getSimulationTimeLong(), intervention));
+                    availablePatrol.takeOrder(
+                            Patrol.State.TRANSFER_TO_INTERVENTION,
+                            availablePatrol.new Transfer(World.getInstance().getSimulationTimeLong(),
+                            intervention));
                     ((Intervention) intervention).setPatrolSolving(availablePatrol);
                 }
             }
