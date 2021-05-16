@@ -4,8 +4,10 @@ import de.westnordost.osmapi.map.data.LatLon;
 import de.westnordost.osmapi.map.data.OsmLatLon;
 import entities.District;
 import entities.Entity;
+import entities.IEvent;
 import entities.Map;
 import org.jxmapviewer.viewer.GeoPosition;
+import simulation.EventsDirector;
 import utils.Logger;
 
 import java.awt.geom.Point2D;
@@ -76,15 +78,17 @@ public class World {
         return getEntitiesNear(target.getLatitude(), target.getLongitude(), range);
     }
 
-    // TODO Refactor into not using that method. Use (long)getSimulationTime()
-    // TODO If simulation hasn't started yet, then return -1.
+    public List<IEvent> getActiveEvents() {
+        return allEntities.stream().filter(x -> x instanceof IEvent && ((IEvent) x).isActive()).map(x -> (IEvent)x).collect(Collectors.toList());
+    }
+
     public long getSimulationTimeLong() {
         return (long) getSimulationTime();
     }
 
     public double getSimulationTime() {
         if (!isSimulationStarted) {
-            return 0;
+            return -1;
         }
 
         var duration = Duration.between(this.startTime, LocalDateTime.now());
@@ -125,6 +129,7 @@ public class World {
     public void simulationStart() {
         startTime = LocalDateTime.now();
         isSimulationStarted = true;
+        new EventsDirector().start();
         Logger.getInstance().logNewMessage("Simulation has started.");
     }
 }

@@ -15,7 +15,7 @@ public class District implements IDrawable {
 
     private final Path2D boundaries;
 
-    private int threatLevel = 0;
+    private int threatLevel = 3;
 
     public District(Long id, String name, Path2D boundaries) {
         this.boundaries = boundaries;

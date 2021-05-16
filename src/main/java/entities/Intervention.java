@@ -37,6 +37,7 @@ public class Intervention extends Incident {
 
     @Override
     public void updateState() {
+        super.updateState();
         // TODO
     }
 
