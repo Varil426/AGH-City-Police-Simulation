@@ -1,13 +1,19 @@
 package entities;
 
+import org.jxmapviewer.JXMapViewer;
+import org.jxmapviewer.viewer.GeoPosition;
+
+import java.awt.*;
+import java.awt.geom.Ellipse2D;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Firing extends Incident {
+public class Firing extends Incident implements IDrawable {
 
-    private int strength;
     private final int requiredPatrols;
+    private int strength;
     private List<Patrol> patrolsSolving = new ArrayList<>();
+    private List<Patrol> patrolsReaching = new ArrayList<>();
 
     public Firing(double latitude, double longitude) {
         super(latitude, longitude);
@@ -22,6 +28,54 @@ public class Firing extends Incident {
         this.requiredPatrols = requiredPatrols;
         this.strength = initialStrength;
     }
+
+    public int getRequiredPatrols() {
+        return requiredPatrols;
+    }
+
+    public List<Patrol> getPatrolsSolving() {
+        return patrolsSolving;
+    }
+
+    public List<Patrol> getPatrolsReaching() {
+        return patrolsReaching;
+    }
+
+    public void addReachingPatrol(Patrol patrol) {
+        patrolsReaching.add(patrol);
+    }
+
+    public void removeReachingPatrol(Patrol patrol) {
+        patrolsReaching.remove(patrol);
+    }
+
+    public void addSolvingPatrol(Patrol patrol) {
+        patrolsSolving.add(patrol);
+    }
+
+    public void removeSolvingPatrol(Patrol patrol) {
+        patrolsSolving.remove(patrol);
+    }
+
+    public int getStrength() {
+        return strength;
+    }
+
+    @Override
+    public void drawSelf(Graphics2D g, JXMapViewer mapViewer) {
+        var oldColor = g.getColor();
+
+        g.setColor(Color.RED);
+
+        final var size = 10;
+        var point = mapViewer.convertGeoPositionToPoint(new GeoPosition(getLatitude(), getLongitude()));
+
+        var mark = new Ellipse2D.Double((int) (point.getX() - size / 2), (int) (point.getY() - size / 2), size, size);
+        g.fill(mark);
+
+        g.setColor(oldColor);
+    }
+
 
     @Override
     public void updateState() {

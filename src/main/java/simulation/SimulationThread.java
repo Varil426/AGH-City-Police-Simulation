@@ -2,9 +2,7 @@ package simulation;
 
 import World.World;
 import de.westnordost.osmapi.map.data.Node;
-import entities.Entity;
-import entities.IAgent;
-import entities.Patrol;
+import entities.*;
 
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
@@ -28,6 +26,7 @@ public class SimulationThread extends Thread {
         while (true) {
             // TODO Exit condition
             try {
+                HQAssigningTasks();
                 updateStatesOfAgents();
                 performAgentsActions();
                 sleep(40);
@@ -37,10 +36,14 @@ public class SimulationThread extends Thread {
         }
     }
 
-    private void updateStatesOfAgents() throws Exception {
-        // TODO
-        // HQ
+    private void HQAssigningTasks() throws Exception {
+        var allHQs = World.getInstance().getAllEntities().stream().filter(x -> x instanceof Headquarters).collect(Collectors.toList());
+        for (Entity hqs : allHQs) {
+            ((Headquarters) hqs).assignTasks();
+        }
+    }
 
+    private void updateStatesOfAgents() throws Exception {
         var allAgents = World.getInstance().getAllEntities().stream().filter(x -> x instanceof IAgent).collect(Collectors.toList());
         for (Entity agents : allAgents) {
             ((IAgent) agents).updateStateSelf();
