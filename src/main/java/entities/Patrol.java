@@ -84,7 +84,7 @@ public class Patrol extends Entity implements IAgent, IDrawable {
         } else if (state == State.INTERVENTION) {
             // if the duration of the intervention is over, patrol changes state to PATROLLING
             if (action instanceof IncidentParticipation) {
-                long duration = ((Intervention) ((IncidentParticipation) action).incident).getDuration();
+                long duration = ((Intervention) ((IncidentParticipation) action).target).getDuration();
                 if (action.startTime + duration < World.getInstance().getSimulationTime()) {
                     setState(State.PATROLLING);
                     drawNewTarget();
@@ -107,7 +107,7 @@ public class Patrol extends Entity implements IAgent, IDrawable {
         } else if (state == State.FIRING) {
             // when the firing strength drops to zero, patrol changes state to PATROLLING
             if (action instanceof IncidentParticipation) {
-                long strength = ((Firing) ((IncidentParticipation) action).incident).getStrength();
+                long strength = ((Firing) ((IncidentParticipation) action).target).getStrength();
                 if (strength == 0) {
                     setState(State.PATROLLING);
                     drawNewTarget();
