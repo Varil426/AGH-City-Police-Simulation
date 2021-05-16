@@ -7,6 +7,7 @@ import entities.Entity;
 import entities.IEvent;
 import entities.Map;
 import org.jxmapviewer.viewer.GeoPosition;
+import simulation.EventUpdater;
 import utils.Haversine;
 import simulation.EventsDirector;
 import utils.Logger;
@@ -132,6 +133,7 @@ public class World {
         startTime = LocalDateTime.now();
         isSimulationStarted = true;
         new EventsDirector().start();
+        new EventUpdater().start();
         Logger.getInstance().logNewMessage("Simulation has started.");
     }
 }

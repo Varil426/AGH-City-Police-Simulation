@@ -11,6 +11,7 @@ public abstract class Incident extends Entity implements IEvent, IDrawable {
 
     protected double timeOfLastUpdate;
     private long startTime;
+    private boolean isActive = true;
 
     public Incident() {
         startTime = World.getInstance().getSimulationTimeLong();
@@ -18,7 +19,7 @@ public abstract class Incident extends Entity implements IEvent, IDrawable {
     }
 
     public Incident(double latitude, double longitude) {
-        super(latitude,longitude);
+        super(latitude, longitude);
         startTime = World.getInstance().getSimulationTimeLong();
         timeOfLastUpdate = startTime;
     }
@@ -32,7 +33,12 @@ public abstract class Incident extends Entity implements IEvent, IDrawable {
     }
 
     public boolean isActive() {
-        return World.getInstance().getSimulationTime() >= startTime;
+//        return World.getInstance().getSimulationTime() >= startTime;
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
     }
 
     @Override
@@ -40,7 +46,7 @@ public abstract class Incident extends Entity implements IEvent, IDrawable {
         if (isActive()) {
             var oldColor = g.getColor();
 
-            g.setColor(new Color(255,0,0, 175));
+            g.setColor(new Color(255, 0, 0, 175));
 
             final var size = 10;
             var point = mapViewer.convertGeoPositionToPoint(new GeoPosition(getLatitude(), getLongitude()));
