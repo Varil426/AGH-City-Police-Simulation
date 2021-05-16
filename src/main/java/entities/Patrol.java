@@ -62,7 +62,7 @@ public class Patrol extends Entity implements IAgent, IDrawable {
                 // if action is not defined then patrol goes to HQ
                 Entity HQ = World.getInstance().getAllEntities().stream().filter(x -> x instanceof Headquarters).collect(Collectors.toList()).get(0);
                 action = new Transfer(World.getInstance().getSimulationTimeLong(), new Point(HQ.getPosition().getLatitude(), HQ.getPosition().getLongitude()));
-                Logger.getInstance().logNewMessage(this.toString() + " action set to " + action.getClass().toString() + " target: " + action.target.toString());
+                Logger.getInstance().logNewMessage(this + " action set to " + action.getClass().toString() + " target: " + action.target.toString());
             } else if (action instanceof Transfer) {
                 // if pathNodeList is empty, it draws a new patrol target
                 if (((Transfer) action).pathNodeList.size() == 0) {
@@ -76,7 +76,7 @@ public class Patrol extends Entity implements IAgent, IDrawable {
             if (action instanceof Transfer) {
                 if (((Transfer) action).pathNodeList.size() == 0) {
                     setState(State.INTERVENTION);
-                    action = new IncidentParticipation(World.getInstance().getSimulationTimeLong(), (Incident) ((Transfer) action).target);
+                    action = new IncidentParticipation(World.getInstance().getSimulationTimeLong(), (Incident) action.target);
                 }
             } else {
                 throw new Exception("Action should be 'Transfer' and it is not");
@@ -84,8 +84,8 @@ public class Patrol extends Entity implements IAgent, IDrawable {
         } else if (state == State.INTERVENTION) {
             // if the duration of the intervention is over, patrol changes state to PATROLLING
             if (action instanceof IncidentParticipation) {
-                long duration = ((Intervention) ((IncidentParticipation) action).target).getDuration();
-                if (action.startTime + duration < World.getInstance().getSimulationTime()) {
+                if (!(((Intervention) (action).target).isActive())) {
+                    World.getInstance().removeEntity((action.target));
                     setState(State.PATROLLING);
                     drawNewTarget();
                 }
@@ -97,9 +97,9 @@ public class Patrol extends Entity implements IAgent, IDrawable {
             if (action instanceof Transfer) {
                 if (((Transfer) action).pathNodeList.size() == 0) {
                     setState(State.FIRING);
-                    ((Firing) ((Transfer) action).target).removeReachingPatrol(this);
-                    ((Firing) ((Transfer) action).target).addSolvingPatrol(this);
-                    action = new IncidentParticipation(World.getInstance().getSimulationTimeLong(), (Incident) ((Transfer) action).target);
+                    ((Firing) action.target).removeReachingPatrol(this);
+                    ((Firing) action.target).addSolvingPatrol(this);
+                    action = new IncidentParticipation(World.getInstance().getSimulationTimeLong(), (Incident) action.target);
                 }
             } else {
                 throw new Exception("Action should be 'Transfer' and it is not");
@@ -107,8 +107,11 @@ public class Patrol extends Entity implements IAgent, IDrawable {
         } else if (state == State.FIRING) {
             // when the firing strength drops to zero, patrol changes state to PATROLLING
             if (action instanceof IncidentParticipation) {
-                long strength = ((Firing) ((IncidentParticipation) action).target).getStrength();
-                if (strength == 0) {
+                if (action.target == null) {
+                    setState(State.PATROLLING);
+                    drawNewTarget();
+                } else if (!((Firing) action.target).isActive()) {
+                    World.getInstance().removeEntity((action.target));
                     setState(State.PATROLLING);
                     drawNewTarget();
                 }
@@ -123,7 +126,7 @@ public class Patrol extends Entity implements IAgent, IDrawable {
         Random generator = new Random();
         var node = (Node) world.getMap().getMyNodes().values().toArray()[generator.nextInt(world.getMap().getMyNodes().size())];
         action = new Transfer(World.getInstance().getSimulationTimeLong(), new Point(node.getPosition().getLatitude(), node.getPosition().getLongitude()));
-        Logger.getInstance().logNewMessage(this.toString() + " action set to " + action.getClass().toString() + " target: " + action.target.toString());
+        Logger.getInstance().logNewMessage(this + " action set to " + action.getClass().toString() + " target: " + action.target.toString());
     }
 
     public void performAction() throws Exception {
@@ -216,6 +219,10 @@ public class Patrol extends Entity implements IAgent, IDrawable {
 
     public void setState(State state) {
         this.state = state;
+    }
+
+    public Action getAction() {
+        return action;
     }
 
     public long getTimeSinceLastActive() {

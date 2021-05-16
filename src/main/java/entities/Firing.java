@@ -1,17 +1,16 @@
 package entities;
 
+import World.World;
 import org.jxmapviewer.JXMapViewer;
-import org.jxmapviewer.viewer.GeoPosition;
 
 import java.awt.*;
-import java.awt.geom.Ellipse2D;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Firing extends Incident implements IDrawable {
 
     private final int requiredPatrols;
-    private int strength;
+    private double strength;
     private List<Patrol> patrolsSolving = new ArrayList<>();
     private List<Patrol> patrolsReaching = new ArrayList<>();
 
@@ -57,13 +56,14 @@ public class Firing extends Incident implements IDrawable {
         patrolsSolving.remove(patrol);
     }
 
-    public int getStrength() {
+    public double getStrength() {
         return strength;
     }
 
     @Override
     public void drawSelf(Graphics2D g, JXMapViewer mapViewer) {
-        var oldColor = g.getColor();
+        super.drawSelf(g, mapViewer);
+        /*var oldColor = g.getColor();
 
         g.setColor(Color.RED);
 
@@ -73,13 +73,14 @@ public class Firing extends Incident implements IDrawable {
         var mark = new Ellipse2D.Double((int) (point.getX() - size / 2), (int) (point.getY() - size / 2), size, size);
         g.fill(mark);
 
-        g.setColor(oldColor);
+        g.setColor(oldColor);*/
     }
-
 
     @Override
     public void updateState() {
         super.updateState();
-        // TODO
+        // TODO improve the calculation of loss of strength
+        this.strength =- patrolsSolving.size()*(World.getInstance().getSimulationTime() - timeOfLastUpdate);
+        if (this.strength <= 0) setActive(false);
     }
 }

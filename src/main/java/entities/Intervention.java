@@ -1,10 +1,9 @@
 package entities;
 
+import World.World;
 import org.jxmapviewer.JXMapViewer;
-import org.jxmapviewer.viewer.GeoPosition;
 
 import java.awt.*;
-import java.awt.geom.Ellipse2D;
 
 public class Intervention extends Incident implements IDrawable {
 
@@ -44,7 +43,11 @@ public class Intervention extends Incident implements IDrawable {
     @Override
     public void updateState() {
         super.updateState();
-        // TODO
+        if (this.patrolSolving != null) {
+            if (patrolSolving.getAction() instanceof Patrol.IncidentParticipation && patrolSolving.getAction().startTime + this.getDuration() < World.getInstance().getSimulationTimeLong()) {
+                setActive(false);
+            }
+        }
     }
 
     @Override
