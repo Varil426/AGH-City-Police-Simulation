@@ -79,6 +79,7 @@ public class Firing extends Incident implements IDrawable {
 
     @Override
     public void updateState() {
+        super.updateState();
         // TODO
     }
 }

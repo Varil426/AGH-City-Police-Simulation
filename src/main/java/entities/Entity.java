@@ -52,4 +52,9 @@ public abstract class Entity {
     public UUID getUniqueID() {
         return uniqueID;
     }
+
+    @Override
+    public String toString() {
+        return getClass().toString() + ": " + getUniqueID();
+    }
 }
