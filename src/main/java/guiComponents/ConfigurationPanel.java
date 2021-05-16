@@ -160,9 +160,6 @@ public class ConfigurationPanel {
         frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
 
         mapPanel.selectHQLocation();
-
-        // TODO Start UI thread that redraws MapPanel
-        // TODO Start simulation
     }
 
     private boolean loadMapIntoWorld(String cityName) {
