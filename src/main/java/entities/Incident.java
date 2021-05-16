@@ -9,7 +9,7 @@ import java.awt.geom.Ellipse2D;
 
 public abstract class Incident extends Entity implements IEvent, IDrawable {
 
-    protected long timeOfLastUpdate;
+    protected double timeOfLastUpdate;
     private long startTime;
 
     public Incident() {
@@ -50,5 +50,10 @@ public abstract class Incident extends Entity implements IEvent, IDrawable {
 
             g.setColor(oldColor);
         }
+    }
+
+    @Override
+    public void updateState() {
+        timeOfLastUpdate = World.getInstance().getSimulationTime();
     }
 }
