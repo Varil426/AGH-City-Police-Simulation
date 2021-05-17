@@ -7,6 +7,7 @@ import org.jxmapviewer.viewer.GeoPosition;
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,8 +38,8 @@ public class Headquarters extends Entity implements IDrawable {
 
     public void assignTasks() {
         updatePatrolsAndIncidents();
-        var allInterventions = incidents.stream().filter(x -> x instanceof Intervention).collect(Collectors.toList());
-        var allFirings = incidents.stream().filter(x -> x instanceof Firing).collect(Collectors.toList());
+        var allInterventions = incidents.stream().filter(x -> x instanceof Intervention).sorted(Comparator.comparingLong(Incident::getStartTime)).collect(Collectors.toList());
+        var allFirings = incidents.stream().filter(x -> x instanceof Firing).sorted(Comparator.comparingLong(Incident::getStartTime)).collect(Collectors.toList());
 
         for (Entity intervention : allInterventions) {
             //TODO obsługa interwencji
