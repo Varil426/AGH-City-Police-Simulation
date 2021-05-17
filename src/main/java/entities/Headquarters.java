@@ -52,16 +52,18 @@ public class Headquarters extends Entity implements IDrawable {
                             .filter(x -> x instanceof Patrol && ((Patrol) x).getState() == Patrol.State.PATROLLING)
                             .map(x -> (Patrol) x).findFirst()
                             .orElse(null);
-                    if (availablePatrol != null) {
+                    if (availablePatrol != null || i > 10) {
                         break;
                     }
                     i++;
                 }
-                availablePatrol.takeOrder(
-                        Patrol.State.TRANSFER_TO_INTERVENTION,
-                        availablePatrol.new Transfer(World.getInstance().getSimulationTimeLong(),
-                        intervention));
-                ((Intervention) intervention).setPatrolSolving(availablePatrol);
+                if (availablePatrol != null){
+                    availablePatrol.takeOrder(
+                            Patrol.State.TRANSFER_TO_INTERVENTION,
+                            availablePatrol.new Transfer(World.getInstance().getSimulationTimeLong(),
+                                    intervention));
+                    ((Intervention) intervention).setPatrolSolving(availablePatrol);
+                }
             }
         }
         for (Entity firing : allFirings) {
