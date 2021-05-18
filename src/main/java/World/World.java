@@ -12,7 +12,6 @@ import utils.Haversine;
 import simulation.EventsDirector;
 import utils.Logger;
 
-import java.awt.geom.Point2D;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -46,7 +45,7 @@ public class World {
 
     private WorldConfiguration worldConfig = new WorldConfiguration();
 
-    private boolean isSimulationStarted = false;
+    private boolean hasSimulationStarted = false;
 
     private World() {
         this.startTime = LocalDateTime.now();
@@ -90,7 +89,7 @@ public class World {
     }
 
     public double getSimulationTime() {
-        if (!isSimulationStarted) {
+        if (!hasSimulationStarted) {
             return -1;
         }
 
@@ -131,7 +130,7 @@ public class World {
 
     public void simulationStart() {
         startTime = LocalDateTime.now();
-        isSimulationStarted = true;
+        hasSimulationStarted = true;
         new EventsDirector().start();
         new EventUpdater().start();
         Logger.getInstance().logNewMessage("Simulation has started.");

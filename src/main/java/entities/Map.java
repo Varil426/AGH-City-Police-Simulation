@@ -47,7 +47,7 @@ public class Map {
     }
 
     public List<District> getDistricts() {
-        return districts;
+        return new ArrayList<>(districts);
     }
 
     // patrols use  nodeList to navigate the route
