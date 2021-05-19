@@ -23,7 +23,7 @@ public class EventUpdater extends Thread {
             }
 
             try {
-                sleep(500);
+                sleep(50);
             } catch (InterruptedException e) {
                 // Ignore
             }
