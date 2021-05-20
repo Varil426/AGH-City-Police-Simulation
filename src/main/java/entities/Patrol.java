@@ -61,9 +61,7 @@ public class Patrol extends Entity implements IAgent, IDrawable {
 
         if (state == State.PATROLLING) {
             if (action == null) {
-                // if action is not defined then patrol goes to HQ
-                Entity HQ = World.getInstance().getAllEntities().stream().filter(x -> x instanceof Headquarters).collect(Collectors.toList()).get(0);
-                action = new Transfer(World.getInstance().getSimulationTimeLong(), new Point(HQ.getPosition().getLatitude(), HQ.getPosition().getLongitude()), this.state);
+                drawNewTarget();
                 Logger.getInstance().logNewMessage(this + " action set to " + action.getClass().toString() + " target: " + action.target.toString());
             } else if (action instanceof Transfer) {
                 // if pathNodeList is empty, it draws a new patrol target
@@ -147,7 +145,9 @@ public class Patrol extends Entity implements IAgent, IDrawable {
         double simulationTime = World.getInstance().getSimulationTime();
         switch (state) {
             case PATROLLING  -> {
-                move(simulationTime);
+                if (((Transfer)this.action).pathNodeList!=null){
+                    move(simulationTime);
+                }
             }
             case TRANSFER_TO_INTERVENTION -> {
                 move(simulationTime);

@@ -17,10 +17,20 @@ public class SimulationThread extends Thread {
 
         for (int i = 0; i < world.getConfig().getNumberOfPolicePatrols(); i++) {
             // TODO Change to HQ when movement is ready
-            var startingPoint = (Node) world.getMap().getMyNodes().values().toArray()[ThreadLocalRandom.current().nextInt(world.getMap().getMyNodes().size())];
-            var newPatrol = new Patrol(startingPoint.getPosition());
-            newPatrol.setState(Patrol.State.PATROLLING);
-            world.addEntity(newPatrol);
+//            var startingPoint = (Node) world.getMap().getMyNodes().values().toArray()[ThreadLocalRandom.current().nextInt(world.getMap().getMyNodes().size())];
+//            var newPatrol = new Patrol(startingPoint.getPosition());
+            var HQ = world.getAllEntities().stream().filter(x->x instanceof Headquarters).findFirst().orElse(null);
+            if (HQ !=null){
+                var newPatrol = new Patrol(HQ.getPosition());
+                newPatrol.setState(Patrol.State.PATROLLING);
+                world.addEntity(newPatrol);
+            } else{
+                try {
+                    throw new Exception("HQ location is not defined");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         }
 
         while (true) {
