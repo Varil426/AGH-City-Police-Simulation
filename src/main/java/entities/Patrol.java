@@ -82,8 +82,13 @@ public class Patrol extends Entity implements IAgent, IDrawable {
                 throw new Exception("Action should be 'Transfer' and it is not");
             }
         } else if (state == State.INTERVENTION) {
+            if (action.target instanceof Firing){
+                setState(State.FIRING);
+                ((Firing) action.target).addSolvingPatrol(this);
+                action = new IncidentParticipation(World.getInstance().getSimulationTimeLong(), (Incident) action.target);
+            }
             // if the duration of the intervention is over, patrol changes state to PATROLLING
-            if (action instanceof IncidentParticipation) {
+            else if (action instanceof IncidentParticipation) {
                 if (!(((Intervention) (action).target).isActive())) {
                     World.getInstance().removeEntity((action.target));
                     setState(State.PATROLLING);
@@ -106,6 +111,7 @@ public class Patrol extends Entity implements IAgent, IDrawable {
             }
         } else if (state == State.FIRING) {
             // when the firing strength drops to zero, patrol changes state to PATROLLING
+//            System.out.println(getUniqueID()+" "+state+" "+this.getAction().target+" "+((Firing) action.target).isActive()+" "+((Firing) action.target).getStrength()+" "+((Firing) action.target).getStrength()+" "+((Firing) action.target).getPatrolsSolving().size());
             if (action instanceof IncidentParticipation) {
                 if (action.target == null) {
                     setState(State.PATROLLING);
@@ -225,6 +231,10 @@ public class Patrol extends Entity implements IAgent, IDrawable {
         return action;
     }
 
+    public void setAction(Action action) {
+        this.action = action;
+    }
+
     public long getTimeSinceLastActive() {
         // TODO Calc based on world state
         throw new UnsupportedOperationException();
@@ -236,14 +246,14 @@ public class Patrol extends Entity implements IAgent, IDrawable {
 
         //TODO wybrać kolory patroli dla poszczególnych czynności
         switch (this.state) {
-            case PATROLLING -> g.setColor(Color.MAGENTA);
-            case TRANSFER_TO_INTERVENTION -> g.setColor(Color.PINK);
-            case TRANSFER_TO_FIRING -> g.setColor(Color.WHITE);
-            case INTERVENTION -> g.setColor(Color.YELLOW);
-            case FIRING -> g.setColor(Color.GREEN);
-            case NEUTRALIZED -> g.setColor(Color.CYAN);
+            case PATROLLING -> g.setColor(new Color(0, 153, 0)); // green
+            case TRANSFER_TO_INTERVENTION -> g.setColor(new Color(255, 166, 77)); // orangeish
+            case TRANSFER_TO_FIRING -> g.setColor(new Color(255, 77, 77)); // redish
+            case INTERVENTION -> g.setColor(new Color(0, 92, 230)); // blue
+            case FIRING -> g.setColor(new Color(153, 0, 204)); // purple
+            case NEUTRALIZED -> g.setColor(new Color(255, 255, 255)); // white
             default -> {
-                g.setColor(Color.BLACK);
+                g.setColor(Color.BLACK); // black
                 System.out.println("the patrol has no State");
             }
         }
@@ -272,6 +282,10 @@ public class Patrol extends Entity implements IAgent, IDrawable {
 
         public Action(Long startTime) {
             this.startTime = startTime;
+        }
+
+        public void setTarget(Entity target) {
+            this.target = target;
         }
     }
 

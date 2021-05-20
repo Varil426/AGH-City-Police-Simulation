@@ -10,7 +10,7 @@ public class WorldConfiguration {
     private String cityName;
     private HashMap<District, Integer> districtsDangerLevels = new HashMap<>();
     private int numberOfPolicePatrols = 10;
-    private int timeRate = 450;
+    private int timeRate = 150;
     private long simulationDuration = 86400;
     private boolean drawDistrictsBorders = false;
 

@@ -12,11 +12,11 @@ public class IncidentFactory {
 
     private static World world = World.getInstance();
 
-    private static final double WILL_CHANGE_INTO_FIRING_CHANCE = 0.2;
+    private static final double WILL_CHANGE_INTO_FIRING_CHANCE = 0.1;
     private static final int MIN_EVENT_DURATION = 5;
     private static final int MAX_EVENT_DURATION = 60;
-    private static final int MIN_FIRING_STRENGTH = 100;
-    private static final int MAX_FIRING_STRENGTH = 500;
+    private static final int MIN_FIRING_STRENGTH = 1000;
+    private static final int MAX_FIRING_STRENGTH = 5000;
 
     public static Intervention createRandomInterventionForDistrict(District district) {
         var randomNode = (Node) world.getMap().getMyNodes().values().toArray()[ThreadLocalRandom.current().nextInt(world.getMap().getMyNodes().size())];

@@ -29,14 +29,15 @@ public class SimulationThread extends Thread {
                 HQAssignTasks();
                 updateStatesOfAgents();
                 performAgentsActions();
+
                 sleep(40);
             } catch (Exception e) {
-                // Ignore
+                System.out.println(e.getMessage());
             }
         }
     }
 
-    private void HQAssignTasks() throws Exception {
+    private void HQAssignTasks() {
         var allHQs = World.getInstance().getAllEntities().stream().filter(x -> x instanceof Headquarters).map(x -> (Headquarters)x).collect(Collectors.toList());
         for (var hqs : allHQs) {
             hqs.assignTasks();
@@ -52,6 +53,7 @@ public class SimulationThread extends Thread {
 
     private void performAgentsActions() throws Exception {
         // TODO
+
         var allAgents = World.getInstance().getAllEntities().stream().filter(x -> x instanceof IAgent).collect(Collectors.toList());
         for (Entity agents : allAgents) {
             ((IAgent) agents).performAction();

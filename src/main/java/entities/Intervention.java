@@ -48,7 +48,9 @@ public class Intervention extends Incident implements IDrawable {
             if (willChangeIntoFiring && patrolSolving.getAction() instanceof Patrol.IncidentParticipation && patrolSolving.getAction().startTime + this.timeToChange < World.getInstance().getSimulationTime()) {
                 var firing = IncidentFactory.createRandomFiringFromIntervention(this);
 
-                // TODO Set solving patrol as participating?
+                // TODO Set solving patrol as participating? jeszcze jak
+
+                this.patrolSolving.getAction().setTarget(firing);
 
                 World.getInstance().removeEntity(this);
                 World.getInstance().addEntity(firing);

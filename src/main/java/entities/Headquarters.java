@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 public class Headquarters extends Entity implements IDrawable {
 
     //TODO improve value of 'range'
-    private final double range = 600.0;
+    private final double range = 1000.0;
     private List<Patrol> patrols = new ArrayList<>();
     private List<Incident> incidents = new ArrayList<>();
 
@@ -40,6 +40,48 @@ public class Headquarters extends Entity implements IDrawable {
         updatePatrolsAndIncidents();
         var allInterventions = incidents.stream().filter(x -> x instanceof Intervention).sorted(Comparator.comparingLong(Incident::getStartTime)).collect(Collectors.toList());
         var allFirings = incidents.stream().filter(x -> x instanceof Firing).sorted(Comparator.comparingLong(Incident::getStartTime)).collect(Collectors.toList());
+
+
+        for (var firing : allFirings) {
+            //TODO obsługa strzalnin
+            int requiredPatrols = ((Firing) firing).getRequiredPatrols();
+            List<Patrol> patrolsSolving = ((Firing) firing).getPatrolsSolving();
+            List<Patrol> patrolsReaching = ((Firing) firing).getPatrolsReaching();
+            if (requiredPatrols <= patrolsSolving.size()) {
+                for (Patrol patrolReaching : patrolsReaching) {
+                    ((Firing) firing).removeReachingPatrol(patrolReaching);
+                    patrolReaching.setState(Patrol.State.PATROLLING);
+                }
+            }
+            if (patrolsSolving.size() + patrolsReaching.size() < requiredPatrols) {
+                for (int i = 1; i < 4; i++) {
+                    List<Patrol> foundPatrols = World.getInstance().getEntitiesNear(firing, range * i)
+                            .stream()
+                            .filter(x -> x instanceof Patrol && ((Patrol) x).getState() == Patrol.State.PATROLLING)
+                            .map(x -> (Patrol) x)
+                            .collect(Collectors.toList());
+                    for (Patrol p : foundPatrols) {
+                        p.takeOrder(Patrol.State.TRANSFER_TO_FIRING, p.new Transfer(World.getInstance().getSimulationTimeLong(), firing));
+                        ((Firing) firing).addReachingPatrol(p);
+                    }
+                    if (foundPatrols.size() + patrolsSolving.size() + patrolsReaching.size() >= requiredPatrols) {
+                        break;
+                    }
+                }
+                if (patrolsSolving.size() + patrolsReaching.size() < requiredPatrols) {
+                    List<Patrol> foundTransferringToInterventionPatrols = World.getInstance().getEntitiesNear(firing, range*2)
+                            .stream()
+                            .filter(x -> x instanceof Patrol && ((Patrol) x).getState() == Patrol.State.TRANSFER_TO_INTERVENTION)
+                            .map(x -> (Patrol) x)
+                            .collect(Collectors.toList());
+                    for (Patrol p : foundTransferringToInterventionPatrols) {
+                        p.takeOrder(Patrol.State.TRANSFER_TO_FIRING, p.new Transfer(World.getInstance().getSimulationTimeLong(), firing));
+                        ((Firing) firing).addReachingPatrol(p);
+                    }
+                }
+            }
+        }
+
 
         for (Entity intervention : allInterventions) {
             //TODO obsługa interwencji
@@ -67,46 +109,9 @@ public class Headquarters extends Entity implements IDrawable {
                 }
             }
         }
-        for (Entity firing : allFirings) {
-            //TODO obsługa strzalnin
-            int requiredPatrols = ((Firing) firing).getRequiredPatrols();
-            List<Patrol> patrolsSolving = ((Firing) firing).getPatrolsSolving();
-            List<Patrol> patrolsReaching = ((Firing) firing).getPatrolsReaching();
-            if (requiredPatrols <= patrolsSolving.size()) {
-                for (Patrol patrolReaching : patrolsReaching) {
-                    ((Firing) firing).removeReachingPatrol(patrolReaching);
-                    patrolReaching.setState(Patrol.State.PATROLLING);
-                }
-            }
-            if (patrolsSolving.size() + patrolsReaching.size() < requiredPatrols) {
-                for (int i = 1; i < 4; i++) {
-                    List<Patrol> foundPatrols = World.getInstance().getEntitiesNear(firing, range * i)
-                            .stream()
-                            .filter(x -> x instanceof Patrol && ((Patrol) x).getState() == Patrol.State.PATROLLING)
-                            .map(x -> (Patrol) x)
-                            .collect(Collectors.toList());
-                    for (Patrol p : foundPatrols) {
-                        p.takeOrder(Patrol.State.TRANSFER_TO_FIRING, p.new Transfer(World.getInstance().getSimulationTimeLong(), firing));
-                        ((Firing) firing).addReachingPatrol(p);
-                    }
-                    if (foundPatrols.size() + patrolsSolving.size() + patrolsReaching.size() >= requiredPatrols) {
-                        break;
-                    }
-                }
-                if (patrolsSolving.size() + patrolsReaching.size() < requiredPatrols) {
-                    List<Patrol> foundTransferringToInterventionPatrols = World.getInstance().getEntitiesNear(firing, range)
-                            .stream()
-                            .filter(x -> x instanceof Patrol && ((Patrol) x).getState() == Patrol.State.TRANSFER_TO_INTERVENTION)
-                            .map(x -> (Patrol) x)
-                            .collect(Collectors.toList());
-                    for (Patrol p : foundTransferringToInterventionPatrols) {
-                        p.takeOrder(Patrol.State.TRANSFER_TO_FIRING, p.new Transfer(World.getInstance().getSimulationTimeLong(), firing));
-                        ((Firing) firing).addReachingPatrol(p);
-                    }
-                }
-            }
-        }
+
     }
+
 
     public void updatePatrolsAndIncidents() {
         var allEntities = World.getInstance().getAllEntities();

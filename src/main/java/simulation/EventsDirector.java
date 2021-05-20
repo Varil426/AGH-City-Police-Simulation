@@ -25,6 +25,10 @@ public class EventsDirector extends Thread {
             for(var district : world.getDistricts()) {
                 generateNewEventsInDistrict(district);
             }
+//            for (int i = 0; i < 5; i++) {
+//                generateNewEventsInDistrict(world.getDistricts().get(i));
+//
+//            }
 
             // Director goes to sleep for an hour in simulation time
             var sleepTime = (3600000.)/world.getConfig().getTimeRate();

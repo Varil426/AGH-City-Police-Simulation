@@ -73,15 +73,18 @@ public class Firing extends Incident implements IDrawable {
 
         var mark = new Ellipse2D.Double((int) (point.getX() - size / 2), (int) (point.getY() - size / 2), size, size);
         g.fill(mark);
+        g.drawString(String.format("S:%.1f", strength), (int)point.getX(), (int)point.getY());
 
         g.setColor(oldColor);
     }
 
     @Override
     public void updateState() {
-        super.updateState();
+//        super.updateState();
         // TODO improve the calculation of loss of strength
-        this.strength =- patrolsSolving.size()*(World.getInstance().getSimulationTime() - timeOfLastUpdate);
+        // System.out.println("s"+strength+" "+patrolsSolving.size()+" "+World.getInstance().getSimulationTime() +" "+ timeOfLastUpdate);
+        this.strength -= patrolsSolving.size()*(World.getInstance().getSimulationTime() - timeOfLastUpdate);
+        timeOfLastUpdate = World.getInstance().getSimulationTime();
         if (this.strength <= 0) setActive(false);
     }
 }

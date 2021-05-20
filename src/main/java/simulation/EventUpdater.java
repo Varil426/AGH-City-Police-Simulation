@@ -17,7 +17,7 @@ public class EventUpdater extends Thread {
         // TODO Exit condition
         while (true) {
 
-            List<IEvent> activeEvents = world.getActiveEvents();
+           var activeEvents = world.getActiveEvents();
             for (var intervention : activeEvents) {
                 intervention.updateState();
             }
@@ -25,7 +25,7 @@ public class EventUpdater extends Thread {
             try {
                 sleep(50);
             } catch (InterruptedException e) {
-                // Ignore
+                e.printStackTrace();
             }
         }
     }
