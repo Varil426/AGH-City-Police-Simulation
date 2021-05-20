@@ -1,11 +1,12 @@
-package entities;
+package simulation;
 
 import OSMToGraph.ImportedEdge;
-import de.westnordost.osmapi.map.data.BoundingBox;
+import World.World;
 import de.westnordost.osmapi.map.data.LatLon;
 import de.westnordost.osmapi.map.data.Node;
 import de.westnordost.osmapi.map.data.OsmLatLon;
-import org.jgrapht.Graph;
+import entities.Entity;
+import entities.Patrol;
 import org.jgrapht.GraphPath;
 import org.jgrapht.alg.shortestpath.AStarShortestPath;
 import utils.Haversine;
@@ -14,43 +15,24 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class Map {
+public class PathCalculator extends Thread {
 
-    private final Graph<Node, ImportedEdge> graph;
-    private final HashMap<Long, Node> myNodes;
-    private final BoundingBox boundingBox;
-    private final List<District> districts;
-    private final AStarShortestPath<Node, ImportedEdge> pathCalculator;
+    private final AStarShortestPath<Node, ImportedEdge> pathCalculator = World.getInstance().getMap().getPathCalculator();
+    private final HashMap<Long, Node> myNodes = World.getInstance().getMap().getMyNodes();
+    private final Entity source;
+    private final Entity target;
 
-    public Map(Graph<Node, ImportedEdge> graph, HashMap<Long, Node> myNodes, BoundingBox boundingBox, List<District> districts) {
-        this.graph = graph;
-        this.myNodes = myNodes;
-        this.boundingBox = boundingBox;
-        this.districts = districts;
-        this.pathCalculator = new AStarShortestPath<>(graph, new Haversine.ownHeuristics());
+    public PathCalculator(Entity source, Entity target) {
+        this.source = source;
+        this.target = target;
     }
 
-    public AStarShortestPath<Node, ImportedEdge> getPathCalculator() {
-        return new AStarShortestPath<>(graph, new Haversine.ownHeuristics());
+    @Override
+    public void run() {
+        var pathNodeList = getPathNodeList(source.getLatitude(), source.getLongitude(), target.getLatitude(), target.getLongitude());
+        ((Patrol.Transfer) ((Patrol) source).getAction()).setPathNodeList((ArrayList<Node>) pathNodeList);
     }
 
-    public HashMap<Long, Node> getMyNodes() {
-        return myNodes;
-    }
-
-    public Graph<Node, ImportedEdge> getGraph() {
-        return graph;
-    }
-
-    public BoundingBox getBoundingBox() {
-        return boundingBox;
-    }
-
-    public List<District> getDistricts() {
-        return new ArrayList<>(districts);
-    }
-
-    // patrols use nodeList to navigate the route
     public List<Node> getPathNodeList(double sourceLatitude, double sourceLongitude, double targetLatitude, double targetLongitude) {
         Node nearSourceNode = findNearestNode(new OsmLatLon(sourceLatitude, sourceLongitude));
         Node nearTargetNode1 = findNearestNode(new OsmLatLon(targetLatitude, targetLongitude));
@@ -66,7 +48,7 @@ public class Map {
                 nearTargetNode1 = findNearestNode(new OsmLatLon(targetLatitude, targetLongitude), forbiddenNodes);
 
                 // calculation of the route between two points in the case where initially there is no route between them, the simulation stops working smoothly
-                System.out.println(nearSourceNode + " -to- " + nearTargetNode1+ " route calculation");
+                System.out.println(nearSourceNode + " -to- " + nearTargetNode1 + " route calculation");
 
                 while (nearSourceNode.equals(nearTargetNode1)) {
                     forbiddenNodes.add(nearSourceNode);

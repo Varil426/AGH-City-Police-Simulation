@@ -9,5 +9,5 @@ public interface IAgent {
 
     void performAction() throws Exception;
 
-    void takeOrder(Patrol.State state, Patrol.Action action);
+    void takeOrder(Patrol.Action action);
 }

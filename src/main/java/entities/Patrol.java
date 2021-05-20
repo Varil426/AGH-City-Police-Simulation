@@ -6,6 +6,7 @@ import de.westnordost.osmapi.map.data.Node;
 import org.apache.commons.lang3.NotImplementedException;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.viewer.GeoPosition;
+import simulation.PathCalculator;
 import utils.Haversine;
 import utils.Logger;
 
@@ -23,6 +24,7 @@ public class Patrol extends Entity implements IAgent, IDrawable {
     // TODO Add to constructors setting value for this
     private double timeOfLastMove;
     private State state;
+    private State previousState;
     private Action action;
 
     public Patrol() {
@@ -61,7 +63,7 @@ public class Patrol extends Entity implements IAgent, IDrawable {
             if (action == null) {
                 // if action is not defined then patrol goes to HQ
                 Entity HQ = World.getInstance().getAllEntities().stream().filter(x -> x instanceof Headquarters).collect(Collectors.toList()).get(0);
-                action = new Transfer(World.getInstance().getSimulationTimeLong(), new Point(HQ.getPosition().getLatitude(), HQ.getPosition().getLongitude()));
+                action = new Transfer(World.getInstance().getSimulationTimeLong(), new Point(HQ.getPosition().getLatitude(), HQ.getPosition().getLongitude()), this.state);
                 Logger.getInstance().logNewMessage(this + " action set to " + action.getClass().toString() + " target: " + action.target.toString());
             } else if (action instanceof Transfer) {
                 // if pathNodeList is empty, it draws a new patrol target
@@ -82,7 +84,7 @@ public class Patrol extends Entity implements IAgent, IDrawable {
                 throw new Exception("Action should be 'Transfer' and it is not");
             }
         } else if (state == State.INTERVENTION) {
-            if (action.target instanceof Firing){
+            if (action.target instanceof Firing) {
                 setState(State.FIRING);
                 ((Firing) action.target).addSolvingPatrol(this);
                 action = new IncidentParticipation(World.getInstance().getSimulationTimeLong(), (Incident) action.target);
@@ -124,6 +126,10 @@ public class Patrol extends Entity implements IAgent, IDrawable {
             } else {
                 throw new Exception("Action should be 'IncidentParticipation' and it is not");
             }
+        } else if (state == State.CALCULATING_PATH) {
+            if (((Transfer) getAction()).pathNodeList != null) {
+                setState(this.previousState);
+            }
         }
     }
 
@@ -131,7 +137,7 @@ public class Patrol extends Entity implements IAgent, IDrawable {
         var world = World.getInstance();
         Random generator = new Random();
         var node = (Node) world.getMap().getMyNodes().values().toArray()[generator.nextInt(world.getMap().getMyNodes().size())];
-        action = new Transfer(World.getInstance().getSimulationTimeLong(), new Point(node.getPosition().getLatitude(), node.getPosition().getLongitude()));
+        action = new Transfer(World.getInstance().getSimulationTimeLong(), new Point(node.getPosition().getLatitude(), node.getPosition().getLongitude()), this.state);
         Logger.getInstance().logNewMessage(this + " action set to " + action.getClass().toString() + " target: " + action.target.toString());
     }
 
@@ -148,6 +154,9 @@ public class Patrol extends Entity implements IAgent, IDrawable {
             }
             case FIRING -> {
                 // tu nie wiem co się będzie działo, zależy gdzie będzie tracone "HP" przez strzelaninę
+            }
+            case CALCULATING_PATH -> {
+                // tu chyba nic
             }
             case NEUTRALIZED -> {
                 throw new NotImplementedException("new implemented");
@@ -189,8 +198,8 @@ public class Patrol extends Entity implements IAgent, IDrawable {
     }
 
     @Override
-    public void takeOrder(State state, Action action) {
-        this.state = state;
+    public void takeOrder(Action action) {
+//        this.state = state;
         this.action = action;
     }
 
@@ -252,6 +261,7 @@ public class Patrol extends Entity implements IAgent, IDrawable {
             case INTERVENTION -> g.setColor(new Color(0, 92, 230)); // blue
             case FIRING -> g.setColor(new Color(153, 0, 204)); // purple
             case NEUTRALIZED -> g.setColor(new Color(255, 255, 255)); // white
+            case CALCULATING_PATH -> g.setColor(new Color(255, 123, 255)); // pink
             default -> {
                 g.setColor(Color.BLACK); // black
                 System.out.println("the patrol has no State");
@@ -273,7 +283,8 @@ public class Patrol extends Entity implements IAgent, IDrawable {
         TRANSFER_TO_FIRING,
         INTERVENTION,
         FIRING,
-        NEUTRALIZED
+        NEUTRALIZED,
+        CALCULATING_PATH
     }
 
     public class Action {
@@ -292,12 +303,18 @@ public class Patrol extends Entity implements IAgent, IDrawable {
     public class Transfer extends Action {
         public ArrayList<Node> pathNodeList;
 
-        public Transfer(Long startTime, Entity target) {
+        public Transfer(Long startTime, Entity target, State nextState) {
             super(startTime);
             this.target = target;
-            this.pathNodeList = (ArrayList<Node>) World.getInstance().getMap().getPathNodeList(getLatitude(), getLongitude(), target.getLatitude(), target.getLongitude());
+//            this.pathNodeList = (ArrayList<Node>) World.getInstance().getMap().getPathNodeList(getLatitude(), getLongitude(), target.getLatitude(), target.getLongitude());
+            new PathCalculator(Patrol.this, target).start();
+            Patrol.this.previousState = nextState;
+            Patrol.this.state = State.CALCULATING_PATH;
         }
 
+        public void setPathNodeList(ArrayList<Node> pathNodeList) {
+            this.pathNodeList = pathNodeList;
+        }
     }
 
     public class IncidentParticipation extends Action {

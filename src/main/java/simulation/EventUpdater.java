@@ -1,9 +1,6 @@
 package simulation;
 
 import World.World;
-import entities.IEvent;
-
-import java.util.List;
 
 public class EventUpdater extends Thread {
 
@@ -16,16 +13,16 @@ public class EventUpdater extends Thread {
     public void run() {
         // TODO Exit condition
         while (true) {
-
-           var activeEvents = world.getActiveEvents();
+            var activeEvents = world.getActiveEvents();
             for (var intervention : activeEvents) {
                 intervention.updateState();
             }
-
             try {
-                sleep(50);
+                sleep(100);
             } catch (InterruptedException e) {
+                System.out.println(e.getMessage());
                 e.printStackTrace();
+                e.getCause();
             }
         }
     }

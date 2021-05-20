@@ -29,10 +29,12 @@ public class SimulationThread extends Thread {
                 HQAssignTasks();
                 updateStatesOfAgents();
                 performAgentsActions();
-
+                
                 sleep(40);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
+                e.printStackTrace();
+                e.getCause();
             }
         }
     }

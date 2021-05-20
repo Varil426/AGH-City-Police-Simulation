@@ -107,7 +107,9 @@ public class World {
     }
 
     public Map getMap() {
-        return map;
+        synchronized (map){
+            return map;
+        }
     }
 
     public void setMap(Map map) {
