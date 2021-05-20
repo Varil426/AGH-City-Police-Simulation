@@ -2,8 +2,10 @@ package entities;
 
 import World.World;
 import org.jxmapviewer.JXMapViewer;
+import org.jxmapviewer.viewer.GeoPosition;
 
 import java.awt.*;
+import java.awt.geom.Ellipse2D;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,7 +24,7 @@ public class Firing extends Incident implements IDrawable {
         this.strength = 500;
     }
 
-    public Firing(double latitude, double longitude, int requiredPatrols, int initialStrength) {
+    public Firing(double latitude, double longitude, int requiredPatrols, double initialStrength) {
         super(latitude, longitude);
         this.requiredPatrols = requiredPatrols;
         this.strength = initialStrength;
@@ -62,25 +64,27 @@ public class Firing extends Incident implements IDrawable {
 
     @Override
     public void drawSelf(Graphics2D g, JXMapViewer mapViewer) {
-        super.drawSelf(g, mapViewer);
-        /*var oldColor = g.getColor();
+        var oldColor = g.getColor();
 
-        g.setColor(Color.RED);
+        g.setColor(Color.BLACK);
 
         final var size = 10;
         var point = mapViewer.convertGeoPositionToPoint(new GeoPosition(getLatitude(), getLongitude()));
 
         var mark = new Ellipse2D.Double((int) (point.getX() - size / 2), (int) (point.getY() - size / 2), size, size);
         g.fill(mark);
+        g.drawString(String.format("S:%.1f", strength), (int)point.getX(), (int)point.getY());
 
-        g.setColor(oldColor);*/
+        g.setColor(oldColor);
     }
 
     @Override
     public void updateState() {
-        super.updateState();
+//        super.updateState();
         // TODO improve the calculation of loss of strength
-        this.strength =- patrolsSolving.size()*(World.getInstance().getSimulationTime() - timeOfLastUpdate);
+        // System.out.println("s"+strength+" "+patrolsSolving.size()+" "+World.getInstance().getSimulationTime() +" "+ timeOfLastUpdate);
+        this.strength -= patrolsSolving.size()*(World.getInstance().getSimulationTime() - timeOfLastUpdate);
+        timeOfLastUpdate = World.getInstance().getSimulationTime();
         if (this.strength <= 0) setActive(false);
     }
 }

@@ -1,6 +1,7 @@
 package entities;
 
 import World.World;
+import entities.factories.IncidentFactory;
 import org.jxmapviewer.JXMapViewer;
 
 import java.awt.*;
@@ -44,7 +45,17 @@ public class Intervention extends Incident implements IDrawable {
     public void updateState() {
         super.updateState();
         if (this.patrolSolving != null) {
-            if (patrolSolving.getAction() instanceof Patrol.IncidentParticipation && patrolSolving.getAction().startTime + this.getDuration() < World.getInstance().getSimulationTimeLong()) {
+            if (willChangeIntoFiring && patrolSolving.getAction() instanceof Patrol.IncidentParticipation && patrolSolving.getAction().startTime + this.timeToChange < World.getInstance().getSimulationTime()) {
+                var firing = IncidentFactory.createRandomFiringFromIntervention(this);
+
+                // TODO Set solving patrol as participating? jeszcze jak
+
+                this.patrolSolving.getAction().setTarget(firing);
+
+                World.getInstance().removeEntity(this);
+                World.getInstance().addEntity(firing);
+            }
+            else if (patrolSolving.getAction() instanceof Patrol.IncidentParticipation && patrolSolving.getAction().startTime + this.getDuration() < World.getInstance().getSimulationTime()) {
                 setActive(false);
             }
         }

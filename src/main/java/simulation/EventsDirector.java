@@ -4,6 +4,7 @@ import World.World;
 import de.westnordost.osmapi.map.data.Node;
 import entities.District;
 import entities.Intervention;
+import entities.factories.IncidentFactory;
 import utils.DelayedAction;
 
 import java.util.concurrent.ThreadLocalRandom;
@@ -24,6 +25,10 @@ public class EventsDirector extends Thread {
             for(var district : world.getDistricts()) {
                 generateNewEventsInDistrict(district);
             }
+//            for (int i = 0; i < 5; i++) {
+//                generateNewEventsInDistrict(world.getDistricts().get(i));
+//
+//            }
 
             // Director goes to sleep for an hour in simulation time
             var sleepTime = (3600000.)/world.getConfig().getTimeRate();
@@ -36,15 +41,9 @@ public class EventsDirector extends Thread {
     }
 
     private void generateNewEventsInDistrict(District district) {
-        // TODO Improve - logic for creating Firing
         var numberOfIncidentsInNextHour = district.getThreatLevel();
         for (var i = 0; i < numberOfIncidentsInNextHour; i++) {
-            var randomNode = (Node) world.getMap().getMyNodes().values().toArray()[ThreadLocalRandom.current().nextInt(world.getMap().getMyNodes().size())];
-            while (!district.contains(randomNode.getPosition())) {
-                randomNode = (Node) world.getMap().getMyNodes().values().toArray()[ThreadLocalRandom.current().nextInt(world.getMap().getMyNodes().size())];
-            }
-
-            var newEvent = new Intervention(randomNode.getPosition().getLatitude(), randomNode.getPosition().getLongitude(), ThreadLocalRandom.current().nextInt(5, 60));
+            var newEvent = IncidentFactory.createRandomInterventionForDistrict(district);
             var sleepTime = ThreadLocalRandom.current().nextDouble((3600000.)/world.getConfig().getTimeRate());
             new DelayedAction((long) sleepTime, (int)((sleepTime - (long) sleepTime) * 1000000), () -> world.addEntity(newEvent)).start();
         }

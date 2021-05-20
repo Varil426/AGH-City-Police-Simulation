@@ -12,6 +12,7 @@ import utils.Haversine;
 import simulation.EventsDirector;
 import utils.Logger;
 
+import java.awt.geom.Point2D;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -60,19 +61,25 @@ public class World {
     }
 
     public List<Entity> getEntitiesNear(double x, double y, double range) {
+        synchronized (allEntities){
 //        return this.allEntities.stream().filter(entity -> Point2D.distance(entity.getLatitude(), entity.getLongitude(), x, y) <= range).collect(Collectors.toList());
-        return this.allEntities.stream().filter(entity -> Haversine.distance(entity.getLatitude(), entity.getLongitude(), x, y) <= range).collect(Collectors.toList());
+            return this.allEntities.stream().filter(entity -> Haversine.distance(entity.getLatitude(), entity.getLongitude(), x, y) <= range).collect(Collectors.toList());
+        }
     }
 
     public void addEntity(Entity entity) {
-        allEntities.add(entity);
-        //Logger.getInstance().logNewMessage("Added new entity with id: " + entity.getUniqueID());
-        Logger.getInstance().logNewMessage("Added new " + entity.toString());
+        synchronized (allEntities){
+            allEntities.add(entity);
+            //Logger.getInstance().logNewMessage("Added new entity with id: " + entity.getUniqueID());
+            Logger.getInstance().logNewMessage("Added new " + entity.toString());
+        }
     }
 
     public void removeEntity(Entity entity) {
-        if (allEntities.remove(entity)) {
-            Logger.getInstance().logNewMessage("Removed " + entity.toString());
+        synchronized (allEntities){
+            if (allEntities.remove(entity)) {
+                Logger.getInstance().logNewMessage("Removed " + entity.toString());
+          }
         }
     }
 
@@ -81,7 +88,9 @@ public class World {
     }
 
     public List<IEvent> getActiveEvents() {
-        return allEntities.stream().filter(x -> x instanceof IEvent && ((IEvent) x).isActive()).map(x -> (IEvent)x).collect(Collectors.toList());
+        synchronized (allEntities){
+            return allEntities.stream().filter(x -> x instanceof IEvent && ((IEvent) x).isActive()).map(x -> (IEvent)x).collect(Collectors.toList());
+        }
     }
 
     public long getSimulationTimeLong() {
@@ -98,7 +107,9 @@ public class World {
     }
 
     public Map getMap() {
-        return map;
+        synchronized (map){
+            return map;
+        }
     }
 
     public void setMap(Map map) {
