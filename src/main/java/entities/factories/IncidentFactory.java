@@ -16,7 +16,7 @@ public class IncidentFactory {
     private static final int MIN_EVENT_DURATION = 5;
     private static final int MAX_EVENT_DURATION = 60;
     private static final int MIN_FIRING_STRENGTH = 1000;
-    private static final int MAX_FIRING_STRENGTH = 5000;
+    private static final int MAX_FIRING_STRENGTH = 3000;
 
     public static Intervention createRandomInterventionForDistrict(District district) {
         var randomNode = (Node) world.getMap().getMyNodes().values().toArray()[ThreadLocalRandom.current().nextInt(world.getMap().getMyNodes().size())];
@@ -39,7 +39,7 @@ public class IncidentFactory {
 
     public static Firing createRandomFiringFromIntervention(Intervention intervention) {
         var strength = ThreadLocalRandom.current().nextInt(MIN_FIRING_STRENGTH, MAX_FIRING_STRENGTH+1);
-        var numberOfRequiredPatrols = ThreadLocalRandom.current().nextInt(1, (int)Math.ceil(strength/50));
+        var numberOfRequiredPatrols = ThreadLocalRandom.current().nextInt(1, (int)Math.ceil(strength/500));
         return new Firing(intervention.getLatitude(), intervention.getLongitude(), numberOfRequiredPatrols, strength);
     }
 

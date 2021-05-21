@@ -12,7 +12,6 @@ import utils.Haversine;
 import simulation.EventsDirector;
 import utils.Logger;
 
-import java.awt.geom.Point2D;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -90,6 +89,11 @@ public class World {
     public List<IEvent> getActiveEvents() {
         synchronized (allEntities){
             return allEntities.stream().filter(x -> x instanceof IEvent && ((IEvent) x).isActive()).map(x -> (IEvent)x).collect(Collectors.toList());
+        }
+    }
+    public List<IEvent> getEvents() {
+        synchronized (allEntities){
+            return allEntities.stream().filter(x -> x instanceof IEvent).map(x -> (IEvent)x).collect(Collectors.toList());
         }
     }
 

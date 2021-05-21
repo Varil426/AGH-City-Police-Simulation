@@ -1,6 +1,7 @@
 package simulation;
 
 import World.World;
+import entities.Incident;
 
 public class EventUpdater extends Thread {
 
@@ -13,9 +14,14 @@ public class EventUpdater extends Thread {
     public void run() {
         // TODO Exit condition
         while (true) {
-            var activeEvents = world.getActiveEvents();
+            var activeEvents = world.getEvents();
             for (var intervention : activeEvents) {
-                intervention.updateState();
+                if (intervention.isActive()){
+                    intervention.updateState();
+                }
+                else {
+                    world.removeEntity((Incident)intervention);
+                }
             }
             try {
                 sleep(100);

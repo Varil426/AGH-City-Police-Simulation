@@ -14,7 +14,6 @@ import java.awt.*;
 import java.awt.geom.Ellipse2D;
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 public class Patrol extends Entity implements IAgent, IDrawable {
 
@@ -69,7 +68,7 @@ public class Patrol extends Entity implements IAgent, IDrawable {
                     drawNewTarget();
                 }
             } else {
-                throw new Exception("Action should be 'Transfer' and it is not");
+                drawNewTarget();
             }
         } else if (state == State.TRANSFER_TO_INTERVENTION) {
             // if patrol has reached his destination, patrol changes state to INTERVENTION
@@ -89,7 +88,10 @@ public class Patrol extends Entity implements IAgent, IDrawable {
             }
             // if the duration of the intervention is over, patrol changes state to PATROLLING
             else if (action instanceof IncidentParticipation) {
-                if (!(((Intervention) (action).target).isActive())) {
+                if (action.target == null) {
+                    setState(State.PATROLLING);
+                    drawNewTarget();
+                } else if (!(((Intervention) (action).target).isActive())) {
                     World.getInstance().removeEntity((action.target));
                     setState(State.PATROLLING);
                     drawNewTarget();
@@ -100,7 +102,7 @@ public class Patrol extends Entity implements IAgent, IDrawable {
         } else if (state == State.TRANSFER_TO_FIRING) {
             // if patrol has reached his destination, patrol changes state to FIRING
             if (action instanceof Transfer) {
-                if (((Transfer) action).pathNodeList.size() == 0) {
+                if (((Transfer) action).pathNodeList != null && ((Transfer) action).pathNodeList.size() == 0) {
                     setState(State.FIRING);
                     ((Firing) action.target).removeReachingPatrol(this);
                     ((Firing) action.target).addSolvingPatrol(this);
@@ -111,13 +113,14 @@ public class Patrol extends Entity implements IAgent, IDrawable {
             }
         } else if (state == State.FIRING) {
             // when the firing strength drops to zero, patrol changes state to PATROLLING
-//            System.out.println(getUniqueID()+" "+state+" "+this.getAction().target+" "+((Firing) action.target).isActive()+" "+((Firing) action.target).getStrength()+" "+((Firing) action.target).getStrength()+" "+((Firing) action.target).getPatrolsSolving().size());
             if (action instanceof IncidentParticipation) {
                 if (action.target == null) {
                     setState(State.PATROLLING);
                     drawNewTarget();
                 } else if (!((Firing) action.target).isActive()) {
-                    World.getInstance().removeEntity((action.target));
+                    setState(State.PATROLLING);
+                    drawNewTarget();
+                } else if (!(action.target instanceof Firing)) {
                     setState(State.PATROLLING);
                     drawNewTarget();
                 }
@@ -144,8 +147,8 @@ public class Patrol extends Entity implements IAgent, IDrawable {
 
         double simulationTime = World.getInstance().getSimulationTime();
         switch (state) {
-            case PATROLLING  -> {
-                if (((Transfer)this.action).pathNodeList!=null){
+            case PATROLLING -> {
+                if (action instanceof Transfer && ((Transfer) this.action).pathNodeList != null) {
                     move(simulationTime);
                 }
             }
@@ -259,7 +262,6 @@ public class Patrol extends Entity implements IAgent, IDrawable {
     public void drawSelf(Graphics2D g, JXMapViewer mapViewer) {
         var oldColor = g.getColor();
 
-        //TODO wybrać kolory patroli dla poszczególnych czynności
         switch (this.state) {
             case PATROLLING -> g.setColor(new Color(0, 153, 0)); // green
             case TRANSFER_TO_INTERVENTION -> g.setColor(new Color(255, 166, 77)); // orangeish
@@ -312,7 +314,6 @@ public class Patrol extends Entity implements IAgent, IDrawable {
         public Transfer(Long startTime, Entity target, State nextState) {
             super(startTime);
             this.target = target;
-//            this.pathNodeList = (ArrayList<Node>) World.getInstance().getMap().getPathNodeList(getLatitude(), getLongitude(), target.getLatitude(), target.getLongitude());
             new PathCalculator(Patrol.this, target).start();
             Patrol.this.previousState = nextState;
             Patrol.this.state = State.CALCULATING_PATH;
