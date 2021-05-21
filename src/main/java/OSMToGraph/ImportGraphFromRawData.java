@@ -84,13 +84,11 @@ public class ImportGraphFromRawData {
         ParsingMapDataHandler districtDataHandler = handleRawData(rawDataPath + rawDataDistrictFile1 + cityName + rawDataDistrictFile2, queryDistrict1 + cityName + queryDistrict2, cityName, true);
         Logger.getInstance().logNewMessage("Loaded map data.");
 
-        List<District> districts = districtDataHandler.getDistricts();
-
         // exporting the graph to a DOT file:
         // ImportedGraphToDOT.exportGraphToFile(dataHandler.getGraph(), graphExportPath + graphExportFile, dataHandler);
 
         BoundingBox boundingBox = new BoundingBox(dataHandler.getMinLatitude(), dataHandler.getMinLongitude(), dataHandler.getMaxLatitude(), dataHandler.getMaxLongitude());
-        return new entities.Map(dataHandler.getGraph(), dataHandler.getNodesMap(), boundingBox, districts);
+        return new entities.Map(dataHandler.getGraph(), dataHandler.getNodesMap(), boundingBox, districtDataHandler.getDistricts());
     }
 
     public static ParsingMapDataHandler handleRawData(String rawDataFilePath, String query, String cityName, boolean districtData) throws IOException, InterruptedException {

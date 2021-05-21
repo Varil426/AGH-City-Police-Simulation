@@ -28,6 +28,7 @@ public class Map {
         this.boundingBox = boundingBox;
         this.districts = districts;
         this.pathCalculator = new AStarShortestPath<>(graph, new Haversine.ownHeuristics());
+        assignNodesToDistricts();
     }
 
     public AStarShortestPath<Node, ImportedEdge> getPathCalculator() {
@@ -50,6 +51,18 @@ public class Map {
         return new ArrayList<>(districts);
     }
 
+    public void assignNodesToDistricts() {
+        //TODO improve this - not all nodes are assign to districts
+        for (java.util.Map.Entry<Long, Node> me : myNodes.entrySet()) {
+            for (var d : districts) {
+                if (d.contains(me.getValue().getPosition())) {
+                    d.addNodeToDistrict(me.getValue());
+                    break;
+                }
+            }
+        }
+    }
+
     // patrols use nodeList to navigate the route
     public List<Node> getPathNodeList(double sourceLatitude, double sourceLongitude, double targetLatitude, double targetLongitude) {
         Node nearSourceNode = findNearestNode(new OsmLatLon(sourceLatitude, sourceLongitude));
@@ -66,7 +79,7 @@ public class Map {
                 nearTargetNode1 = findNearestNode(new OsmLatLon(targetLatitude, targetLongitude), forbiddenNodes);
 
                 // calculation of the route between two points in the case where initially there is no route between them, the simulation stops working smoothly
-                System.out.println(nearSourceNode + " -to- " + nearTargetNode1+ " route calculation");
+                System.out.println(nearSourceNode + " -to- " + nearTargetNode1 + " route calculation");
 
                 while (nearSourceNode.equals(nearTargetNode1)) {
                     forbiddenNodes.add(nearSourceNode);
