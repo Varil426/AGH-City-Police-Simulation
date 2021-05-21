@@ -12,6 +12,7 @@ import org.jgrapht.alg.shortestpath.AStarShortestPath;
 import utils.Haversine;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -30,7 +31,13 @@ public class PathCalculator extends Thread {
     @Override
     public void run() {
         var pathNodeList = getPathNodeList(source.getLatitude(), source.getLongitude(), target.getLatitude(), target.getLongitude());
-        ((Patrol.Transfer) ((Patrol) source).getAction()).setPathNodeList((ArrayList<Node>) pathNodeList);
+        if (pathNodeList.size() == 1){
+            ArrayList<Node> pathNodeList2 = new ArrayList<>();
+            pathNodeList2.add(pathNodeList.get(0));
+            ((Patrol.Transfer) ((Patrol) source).getAction()).setPathNodeList(pathNodeList2);
+        }else{
+            ((Patrol.Transfer) ((Patrol) source).getAction()).setPathNodeList((ArrayList<Node>) pathNodeList);
+        }
     }
 
     public List<Node> getPathNodeList(double sourceLatitude, double sourceLongitude, double targetLatitude, double targetLongitude) {
