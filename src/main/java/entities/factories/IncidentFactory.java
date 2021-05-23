@@ -12,7 +12,6 @@ public class IncidentFactory {
 
     private static World world = World.getInstance();
 
-    private static final double WILL_CHANGE_INTO_FIRING_CHANCE = 0.1;
     private static final int MIN_EVENT_DURATION = 5;
     private static final int MAX_EVENT_DURATION = 60;
     private static final int MIN_FIRING_STRENGTH = 1000;
@@ -24,7 +23,7 @@ public class IncidentFactory {
         var longitude = randomNode.getPosition().getLongitude();
 
         // Will change into firing
-        if (ThreadLocalRandom.current().nextDouble() * (district.getThreatLevel()/2.) > 1 - WILL_CHANGE_INTO_FIRING_CHANCE) {
+        if (ThreadLocalRandom.current().nextDouble() < ThreatLevelToFiringChance(district.getThreatLevel())) {
             var duration = ThreadLocalRandom.current().nextInt(MIN_EVENT_DURATION, MAX_EVENT_DURATION);
             var timeToChange = ThreadLocalRandom.current().nextInt(0, duration);
 
@@ -38,6 +37,14 @@ public class IncidentFactory {
         var strength = ThreadLocalRandom.current().nextInt(MIN_FIRING_STRENGTH, MAX_FIRING_STRENGTH+1);
         var numberOfRequiredPatrols = ThreadLocalRandom.current().nextInt(1, (int)Math.ceil(strength/500));
         return new Firing(intervention.getLatitude(), intervention.getLongitude(), numberOfRequiredPatrols, strength);
+    }
+
+    private static double ThreatLevelToFiringChance(District.ThreatLevelEnum threatLevel) {
+        return switch (threatLevel) {
+            case Safe -> 0.01;
+            case RatherSafe -> 0.1;
+            case NotSafe -> 0.4;
+        };
     }
 
 }

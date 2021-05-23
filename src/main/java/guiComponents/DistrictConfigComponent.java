@@ -3,52 +3,49 @@ package guiComponents;
 import entities.District;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import java.awt.*;
+import java.util.Arrays;
+import java.util.Hashtable;
 
 public class DistrictConfigComponent extends JPanel {
 
     private District district;
 
-    private JTextField districtThreatLevelInput;
+    private JSlider districtThreatLevelInput = new JSlider(District.ThreatLevelEnum.values()[0].value, District.ThreatLevelEnum.values()[District.ThreatLevelEnum.values().length - 1].value);
+
+    private final int MARGIN = 10;
 
     public DistrictConfigComponent(District districtName) {
         this.district = districtName;
-        districtThreatLevelInput = new JTextField();
-        districtThreatLevelInput.setColumns(5);
-        districtThreatLevelInput.setText("3");
 
-        districtThreatLevelInput.getDocument().addDocumentListener(new DocumentListener() {
-            @Override
-            public void insertUpdate(DocumentEvent e) {
-                inputChanged();
-            }
+        this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        this.setBorder(new EmptyBorder(MARGIN, MARGIN, MARGIN, MARGIN));
+        this.setSize(new Dimension(290-(MARGIN*2), 80));
 
-            @Override
-            public void removeUpdate(DocumentEvent e) {
-                inputChanged();
-            }
+        var labels = new Hashtable<Integer, JLabel>();
+        for (var label : District.ThreatLevelEnum.values()) {
+            labels.put(label.value, new JLabel(label.toString()));
+        }
 
-            @Override
-            public void changedUpdate(DocumentEvent e) {
-                inputChanged();
-            }
-        });
+        var sliderContainer = new JPanel();
+
+        this.districtThreatLevelInput.addChangeListener(event -> inputChanged());
+        this.districtThreatLevelInput.setLabelTable(labels);
+        this.districtThreatLevelInput.setPaintLabels(true);
+
+        sliderContainer.add(districtThreatLevelInput);
 
         this.add(new JLabel(this.district.getName()));
-        this.add(districtThreatLevelInput);
+        this.add(sliderContainer);
     }
 
     private void inputChanged() {
-        var newText = districtThreatLevelInput.getText();
         try {
-            var value = Integer.parseInt(newText);
-            district.setThreatLevel(value);
-            districtThreatLevelInput.setBorder(UIManager.getLookAndFeel().getDefaults().getBorder("TextField.border"));
-        } catch (IllegalArgumentException exception) {
-            districtThreatLevelInput.setBorder(new LineBorder(Color.RED, 2));
+            this.district.setThreatLevel(Arrays.stream(District.ThreatLevelEnum.values()).filter(x -> x.value == districtThreatLevelInput.getValue()).findFirst().get());
+        } catch (Exception exception) {
+            districtThreatLevelInput.setBorder(new LineBorder(Color.RED, MARGIN));
         }
     }
 
