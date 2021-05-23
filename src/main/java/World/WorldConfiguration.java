@@ -8,7 +8,7 @@ import java.util.HashMap;
 public class WorldConfiguration {
 
     private String cityName;
-    private HashMap<District, Integer> districtsDangerLevels = new HashMap<>();
+    private final HashMap<District, Integer> districtsDangerLevels = new HashMap<>();
     private int numberOfPolicePatrols = 10;
     private int timeRate = 300;
     private long simulationDuration = 86400;
@@ -23,7 +23,7 @@ public class WorldConfiguration {
         Logger.getInstance().logNewMessage("City has been set.");
     }
 
-    public long getSimulationTime() {
+    public long getSimulationDuration() {
         return simulationDuration;
     }
 

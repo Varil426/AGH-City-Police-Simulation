@@ -40,7 +40,7 @@ public class ConfigurationPanel {
         var worldConfig = World.getInstance().getConfig();
         numberOfCityPatrolsTextField.setText(Integer.toString(worldConfig.getNumberOfPolicePatrols()));
         timeRateTextField.setText(Integer.toString(worldConfig.getTimeRate()));
-        simulationDurationTextField.setText(Long.toString(worldConfig.getSimulationTime()));
+        simulationDurationTextField.setText(Long.toString(worldConfig.getSimulationDuration()));
     }
 
     // TODO Add validation for input data
