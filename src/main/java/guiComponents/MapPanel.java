@@ -6,6 +6,7 @@ import entities.IDrawable;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.OSMTileFactoryInfo;
 import org.jxmapviewer.input.PanMouseInputListener;
+import org.jxmapviewer.input.ZoomMouseWheelListenerCenter;
 import org.jxmapviewer.input.ZoomMouseWheelListenerCursor;
 import org.jxmapviewer.painter.Painter;
 import org.jxmapviewer.viewer.DefaultTileFactory;
@@ -28,6 +29,29 @@ public class MapPanel {
             if (World.getInstance().getConfig().isDrawDistrictsBorders()) {
                 World.getInstance().getMap().getDistricts().forEach(x -> x.drawSelf(g, mapViewer));
             }
+
+            drawSimulationClock(g);
+        }
+
+        private void drawSimulationClock(Graphics2D g) {
+            var time = World.getInstance().getSimulationTimeLong();
+
+            var days = (int)(time / 86400);
+            var hours = (int)((time % 86400)/3600);
+            var minutes = (int)((time % 3600)/60);
+            var seconds = (int)(time % 60);
+
+            // Draw background
+            var oldColor = g.getColor();
+            g.setColor(new Color(244, 226, 198, 175));
+            g.fillRect(5,5,150, 20);
+            g.setColor(oldColor);
+
+            // Draw date
+            var oldFont = g.getFont();
+            g.setFont(new Font("TimesRoman", Font.BOLD, 15));
+            g.drawString(String.format("Day: %03d, %02d:%02d:%02d", days, hours, minutes, seconds), 10, 20);
+            g.setFont(oldFont);
         }
     }
 
