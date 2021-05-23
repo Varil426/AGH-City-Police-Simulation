@@ -19,10 +19,7 @@ public class IncidentFactory {
     private static final int MAX_FIRING_STRENGTH = 3000;
 
     public static Intervention createRandomInterventionForDistrict(District district) {
-        var randomNode = (Node) world.getMap().getMyNodes().values().toArray()[ThreadLocalRandom.current().nextInt(world.getMap().getMyNodes().size())];
-        while (!district.contains(randomNode.getPosition())) {
-            randomNode = (Node) world.getMap().getMyNodes().values().toArray()[ThreadLocalRandom.current().nextInt(world.getMap().getMyNodes().size())];
-        }
+        var randomNode = district.getAllNodesInDistrict().get(ThreadLocalRandom.current().nextInt(0, district.getAllNodesInDistrict().size()));
         var latitude = randomNode.getPosition().getLatitude();
         var longitude = randomNode.getPosition().getLongitude();
 

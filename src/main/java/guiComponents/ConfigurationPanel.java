@@ -32,8 +32,7 @@ public class ConfigurationPanel {
     private JCheckBox drawDistrictsBoundariesCheckBox = new JCheckBox();;
 
     public ConfigurationPanel() {
-        availablePlaces.put("Poland", new String[]{"Kraków", "Warszawa", "Rzeszów"});
-        availablePlaces.put("United Kingdom", new String[]{"London", "Sheffield", "Manchester"});
+        availablePlaces.put("Poland", new String[]{"Kraków", "Warszawa", "Rzeszów", "Katowice", "Gdańsk", "Łódź", "Szczecin", "Poznań", "Lublin", "Białystok", "Wrocław"});
     }
 
     private void setDefaultValues() {
