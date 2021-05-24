@@ -73,10 +73,13 @@ public class Firing extends Incident implements IDrawable {
 
         var mark = new Ellipse2D.Double((int) (point.getX() - size / 2), (int) (point.getY() - size / 2), size, size);
         g.fill(mark);
-        g.drawString(String.format("Stren.:%.1f", strength), (int) point.getX() + 5, (int) point.getY());
-        g.drawString(String.format("Patr.Req.:%d", requiredPatrols), (int) point.getX() + 5, (int) point.getY() - 10);
-        g.drawString(String.format("Patr.Reach.:%d", patrolsReaching.size()), (int) point.getX() + 5, (int) point.getY() - 20);
-        g.drawString(String.format("Part.Solv.:%d", patrolsSolving.size()), (int) point.getX() + 5, (int) point.getY() - 30);
+
+        if (World.getInstance().getConfig().isDrawFiringDetails()) {
+            g.drawString(String.format("Stren.:%.1f", strength), (int) point.getX() + 5, (int) point.getY());
+            g.drawString(String.format("Patr.Req.:%d", requiredPatrols), (int) point.getX() + 5, (int) point.getY() - 10);
+            g.drawString(String.format("Patr.Reach.:%d", patrolsReaching.size()), (int) point.getX() + 5, (int) point.getY() - 20);
+            g.drawString(String.format("Part.Solv.:%d", patrolsSolving.size()), (int) point.getX() + 5, (int) point.getY() - 30);
+        }
 
         g.setColor(oldColor);
     }

@@ -5,7 +5,9 @@ import de.westnordost.osmapi.map.data.Node;
 import entities.District;
 import entities.Firing;
 import entities.Intervention;
+import utils.Logger;
 
+import java.util.HashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class IncidentFactory {
@@ -35,16 +37,12 @@ public class IncidentFactory {
 
     public static Firing createRandomFiringFromIntervention(Intervention intervention) {
         var strength = ThreadLocalRandom.current().nextInt(MIN_FIRING_STRENGTH, MAX_FIRING_STRENGTH+1);
-        var numberOfRequiredPatrols = ThreadLocalRandom.current().nextInt(1, (int)Math.ceil(strength/500));
+        var numberOfRequiredPatrols = ThreadLocalRandom.current().nextInt(1, (int)Math.ceil(strength/500.));
         return new Firing(intervention.getLatitude(), intervention.getLongitude(), numberOfRequiredPatrols, strength);
     }
 
     private static double ThreatLevelToFiringChance(District.ThreatLevelEnum threatLevel) {
-        return switch (threatLevel) {
-            case Safe -> 0.01;
-            case RatherSafe -> 0.1;
-            case NotSafe -> 0.4;
-        };
+        return world.getConfig().getFiringChanceForThreatLevel(threatLevel);
     }
 
 }

@@ -34,19 +34,7 @@ public class EventsDirector extends Thread {
     }
 
     private void generateNewEventsInDistrict(District district) {
-        var numberOfIncidentsInNextHour = 0;
-
-        switch (district.getThreatLevel()) {
-            case Safe:
-                numberOfIncidentsInNextHour = ThreadLocalRandom.current().nextInt(2);
-                break;
-            case RatherSafe:
-                numberOfIncidentsInNextHour = ThreadLocalRandom.current().nextInt(4);
-                break;
-            case NotSafe:
-                numberOfIncidentsInNextHour = ThreadLocalRandom.current().nextInt(7);
-                break;
-        }
+        var numberOfIncidentsInNextHour = ThreadLocalRandom.current().nextInt(world.getConfig().getMaxIncidentForThreatLevel(district.getThreatLevel()));
 
         for (var i = 0; i < numberOfIncidentsInNextHour; i++) {
             var newEvent = IncidentFactory.createRandomInterventionForDistrict(district);
