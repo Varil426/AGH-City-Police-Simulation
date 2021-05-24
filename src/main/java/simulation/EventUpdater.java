@@ -12,7 +12,7 @@ public class EventUpdater extends Thread {
 
     @Override
     public void run() {
-        while (world.hasSimulationDurationElapsed()) {
+        while (!world.hasSimulationDurationElapsed()) {
             var activeEvents = world.getEvents();
             for (var intervention : activeEvents) {
                 if (intervention.isActive()){

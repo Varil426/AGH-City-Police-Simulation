@@ -30,7 +30,10 @@ public class ConfigurationPanel {
     private JComboBox<String> citySelectionComboBox;
     private final JTextField numberOfCityPatrolsTextField = new JTextField();
     private final JTextField timeRateTextField = new JTextField();
-    private final JTextField simulationDurationTextField = new JTextField();
+    private final JTextField simulationDurationDaysTextField = new JTextField();
+    private final JTextField simulationDurationHoursTextField = new JTextField();
+    private final JTextField simulationDurationMinutesTextField = new JTextField();
+    private final JTextField simulationDurationSecondsTextField = new JTextField();
     private final JCheckBox drawDistrictsBoundariesCheckBox = new JCheckBox();
     private final JCheckBox drawFiringDetailsCheckBox = new JCheckBox();
 
@@ -46,11 +49,31 @@ public class ConfigurationPanel {
         availablePlaces.put("Poland", new String[]{"Kraków", "Warszawa", "Rzeszów", "Katowice", "Gdańsk", "Łódź", "Szczecin", "Poznań", "Lublin", "Białystok", "Wrocław"});
     }
 
+    private void setDurationInputs(long time) {
+        var days = time / 86400;
+        var hours = (time % 86400)/3600;
+        var minutes = (time % 3600)/60;
+        var seconds = time % 60;
+
+        simulationDurationDaysTextField.setText(String.valueOf(days));
+        simulationDurationHoursTextField.setText(String.valueOf(hours));
+        simulationDurationMinutesTextField.setText(String.valueOf(minutes));
+        simulationDurationSecondsTextField.setText(String.valueOf(seconds));
+    }
+
+    private long getDurationFromInputs() {
+        var days = Long.parseLong(simulationDurationDaysTextField.getText());
+        var hours = Long.parseLong(simulationDurationHoursTextField.getText());
+        var minutes = Long.parseLong(simulationDurationMinutesTextField.getText());
+        var seconds = Long.parseLong(simulationDurationSecondsTextField.getText());
+        return seconds + minutes*60 + hours*3600 * days*86400;
+    }
+
     private void setDefaultValues() {
         var worldConfig = World.getInstance().getConfig();
         numberOfCityPatrolsTextField.setText(Integer.toString(worldConfig.getNumberOfPolicePatrols()));
         timeRateTextField.setText(Integer.toString(worldConfig.getTimeRate()));
-        simulationDurationTextField.setText(Long.toString(worldConfig.getSimulationDuration()));
+        setDurationInputs(worldConfig.getSimulationDuration());
     }
 
     // TODO Add validation for input data
@@ -100,10 +123,21 @@ public class ConfigurationPanel {
         timeRateTextField.setColumns(textInputColumns);
         simulationConfigurationPanel.add(timeRateTextField);
 
-        // TODO Change into better input type than plain seconds
-        simulationConfigurationPanel.add(new JLabel("Simulation Duration [sec]"));
-        simulationDurationTextField.setColumns(textInputColumns);
-        simulationConfigurationPanel.add(simulationDurationTextField);
+        simulationConfigurationPanel.add(new JLabel("Simulation Duration"));
+        var simulationDurationPanel = new JPanel();
+        simulationDurationPanel.add(new JLabel("Days:"));
+        simulationDurationDaysTextField.setColumns(3);
+        simulationDurationPanel.add(simulationDurationDaysTextField);
+        simulationDurationPanel.add(new JLabel("H:"));
+        simulationDurationHoursTextField.setColumns(2);
+        simulationDurationPanel.add(simulationDurationHoursTextField);
+        simulationDurationPanel.add(new JLabel("M:"));
+        simulationDurationMinutesTextField.setColumns(2);
+        simulationDurationPanel.add(simulationDurationMinutesTextField);
+        simulationDurationPanel.add(new JLabel("S:"));
+        simulationDurationSecondsTextField.setColumns(2);
+        simulationDurationPanel.add(simulationDurationSecondsTextField);
+        simulationConfigurationPanel.add(simulationDurationPanel);
 
         simulationConfigurationPanel.add(new JLabel("Number of City Patrols"));
         numberOfCityPatrolsTextField.setColumns(textInputColumns);
@@ -231,7 +265,7 @@ public class ConfigurationPanel {
         var config = World.getInstance().getConfig();
         config.setNumberOfPolicePatrols(Integer.parseInt(numberOfCityPatrolsTextField.getText()));
         config.setTimeRate(Integer.parseInt(timeRateTextField.getText()));
-        config.setSimulationDuration(Long.parseLong(simulationDurationTextField.getText()));
+        config.setSimulationDuration(getDurationFromInputs());
         config.setDrawDistrictsBorders(drawDistrictsBoundariesCheckBox.isSelected());
         config.setDrawFiringDetails(drawFiringDetailsCheckBox.isSelected());
 

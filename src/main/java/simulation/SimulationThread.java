@@ -27,7 +27,7 @@ public class SimulationThread extends Thread {
             }
         }
 
-        while (world.hasSimulationDurationElapsed()) {
+        while (!world.hasSimulationDurationElapsed()) {
             try {
                 HQAssignTasks();
                 updateStatesOfAgents();

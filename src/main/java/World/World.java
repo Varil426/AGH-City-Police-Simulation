@@ -115,7 +115,7 @@ public class World {
     }
 
     public boolean hasSimulationDurationElapsed() {
-        return getSimulationTime() < worldConfig.getSimulationDuration();
+        return getSimulationTime() > worldConfig.getSimulationDuration();
     }
 
     public void setMap(Map map) {

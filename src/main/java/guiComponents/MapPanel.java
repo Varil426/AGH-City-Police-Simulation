@@ -104,7 +104,7 @@ public class MapPanel {
 
                 // GUI Drawing thread
                 new Thread(() -> {
-                    while (World.getInstance().hasSimulationDurationElapsed()) {
+                    while (!World.getInstance().hasSimulationDurationElapsed()) {
                         mapViewer.repaint();
                         try {
                             Thread.sleep(1000/30);

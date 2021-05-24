@@ -17,7 +17,7 @@ public class EventsDirector extends Thread {
 
     @Override
     public void run() {
-        while (world.hasSimulationDurationElapsed()) {
+        while (!world.hasSimulationDurationElapsed()) {
 
             for(var district : world.getDistricts()) {
                 generateNewEventsInDistrict(district);
