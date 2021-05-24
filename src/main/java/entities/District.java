@@ -14,11 +14,24 @@ import java.util.List;
 
 
 public class District implements IDrawable {
+
+    public enum ThreatLevelEnum {
+        Safe(1),
+        RatherSafe(2),
+        NotSafe(3);
+
+        public final int value;
+
+        private ThreatLevelEnum(int value) {
+            this.value = value;
+        }
+    }
+
     private final Long id;
     private final String name;
     private final Path2D boundaries;
     private final List<Node> allNodesInDistrict = new ArrayList<>();
-    private int threatLevel = 3;
+    private ThreatLevelEnum threatLevel = ThreatLevelEnum.RatherSafe;
 
     public District(Long id, String name, Path2D boundaries) {
         this.boundaries = boundaries;
@@ -46,16 +59,15 @@ public class District implements IDrawable {
         allNodesInDistrict.add(node);
     }
 
-    public int getThreatLevel() {
+    public ThreatLevelEnum getThreatLevel() {
         return threatLevel;
     }
 
-    public void setThreatLevel(int threatLevel) {
-        if (threatLevel < 0 || threatLevel > 10) {
-            throw new IllegalArgumentException("Thread level must be between 0 and 10");
+    public void setThreatLevel(ThreatLevelEnum threatLevel) {
+        if (this.threatLevel != threatLevel) {
+            this.threatLevel = threatLevel;
+            Logger.getInstance().logNewMessage(name + " district's thread level has been set to " + threatLevel);
         }
-        this.threatLevel = threatLevel;
-        Logger.getInstance().logNewMessage(name + " district's thread level has been set to " + threatLevel);
     }
 
     public List<Node> getAllNodesInDistrict() {

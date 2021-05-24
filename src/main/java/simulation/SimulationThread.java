@@ -1,24 +1,18 @@
 package simulation;
 
 import World.World;
-import de.westnordost.osmapi.map.data.Node;
 import entities.*;
 
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 public class SimulationThread extends Thread {
 
     @Override
     public void run() {
-        // TODO Set simulation stage
         var world = World.getInstance();
         World.getInstance().simulationStart();
 
         for (int i = 0; i < world.getConfig().getNumberOfPolicePatrols(); i++) {
-            // TODO Change to HQ when movement is ready
-//            var startingPoint = (Node) world.getMap().getMyNodes().values().toArray()[ThreadLocalRandom.current().nextInt(world.getMap().getMyNodes().size())];
-//            var newPatrol = new Patrol(startingPoint.getPosition());
             var HQ = world.getAllEntities().stream().filter(x->x instanceof Headquarters).findFirst().orElse(null);
             if (HQ !=null){
                 var newPatrol = new Patrol(HQ.getPosition());
@@ -33,8 +27,7 @@ public class SimulationThread extends Thread {
             }
         }
 
-        while (true) {
-            // TODO Exit condition
+        while (!world.hasSimulationDurationElapsed()) {
             try {
                 HQAssignTasks();
                 updateStatesOfAgents();
@@ -65,8 +58,6 @@ public class SimulationThread extends Thread {
     }
 
     private void performAgentsActions() throws Exception {
-        // TODO
-
         var allAgents = World.getInstance().getAllEntities().stream().filter(x -> x instanceof IAgent).collect(Collectors.toList());
         for (Entity agents : allAgents) {
             ((IAgent) agents).performAction();

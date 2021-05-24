@@ -3,9 +3,11 @@ package guiComponents;
 
 import OSMToGraph.ImportGraphFromRawData;
 import World.*;
+import entities.District;
 import utils.Logger;
 
 import javax.swing.*;
+import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.WindowEvent;
 import java.util.Arrays;
@@ -26,21 +28,52 @@ public class ConfigurationPanel {
 
     private JComboBox<String> countrySelectionComboBox;
     private JComboBox<String> citySelectionComboBox;
-    private JTextField numberOfCityPatrolsTextField = new JTextField();
-    private JTextField timeRateTextField = new JTextField();
-    private JTextField simulationDurationTextField = new JTextField();
-    private JCheckBox drawDistrictsBoundariesCheckBox = new JCheckBox();;
+    private final JTextField numberOfCityPatrolsTextField = new JTextField();
+    private final JTextField timeRateTextField = new JTextField();
+    private final JTextField simulationDurationDaysTextField = new JTextField();
+    private final JTextField simulationDurationHoursTextField = new JTextField();
+    private final JTextField simulationDurationMinutesTextField = new JTextField();
+    private final JTextField simulationDurationSecondsTextField = new JTextField();
+    private final JCheckBox drawDistrictsBoundariesCheckBox = new JCheckBox();
+    private final JCheckBox drawFiringDetailsCheckBox = new JCheckBox();
+
+    private final JTextField threatLevelMaxIncidentsTextField_SAFE = new JTextField();
+    private final JTextField threatLevelMaxIncidentsTextField_RATHERSAFE = new JTextField();
+    private final JTextField threatLevelMaxIncidentsTextField_NOTSAFE = new JTextField();
+
+    private final JTextField threatLevelFiringChanceTextField_SAFE = new JTextField();
+    private final JTextField threatLevelFiringChanceTextField_RATHERSAFE = new JTextField();
+    private final JTextField threatLevelFiringChanceTextField_NOTSAFE = new JTextField();
 
     public ConfigurationPanel() {
-        availablePlaces.put("Poland", new String[]{"Kraków", "Warszawa", "Rzeszów"});
-        availablePlaces.put("United Kingdom", new String[]{"London", "Sheffield", "Manchester"});
+        availablePlaces.put("Poland", new String[]{"Kraków", "Warszawa", "Rzeszów", "Katowice", "Gdańsk", "Łódź", "Szczecin", "Poznań", "Lublin", "Białystok", "Wrocław"});
+    }
+
+    private void setDurationInputs(long time) {
+        var days = time / 86400;
+        var hours = (time % 86400)/3600;
+        var minutes = (time % 3600)/60;
+        var seconds = time % 60;
+
+        simulationDurationDaysTextField.setText(String.valueOf(days));
+        simulationDurationHoursTextField.setText(String.valueOf(hours));
+        simulationDurationMinutesTextField.setText(String.valueOf(minutes));
+        simulationDurationSecondsTextField.setText(String.valueOf(seconds));
+    }
+
+    private long getDurationFromInputs() {
+        var days = Long.parseLong(simulationDurationDaysTextField.getText());
+        var hours = Long.parseLong(simulationDurationHoursTextField.getText());
+        var minutes = Long.parseLong(simulationDurationMinutesTextField.getText());
+        var seconds = Long.parseLong(simulationDurationSecondsTextField.getText());
+        return seconds + minutes*60 + hours*3600 * days*86400;
     }
 
     private void setDefaultValues() {
         var worldConfig = World.getInstance().getConfig();
         numberOfCityPatrolsTextField.setText(Integer.toString(worldConfig.getNumberOfPolicePatrols()));
         timeRateTextField.setText(Integer.toString(worldConfig.getTimeRate()));
-        simulationDurationTextField.setText(Long.toString(worldConfig.getSimulationTime()));
+        setDurationInputs(worldConfig.getSimulationDuration());
     }
 
     // TODO Add validation for input data
@@ -90,18 +123,97 @@ public class ConfigurationPanel {
         timeRateTextField.setColumns(textInputColumns);
         simulationConfigurationPanel.add(timeRateTextField);
 
-        // TODO Change into better input type than plain seconds
-        simulationConfigurationPanel.add(new JLabel("Simulation Duration [sec]"));
-        simulationDurationTextField.setColumns(textInputColumns);
-        simulationConfigurationPanel.add(simulationDurationTextField);
+        simulationConfigurationPanel.add(new JLabel("Simulation Duration"));
+        var simulationDurationPanel = new JPanel();
+        simulationDurationPanel.add(new JLabel("Days:"));
+        simulationDurationDaysTextField.setColumns(3);
+        simulationDurationPanel.add(simulationDurationDaysTextField);
+        simulationDurationPanel.add(new JLabel("H:"));
+        simulationDurationHoursTextField.setColumns(2);
+        simulationDurationPanel.add(simulationDurationHoursTextField);
+        simulationDurationPanel.add(new JLabel("M:"));
+        simulationDurationMinutesTextField.setColumns(2);
+        simulationDurationPanel.add(simulationDurationMinutesTextField);
+        simulationDurationPanel.add(new JLabel("S:"));
+        simulationDurationSecondsTextField.setColumns(2);
+        simulationDurationPanel.add(simulationDurationSecondsTextField);
+        simulationConfigurationPanel.add(simulationDurationPanel);
 
         simulationConfigurationPanel.add(new JLabel("Number of City Patrols"));
         numberOfCityPatrolsTextField.setColumns(textInputColumns);
         simulationConfigurationPanel.add(numberOfCityPatrolsTextField);
 
-        simulationConfigurationPanel.add(new JLabel("Draw districts boundaries"));
-        simulationConfigurationPanel.add(drawDistrictsBoundariesCheckBox);
+        var drawDistrictsPanel = new JPanel();
+        drawDistrictsPanel.add(new JLabel("Draw districts boundaries"));
+        drawDistrictsPanel.add(drawDistrictsBoundariesCheckBox);
+        simulationConfigurationPanel.add(drawDistrictsPanel);
 
+        var drawFiringDetailsPanel = new JPanel();
+        drawFiringDetailsPanel.add(new JLabel("Draw firing details"));
+        drawFiringDetailsPanel.add(drawFiringDetailsCheckBox);
+        simulationConfigurationPanel.add(drawFiringDetailsPanel);
+
+        var threatLevelToMaxIncidentsConfigurationPanel =  new JPanel();
+        threatLevelToMaxIncidentsConfigurationPanel.setBorder(new LineBorder(Color.BLACK, 1));
+        threatLevelToMaxIncidentsConfigurationPanel.setLayout(new BoxLayout(threatLevelToMaxIncidentsConfigurationPanel, BoxLayout.Y_AXIS));
+        threatLevelToMaxIncidentsConfigurationPanel.add(new JLabel("Set maximum number of incidents per hour"));
+
+        var panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.add(new JLabel(District.ThreatLevelEnum.Safe.toString()));
+        threatLevelMaxIncidentsTextField_SAFE.setColumns(textInputColumns);
+        threatLevelMaxIncidentsTextField_SAFE.setText(String.valueOf(World.getInstance().getConfig().getMaxIncidentForThreatLevel(District.ThreatLevelEnum.Safe)));
+        panel.add(threatLevelMaxIncidentsTextField_SAFE);
+        threatLevelToMaxIncidentsConfigurationPanel.add(panel);
+
+        panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.add(new JLabel(District.ThreatLevelEnum.RatherSafe.toString()));
+        threatLevelMaxIncidentsTextField_RATHERSAFE.setColumns(textInputColumns);
+        threatLevelMaxIncidentsTextField_RATHERSAFE.setText(String.valueOf(World.getInstance().getConfig().getMaxIncidentForThreatLevel(District.ThreatLevelEnum.RatherSafe)));
+        panel.add(threatLevelMaxIncidentsTextField_RATHERSAFE);
+        threatLevelToMaxIncidentsConfigurationPanel.add(panel);
+
+        panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.add(new JLabel(District.ThreatLevelEnum.NotSafe.toString()));
+        threatLevelMaxIncidentsTextField_NOTSAFE.setColumns(textInputColumns);
+        threatLevelMaxIncidentsTextField_NOTSAFE.setText(String.valueOf(World.getInstance().getConfig().getMaxIncidentForThreatLevel(District.ThreatLevelEnum.NotSafe)));
+        panel.add(threatLevelMaxIncidentsTextField_NOTSAFE);
+        threatLevelToMaxIncidentsConfigurationPanel.add(panel);
+
+        simulationConfigurationPanel.add(threatLevelToMaxIncidentsConfigurationPanel);
+
+        var threatLevelToFiringChanceConfigurationPanel =  new JPanel();
+        threatLevelToFiringChanceConfigurationPanel.setBorder(new LineBorder(Color.BLACK, 1));
+        threatLevelToFiringChanceConfigurationPanel.setLayout(new BoxLayout(threatLevelToFiringChanceConfigurationPanel, BoxLayout.Y_AXIS));
+        threatLevelToFiringChanceConfigurationPanel.add(new JLabel("Set chance for firing"));
+
+        panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.add(new JLabel(District.ThreatLevelEnum.Safe.toString()));
+        threatLevelFiringChanceTextField_SAFE.setColumns(textInputColumns);
+        threatLevelFiringChanceTextField_SAFE.setText(String.valueOf(World.getInstance().getConfig().getFiringChanceForThreatLevel(District.ThreatLevelEnum.Safe)));
+        panel.add(threatLevelFiringChanceTextField_SAFE);
+        threatLevelToFiringChanceConfigurationPanel.add(panel);
+
+        panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.add(new JLabel(District.ThreatLevelEnum.RatherSafe.toString()));
+        threatLevelFiringChanceTextField_RATHERSAFE.setColumns(textInputColumns);
+        threatLevelFiringChanceTextField_RATHERSAFE.setText(String.valueOf(World.getInstance().getConfig().getFiringChanceForThreatLevel(District.ThreatLevelEnum.RatherSafe)));
+        panel.add(threatLevelFiringChanceTextField_RATHERSAFE);
+        threatLevelToFiringChanceConfigurationPanel.add(panel);
+
+        panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.add(new JLabel(District.ThreatLevelEnum.NotSafe.toString()));
+        threatLevelFiringChanceTextField_NOTSAFE.setColumns(textInputColumns);
+        threatLevelFiringChanceTextField_NOTSAFE.setText(String.valueOf(World.getInstance().getConfig().getFiringChanceForThreatLevel(District.ThreatLevelEnum.NotSafe)));
+        panel.add(threatLevelFiringChanceTextField_NOTSAFE);
+        threatLevelToFiringChanceConfigurationPanel.add(panel);
+
+        simulationConfigurationPanel.add(threatLevelToFiringChanceConfigurationPanel);
 
         buttonsPanel = new JPanel();
         frame.add(buttonsPanel);
@@ -153,8 +265,18 @@ public class ConfigurationPanel {
         var config = World.getInstance().getConfig();
         config.setNumberOfPolicePatrols(Integer.parseInt(numberOfCityPatrolsTextField.getText()));
         config.setTimeRate(Integer.parseInt(timeRateTextField.getText()));
-        config.setSimulationDuration(Long.parseLong(simulationDurationTextField.getText()));
+        config.setSimulationDuration(getDurationFromInputs());
         config.setDrawDistrictsBorders(drawDistrictsBoundariesCheckBox.isSelected());
+        config.setDrawFiringDetails(drawFiringDetailsCheckBox.isSelected());
+
+        config.setMaxIncidentsForThreatLevel(District.ThreatLevelEnum.Safe, Integer.parseInt(threatLevelMaxIncidentsTextField_SAFE.getText()));
+        config.setMaxIncidentsForThreatLevel(District.ThreatLevelEnum.RatherSafe, Integer.parseInt(threatLevelMaxIncidentsTextField_RATHERSAFE.getText()));
+        config.setMaxIncidentsForThreatLevel(District.ThreatLevelEnum.NotSafe, Integer.parseInt(threatLevelMaxIncidentsTextField_NOTSAFE.getText()));
+
+        config.setFiringChanceForThreatLevel(District.ThreatLevelEnum.Safe, Double.parseDouble(threatLevelFiringChanceTextField_SAFE.getText()));
+        config.setFiringChanceForThreatLevel(District.ThreatLevelEnum.RatherSafe, Double.parseDouble(threatLevelFiringChanceTextField_RATHERSAFE.getText()));
+        config.setFiringChanceForThreatLevel(District.ThreatLevelEnum.NotSafe, Double.parseDouble(threatLevelFiringChanceTextField_NOTSAFE.getText()));
+
         Logger.getInstance().logNewMessage("World config has been set.");
 
         frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));

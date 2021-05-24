@@ -36,14 +36,14 @@ public class World {
         }
     }
 
-    private List<Entity> allEntities = new ArrayList<>();
+    private final List<Entity> allEntities = new ArrayList<>();
     private LocalDateTime startTime;
 
     private LatLon position;
 
     private Map map;
 
-    private WorldConfiguration worldConfig = new WorldConfiguration();
+    private final WorldConfiguration worldConfig = new WorldConfiguration();
 
     private boolean hasSimulationStarted = false;
 
@@ -61,7 +61,6 @@ public class World {
 
     public List<Entity> getEntitiesNear(double x, double y, double range) {
         synchronized (allEntities){
-//        return this.allEntities.stream().filter(entity -> Point2D.distance(entity.getLatitude(), entity.getLongitude(), x, y) <= range).collect(Collectors.toList());
             return this.allEntities.stream().filter(entity -> Haversine.distance(entity.getLatitude(), entity.getLongitude(), x, y) <= range).collect(Collectors.toList());
         }
     }
@@ -69,7 +68,6 @@ public class World {
     public void addEntity(Entity entity) {
         synchronized (allEntities){
             allEntities.add(entity);
-            //Logger.getInstance().logNewMessage("Added new entity with id: " + entity.getUniqueID());
             Logger.getInstance().logNewMessage("Added new " + entity.toString());
         }
     }
@@ -114,6 +112,10 @@ public class World {
         synchronized (map){
             return map;
         }
+    }
+
+    public boolean hasSimulationDurationElapsed() {
+        return getSimulationTime() > worldConfig.getSimulationDuration();
     }
 
     public void setMap(Map map) {
