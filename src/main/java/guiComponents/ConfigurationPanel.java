@@ -66,7 +66,7 @@ public class ConfigurationPanel {
         var hours = Long.parseLong(simulationDurationHoursTextField.getText());
         var minutes = Long.parseLong(simulationDurationMinutesTextField.getText());
         var seconds = Long.parseLong(simulationDurationSecondsTextField.getText());
-        return seconds + minutes*60 + hours*3600 * days*86400;
+        return seconds + minutes*60 + hours*3600 + days*86400;
     }
 
     private void setDefaultValues() {
