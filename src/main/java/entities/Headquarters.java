@@ -3,6 +3,7 @@ package entities;
 import World.World;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.viewer.GeoPosition;
+import utils.Logger;
 
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
@@ -52,6 +53,7 @@ public class Headquarters extends Entity implements IDrawable {
             List<Patrol> patrolsReaching = ((Firing) firing).getPatrolsReaching();
             if (requiredPatrols <= patrolsSolving.size()) {
                 for (int i = 0; i < patrolsReaching.size(); i++) {
+                    Logger.getInstance().logNewMessage(patrolsReaching.get(i) + " state set from "+ patrolsReaching.get(i).getState() +" to PATROLLING");
                     patrolsReaching.get(i).setState(Patrol.State.PATROLLING);
                     ((Firing) firing).removeReachingPatrol(patrolsReaching.get(i));
                 }
@@ -64,6 +66,7 @@ public class Headquarters extends Entity implements IDrawable {
                             .map(x -> (Patrol) x)
                             .collect(Collectors.toList());
                     for (Patrol p : foundPatrols) {
+                        Logger.getInstance().logNewMessage(p + " took order from HQ. State set from " + p.getState() + " to TRANSFER_TO_FIRING; target: " + firing);
                         p.takeOrder(p.new Transfer(World.getInstance().getSimulationTimeLong(), firing, Patrol.State.TRANSFER_TO_FIRING));
                         ((Firing) firing).addReachingPatrol(p);
                     }
@@ -78,6 +81,7 @@ public class Headquarters extends Entity implements IDrawable {
                             .map(x -> (Patrol) x)
                             .collect(Collectors.toList());
                     for (Patrol p : foundTransferringToInterventionPatrols) {
+                        Logger.getInstance().logNewMessage(p + " took order from HQ. State set from " + p.getState() + " to TRANSFER_TO_FIRING; target: " + firing);
                         p.takeOrder(p.new Transfer(World.getInstance().getSimulationTimeLong(), firing, Patrol.State.TRANSFER_TO_FIRING));
                         ((Firing) firing).addReachingPatrol(p);
                     }
@@ -101,6 +105,7 @@ public class Headquarters extends Entity implements IDrawable {
                     i++;
                 }
                 if (availablePatrol != null) {
+                    Logger.getInstance().logNewMessage(availablePatrol + " took order from HQ. State set from " + availablePatrol.getState() + " to TRANSFER_TO_INTERVENTION; target: " + intervention);
                     availablePatrol.takeOrder(
                             availablePatrol.new Transfer(World.getInstance().getSimulationTimeLong(),
                                     intervention, Patrol.State.TRANSFER_TO_INTERVENTION));
@@ -126,8 +131,7 @@ public class Headquarters extends Entity implements IDrawable {
                 world.addEntity(newPatrol);
             }
             endOfCurrentShift += durationOfTheShift;
+            Logger.getInstance().logNewMessage("New shift has started");
         }
     }
-
-    // TODO Lists methods
 }

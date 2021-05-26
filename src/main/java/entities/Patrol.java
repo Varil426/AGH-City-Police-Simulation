@@ -3,7 +3,6 @@ package entities;
 import World.World;
 import de.westnordost.osmapi.map.data.LatLon;
 import de.westnordost.osmapi.map.data.Node;
-import org.apache.commons.lang3.NotImplementedException;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.viewer.GeoPosition;
 import simulation.PathCalculator;
@@ -14,6 +13,7 @@ import java.awt.*;
 import java.awt.geom.Ellipse2D;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class Patrol extends Entity implements IAgent, IDrawable {
 
@@ -22,10 +22,12 @@ public class Patrol extends Entity implements IAgent, IDrawable {
     private final double baseTransferSpeed;
     private final double basePrivilegedSpeed;
     private final double shiftEndTime;
+    private final double timeBetweenDrawNeutralization;
     private double timeOfLastMove;
     private State state;
     private State previousState;
     private Action action;
+    private double timeOfLastDrawNeutralization;
 
     public Patrol() {
         // TODO Change default values
@@ -35,6 +37,8 @@ public class Patrol extends Entity implements IAgent, IDrawable {
         this.timeOfLastMove = World.getInstance().getSimulationTime();
         this.durationOfTheShift = World.getInstance().getDurationOfTheShift();
         this.shiftEndTime = World.getInstance().getSimulationTime() + durationOfTheShift;
+        this.timeBetweenDrawNeutralization = new Random().nextInt(1000) + 3000;
+        this.timeOfLastDrawNeutralization = World.getInstance().getSimulationTime();
     }
 
     public Patrol(double latitude, double longitude) {
@@ -56,17 +60,19 @@ public class Patrol extends Entity implements IAgent, IDrawable {
         this.timeOfLastMove = World.getInstance().getSimulationTime();
         this.durationOfTheShift = World.getInstance().getDurationOfTheShift();
         this.shiftEndTime = World.getInstance().getSimulationTime() + durationOfTheShift;
+        this.timeBetweenDrawNeutralization = new Random().nextInt(1000) + 3000;
+        this.timeOfLastDrawNeutralization = World.getInstance().getSimulationTime();
     }
 
     public void updateStateSelf() throws Exception {
         if (state == State.PATROLLING) {
             if (isShiftOver()) {
                 setState(State.RETURNING_TO_HQ);
+                Logger.getInstance().logNewMessage(this + " state set from PATROLLING to " + state + " target: " + action.target.toString());
                 var HQ = World.getInstance().getAllEntities().stream().filter(x -> x instanceof Headquarters).findFirst().orElse(null);
                 setAction(new Transfer(World.getInstance().getSimulationTimeLong(), HQ, this.state));
             } else if (action == null) {
                 drawNewTarget();
-                Logger.getInstance().logNewMessage(this + " action set to " + action.getClass().toString() + " target: " + action.target.toString());
             } else if (action instanceof Transfer) {
                 // if pathNodeList is empty, it draws a new patrol target
                 if (((Transfer) action).pathNodeList != null && ((Transfer) action).pathNodeList.size() == 0) {
@@ -80,6 +86,7 @@ public class Patrol extends Entity implements IAgent, IDrawable {
             if (action instanceof Transfer) {
                 if (((Transfer) action).pathNodeList.size() == 0) {
                     setState(State.INTERVENTION);
+                    Logger.getInstance().logNewMessage(this + " state set from TRANSFER_TO_INTERVENTION to " + state + " target: " + action.target.toString());
                     action = new IncidentParticipation(World.getInstance().getSimulationTimeLong(), (Incident) action.target);
                 }
             } else {
@@ -88,6 +95,7 @@ public class Patrol extends Entity implements IAgent, IDrawable {
         } else if (state == State.INTERVENTION) {
             if (action.target instanceof Firing) {
                 setState(State.FIRING);
+                Logger.getInstance().logNewMessage(this + " state set from INTERVENTION to " + state + " target: " + action.target.toString());
                 ((Firing) action.target).addSolvingPatrol(this);
                 action = new IncidentParticipation(World.getInstance().getSimulationTimeLong(), (Incident) action.target);
             }
@@ -95,10 +103,12 @@ public class Patrol extends Entity implements IAgent, IDrawable {
             else if (action instanceof IncidentParticipation) {
                 if (action.target == null) {
                     setState(State.PATROLLING);
+                    Logger.getInstance().logNewMessage(this + " state set from INTERVENTION to " + state + " target: " + action.target.toString());
                     drawNewTarget();
                 } else if (!(((Intervention) (action).target).isActive())) {
                     World.getInstance().removeEntity((action.target));
                     setState(State.PATROLLING);
+                    Logger.getInstance().logNewMessage(this + " state set from INTERVENTION to " + state + " target: " + action.target.toString());
                     drawNewTarget();
                 }
             } else {
@@ -109,6 +119,7 @@ public class Patrol extends Entity implements IAgent, IDrawable {
             if (action instanceof Transfer) {
                 if (((Transfer) action).pathNodeList != null && ((Transfer) action).pathNodeList.size() == 0) {
                     setState(State.FIRING);
+                    Logger.getInstance().logNewMessage(this + " state set from TRANSFER_TO_FIRING to " + state + " target: " + action.target.toString());
                     ((Firing) action.target).removeReachingPatrol(this);
                     ((Firing) action.target).addSolvingPatrol(this);
                     action = new IncidentParticipation(World.getInstance().getSimulationTimeLong(), (Incident) action.target);
@@ -121,13 +132,23 @@ public class Patrol extends Entity implements IAgent, IDrawable {
             if (action instanceof IncidentParticipation) {
                 if (action.target == null) {
                     setState(State.PATROLLING);
+                    Logger.getInstance().logNewMessage(this + " state set from FIRING to " + state + " target: " + action.target.toString());
                     drawNewTarget();
                 } else if (!((Firing) action.target).isActive()) {
                     setState(State.PATROLLING);
+                    Logger.getInstance().logNewMessage(this + " state set from FIRING to " + state + " target: " + action.target.toString());
                     drawNewTarget();
                 } else if (!(action.target instanceof Firing)) {
                     setState(State.PATROLLING);
+                    Logger.getInstance().logNewMessage(this + " state set from FIRING to " + state + " target: " + action.target.toString());
                     drawNewTarget();
+                } else if (World.getInstance().getSimulationTime() > timeOfLastDrawNeutralization + timeBetweenDrawNeutralization) {
+                    if (ThreadLocalRandom.current().nextDouble() < 0.01) {
+                        ((Firing) this.action.target).removeSolvingPatrol(this);
+                        setState(State.NEUTRALIZED);
+                        Logger.getInstance().logNewMessage(this + " state set from FIRING to " + state + " target: " + action.target.toString());
+                    }
+                    timeOfLastDrawNeutralization = World.getInstance().getSimulationTime();
                 }
             } else {
                 throw new Exception("Action should be 'IncidentParticipation' and it is not");
@@ -169,6 +190,8 @@ public class Patrol extends Entity implements IAgent, IDrawable {
                 if (action instanceof Transfer && ((Transfer) this.action).pathNodeList != null) {
                     if (((Transfer) action).pathNodeList.size() == 0) {
                         World.getInstance().removeEntity(this);
+                        Logger.getInstance().logNewMessage(this + " removed itself after ending shift and coming back to HQ");
+
                     } else {
                         move(simulationTime);
                     }
@@ -177,11 +200,8 @@ public class Patrol extends Entity implements IAgent, IDrawable {
             case TRANSFER_TO_INTERVENTION, TRANSFER_TO_FIRING -> {
                 move(simulationTime);
             }
-            case INTERVENTION, CALCULATING_PATH, FIRING -> {
+            case INTERVENTION, CALCULATING_PATH, FIRING, NEUTRALIZED -> {
                 // empty
-            }
-            case NEUTRALIZED -> {
-                throw new NotImplementedException("new implemented");
             }
             default -> {
                 throw new Exception("Illegal state");
