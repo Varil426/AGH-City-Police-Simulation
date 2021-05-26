@@ -3,7 +3,6 @@ package entities;
 import World.World;
 import de.westnordost.osmapi.map.data.LatLon;
 import de.westnordost.osmapi.map.data.Node;
-import org.apache.commons.lang3.NotImplementedException;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.viewer.GeoPosition;
 import simulation.PathCalculator;
@@ -14,6 +13,7 @@ import java.awt.*;
 import java.awt.geom.Ellipse2D;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class Patrol extends Entity implements IAgent, IDrawable {
 
@@ -22,10 +22,12 @@ public class Patrol extends Entity implements IAgent, IDrawable {
     private final double baseTransferSpeed;
     private final double basePrivilegedSpeed;
     private final double shiftEndTime;
+    private final double timeBetweenDrawNeutralization;
     private double timeOfLastMove;
     private State state;
     private State previousState;
     private Action action;
+    private double timeOfLastDrawNeutralization;
 
     public Patrol() {
         // TODO Change default values
@@ -35,6 +37,8 @@ public class Patrol extends Entity implements IAgent, IDrawable {
         this.timeOfLastMove = World.getInstance().getSimulationTime();
         this.durationOfTheShift = World.getInstance().getDurationOfTheShift();
         this.shiftEndTime = World.getInstance().getSimulationTime() + durationOfTheShift;
+        this.timeBetweenDrawNeutralization = new Random().nextInt(1000) + 3000;
+        this.timeOfLastDrawNeutralization = World.getInstance().getSimulationTime();
     }
 
     public Patrol(double latitude, double longitude) {
@@ -56,6 +60,8 @@ public class Patrol extends Entity implements IAgent, IDrawable {
         this.timeOfLastMove = World.getInstance().getSimulationTime();
         this.durationOfTheShift = World.getInstance().getDurationOfTheShift();
         this.shiftEndTime = World.getInstance().getSimulationTime() + durationOfTheShift;
+        this.timeBetweenDrawNeutralization = new Random().nextInt(1000) + 3000;
+        this.timeOfLastDrawNeutralization = World.getInstance().getSimulationTime();
     }
 
     public void updateStateSelf() throws Exception {
@@ -128,6 +134,12 @@ public class Patrol extends Entity implements IAgent, IDrawable {
                 } else if (!(action.target instanceof Firing)) {
                     setState(State.PATROLLING);
                     drawNewTarget();
+                } else if (World.getInstance().getSimulationTime() > timeOfLastDrawNeutralization + timeBetweenDrawNeutralization) {
+                    if (ThreadLocalRandom.current().nextDouble() < 0.01) {
+                        ((Firing) this.action.target).removeSolvingPatrol(this);
+                        setState(State.NEUTRALIZED);
+                    }
+                    timeOfLastDrawNeutralization = World.getInstance().getSimulationTime();
                 }
             } else {
                 throw new Exception("Action should be 'IncidentParticipation' and it is not");
@@ -181,7 +193,7 @@ public class Patrol extends Entity implements IAgent, IDrawable {
                 // empty
             }
             case NEUTRALIZED -> {
-                throw new NotImplementedException("new implemented");
+                // empty
             }
             default -> {
                 throw new Exception("Illegal state");
