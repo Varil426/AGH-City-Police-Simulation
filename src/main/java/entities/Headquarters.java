@@ -15,11 +15,15 @@ public class Headquarters extends Entity implements IDrawable {
 
     //TODO improve value of 'range'
     private final double range = 1000.0;
+    private final double durationOfTheShift;
     private List<Patrol> patrols = new ArrayList<>();
     private List<Incident> incidents = new ArrayList<>();
+    private double endOfCurrentShift;
 
     public Headquarters(double latitude, double longitude) {
         super(latitude, longitude);
+        this.durationOfTheShift = World.getInstance().getDurationOfTheShift();
+        this.endOfCurrentShift = World.getInstance().getSimulationTime() + durationOfTheShift;
     }
 
     @Override
@@ -37,13 +41,12 @@ public class Headquarters extends Entity implements IDrawable {
     }
 
     public void assignTasks() {
+        checkIfTheShiftIsOver();
         updatePatrolsAndIncidents();
         var allInterventions = incidents.stream().filter(x -> x instanceof Intervention).sorted(Comparator.comparingLong(Incident::getStartTime)).collect(Collectors.toList());
         var allFirings = incidents.stream().filter(x -> x instanceof Firing).sorted(Comparator.comparingLong(Incident::getStartTime)).collect(Collectors.toList());
 
-
         for (var firing : allFirings) {
-            //TODO obsługa strzalnin
             int requiredPatrols = ((Firing) firing).getRequiredPatrols();
             List<Patrol> patrolsSolving = ((Firing) firing).getPatrolsSolving();
             List<Patrol> patrolsReaching = ((Firing) firing).getPatrolsReaching();
@@ -82,10 +85,7 @@ public class Headquarters extends Entity implements IDrawable {
             }
         }
 
-
         for (Entity intervention : allInterventions) {
-            //TODO obsługa interwencji
-
             if (((Intervention) intervention).getPatrolSolving() == null) {
                 Patrol availablePatrol;
                 int i = 0;
@@ -108,14 +108,25 @@ public class Headquarters extends Entity implements IDrawable {
                 }
             }
         }
-
     }
 
 
-    public void updatePatrolsAndIncidents() {
+    private void updatePatrolsAndIncidents() {
         var allEntities = World.getInstance().getAllEntities();
         patrols = allEntities.stream().filter(x -> x instanceof Patrol).map(x -> (Patrol) x).collect(Collectors.toList());
         incidents = allEntities.stream().filter(x -> x instanceof Incident).map(x -> (Incident) x).collect(Collectors.toList());
+    }
+
+    private void checkIfTheShiftIsOver() {
+        var world = World.getInstance();
+        if (world.getSimulationTime() > endOfCurrentShift) {
+            for (int i = 0; i < world.getConfig().getNumberOfPolicePatrols(); i++) {
+                var newPatrol = new Patrol(this.getPosition());
+                newPatrol.setState(Patrol.State.PATROLLING);
+                world.addEntity(newPatrol);
+            }
+            endOfCurrentShift += durationOfTheShift;
+        }
     }
 
     // TODO Lists methods

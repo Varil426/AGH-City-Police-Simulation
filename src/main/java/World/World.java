@@ -47,6 +47,9 @@ public class World {
 
     private boolean hasSimulationStarted = false;
 
+    // TODO let the user to choose durationOfTheShift
+    private final double durationOfTheShift = 28800;
+
     private World() {
         this.startTime = LocalDateTime.now();
     }
@@ -93,6 +96,10 @@ public class World {
         synchronized (allEntities){
             return allEntities.stream().filter(x -> x instanceof IEvent).map(x -> (IEvent)x).collect(Collectors.toList());
         }
+    }
+
+    public double getDurationOfTheShift(){
+        return durationOfTheShift;
     }
 
     public long getSimulationTimeLong() {
