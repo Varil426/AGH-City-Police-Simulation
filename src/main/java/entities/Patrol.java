@@ -17,10 +17,11 @@ import java.util.Random;
 
 public class Patrol extends Entity implements IAgent, IDrawable {
 
+    private final double durationOfTheShift;
     private final double basePatrollingSpeed;
     private final double baseTransferSpeed;
     private final double basePrivilegedSpeed;
-    // TODO Add to constructors setting value for this
+    private final double shiftEndTime;
     private double timeOfLastMove;
     private State state;
     private State previousState;
@@ -31,19 +32,19 @@ public class Patrol extends Entity implements IAgent, IDrawable {
         basePatrollingSpeed = 40;
         baseTransferSpeed = 60;
         basePrivilegedSpeed = 80;
-        this.timeOfLastMove = World.getInstance().getSimulationTimeLong();
+        this.timeOfLastMove = World.getInstance().getSimulationTime();
+        this.durationOfTheShift = World.getInstance().getDurationOfTheShift();
+        this.shiftEndTime = World.getInstance().getSimulationTime() + durationOfTheShift;
     }
 
     public Patrol(double latitude, double longitude) {
         this();
         this.setLatitude(latitude);
         this.setLongitude(longitude);
-        this.timeOfLastMove = World.getInstance().getSimulationTimeLong();
     }
 
     public Patrol(LatLon position) {
         this(position.getLatitude(), position.getLongitude());
-        this.timeOfLastMove = World.getInstance().getSimulationTimeLong();
     }
 
     public Patrol(double x, double y, double baseTransferSpeed, double basePatrollingSpeed, double basePrivilegedSpeed) {
@@ -52,14 +53,18 @@ public class Patrol extends Entity implements IAgent, IDrawable {
         this.basePatrollingSpeed = basePatrollingSpeed;
         this.baseTransferSpeed = baseTransferSpeed;
         this.basePrivilegedSpeed = basePrivilegedSpeed;
-        this.timeOfLastMove = World.getInstance().getSimulationTimeLong();
+        this.timeOfLastMove = World.getInstance().getSimulationTime();
+        this.durationOfTheShift = World.getInstance().getDurationOfTheShift();
+        this.shiftEndTime = World.getInstance().getSimulationTime() + durationOfTheShift;
     }
 
     public void updateStateSelf() throws Exception {
-        // TODO
-
         if (state == State.PATROLLING) {
-            if (action == null) {
+            if (isShiftOver()) {
+                setState(State.RETURNING_TO_HQ);
+                var HQ = World.getInstance().getAllEntities().stream().filter(x -> x instanceof Headquarters).findFirst().orElse(null);
+                setAction(new Transfer(World.getInstance().getSimulationTimeLong(), HQ, this.state));
+            } else if (action == null) {
                 drawNewTarget();
                 Logger.getInstance().logNewMessage(this + " action set to " + action.getClass().toString() + " target: " + action.target.toString());
             } else if (action instanceof Transfer) {
@@ -131,6 +136,16 @@ public class Patrol extends Entity implements IAgent, IDrawable {
             if (((Transfer) getAction()).pathNodeList != null) {
                 setState(this.previousState);
             }
+        } else if (state == State.RETURNING_TO_HQ) {
+            if (action == null) {
+                World.getInstance().getAllEntities()
+                        .stream()
+                        .filter(x -> x instanceof Headquarters)
+                        .findFirst()
+                        .ifPresent(HQ -> action = new Transfer(World.getInstance().getSimulationTimeLong(), HQ, this.state));
+            } else if (!(action instanceof Transfer)) {
+                throw new Exception("Action should be 'Transfer' and it is not");
+            }
         }
     }
 
@@ -143,8 +158,6 @@ public class Patrol extends Entity implements IAgent, IDrawable {
     }
 
     public void performAction() throws Exception {
-        // TODO
-
         double simulationTime = World.getInstance().getSimulationTime();
         switch (state) {
             case PATROLLING -> {
@@ -152,20 +165,20 @@ public class Patrol extends Entity implements IAgent, IDrawable {
                     move(simulationTime);
                 }
             }
-            case TRANSFER_TO_INTERVENTION -> {
+            case RETURNING_TO_HQ -> {
+                if (action instanceof Transfer && ((Transfer) this.action).pathNodeList != null) {
+                    if (((Transfer) action).pathNodeList.size() == 0) {
+                        World.getInstance().removeEntity(this);
+                    } else {
+                        move(simulationTime);
+                    }
+                }
+            }
+            case TRANSFER_TO_INTERVENTION, TRANSFER_TO_FIRING -> {
                 move(simulationTime);
             }
-            case TRANSFER_TO_FIRING -> {
-                move(simulationTime);
-            }
-            case INTERVENTION -> {
-                // tu się chyba nic nie będzie działo
-            }
-            case FIRING -> {
-                // tu nie wiem co się będzie działo, zależy gdzie będzie tracone "HP" przez strzelaninę
-            }
-            case CALCULATING_PATH -> {
-                // tu chyba nic
+            case INTERVENTION, CALCULATING_PATH, FIRING -> {
+                // empty
             }
             case NEUTRALIZED -> {
                 throw new NotImplementedException("new implemented");
@@ -191,7 +204,6 @@ public class Patrol extends Entity implements IAgent, IDrawable {
                 setPosition(removedNode.getPosition());
                 distanceToNearestNode = getDistanceToNearestNode();
             }
-
             LatLon nearestNodePosition = ((Transfer) action).pathNodeList.get(0).getPosition();
             if (distanceToNearestNode > traveledDistance) {
                 double distanceFactor = traveledDistance / distanceToNearestNode;
@@ -208,7 +220,6 @@ public class Patrol extends Entity implements IAgent, IDrawable {
 
     @Override
     public void takeOrder(Action action) {
-//        this.state = state;
         this.action = action;
     }
 
@@ -221,7 +232,7 @@ public class Patrol extends Entity implements IAgent, IDrawable {
 
     public double getSpeed() {
         switch (state) {
-            case PATROLLING -> {
+            case PATROLLING, RETURNING_TO_HQ -> {
                 return basePatrollingSpeed;
             }
             case TRANSFER_TO_INTERVENTION -> {
@@ -235,6 +246,10 @@ public class Patrol extends Entity implements IAgent, IDrawable {
                 return basePatrollingSpeed;
             }
         }
+    }
+
+    public boolean isShiftOver() {
+        return World.getInstance().getSimulationTime() > shiftEndTime;
     }
 
     public State getState() {
@@ -264,6 +279,7 @@ public class Patrol extends Entity implements IAgent, IDrawable {
 
         switch (this.state) {
             case PATROLLING -> g.setColor(new Color(0, 153, 0)); // green
+            case RETURNING_TO_HQ -> g.setColor(new Color(0, 100, 0)); // dark green
             case TRANSFER_TO_INTERVENTION -> g.setColor(new Color(255, 166, 77)); // orangeish
             case TRANSFER_TO_FIRING -> g.setColor(new Color(255, 77, 77)); // redish
             case INTERVENTION -> g.setColor(new Color(0, 92, 230)); // blue
@@ -281,7 +297,6 @@ public class Patrol extends Entity implements IAgent, IDrawable {
 
         var mark = new Ellipse2D.Double((int) (point.getX() - size / 2), (int) (point.getY() - size / 2), size, size);
         g.fill(mark);
-
         g.setColor(oldColor);
     }
 
@@ -292,7 +307,8 @@ public class Patrol extends Entity implements IAgent, IDrawable {
         INTERVENTION,
         FIRING,
         NEUTRALIZED,
-        CALCULATING_PATH
+        CALCULATING_PATH,
+        RETURNING_TO_HQ
     }
 
     public class Action {
