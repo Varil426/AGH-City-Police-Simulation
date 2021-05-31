@@ -2,12 +2,10 @@ package World;
 
 import de.westnordost.osmapi.map.data.LatLon;
 import de.westnordost.osmapi.map.data.OsmLatLon;
-import entities.District;
-import entities.Entity;
-import entities.IEvent;
-import entities.Map;
+import entities.*;
 import org.jxmapviewer.viewer.GeoPosition;
 import simulation.EventUpdater;
+import simulation.StatisticsCounter;
 import utils.Haversine;
 import simulation.EventsDirector;
 import utils.Logger;
@@ -75,6 +73,14 @@ public class World {
         synchronized (allEntities){
             allEntities.add(entity);
             Logger.getInstance().logNewMessage("Added new " + entity.toString());
+
+            if (entity instanceof Patrol) {
+                StatisticsCounter.getInstance().increaseNumberOfPatrols();
+            } else if (entity instanceof Intervention) {
+                StatisticsCounter.getInstance().increaseNumberOfInterventions();
+            } else if (entity instanceof Firing) {
+                StatisticsCounter.getInstance().increaseNumberOfFirings();
+            }
         }
     }
 
@@ -82,7 +88,15 @@ public class World {
         synchronized (allEntities){
             if (allEntities.remove(entity)) {
                 Logger.getInstance().logNewMessage("Removed " + entity.toString());
-          }
+
+                if (entity instanceof Patrol && ((Patrol) entity).getState() == Patrol.State.NEUTRALIZED) {
+                    StatisticsCounter.getInstance().increaseNumberOfNeutralizedPatrols();
+                } else if (entity instanceof Intervention) {
+                    StatisticsCounter.getInstance().increaseNumberOfSolvedInterventions();
+                } else if (entity instanceof Firing) {
+                    StatisticsCounter.getInstance().increaseNumberOfSolvedFirings();
+                }
+            }
         }
     }
 
@@ -164,6 +178,7 @@ public class World {
     }
 
     public void simulationStart() {
+        StatisticsCounter.getInstance().reset();
         startTime = LocalDateTime.now();
         timePassedUntilPause = 0;
         isSimulationPaused = false;
