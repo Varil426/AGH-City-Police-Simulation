@@ -12,12 +12,12 @@ import org.jxmapviewer.painter.Painter;
 import org.jxmapviewer.viewer.DefaultTileFactory;
 import org.jxmapviewer.viewer.GeoPosition;
 import simulation.SimulationThread;
+import simulation.StatisticsCounter;
 import utils.Logger;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.*;
 
 public class MapPanel {
 
@@ -55,8 +55,10 @@ public class MapPanel {
         }
     }
 
-    private JFrame frame = new JFrame();
-    private JXMapViewer mapViewer = new JXMapViewer();
+    private final JFrame frame = new JFrame();
+    private final JXMapViewer mapViewer = new JXMapViewer();
+
+    private final JButton simulationPauseButton = new JButton("Pause");
 
     public MapPanel() {
         var info = new OSMTileFactoryInfo();
@@ -88,6 +90,30 @@ public class MapPanel {
         //mapViewer.setZoom(mapViewer.getZoom());
         mapViewer.setZoom(7);
 
+        simulationPauseButton.setMaximumSize(new Dimension(50, 50));
+
+        simulationPauseButton.addActionListener(new ActionListener() {
+
+            private boolean showingPause = !World.getInstance().isSimulationPaused();
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (showingPause) {
+                    World.getInstance().pauseSimulation();
+                    JButton button = (JButton) e.getSource();
+                    button.setText("Resume");
+                    showingPause = false;
+                } else {
+                    World.getInstance().resumeSimulation();
+                    JButton button = (JButton) e.getSource();
+                    button.setText("Pause");
+                    showingPause = true;
+                }
+            }
+
+        });
+        mapViewer.add(simulationPauseButton);
+
         frame.getContentPane().add(mapViewer);
         frame.setVisible(true);
     }
@@ -112,6 +138,8 @@ public class MapPanel {
                             // Ignore
                         }
                     }
+
+                    showSummary();
                 }).start();
 
                 // Simulation thread
@@ -141,6 +169,23 @@ public class MapPanel {
             }
         });
         JOptionPane.showMessageDialog(frame, "Please select HQ location.");
+    }
+
+    private void showSummary() {
+        var simulationSummaryMessage = new StringBuilder();
+
+        simulationSummaryMessage.append("Simulation has finished.\n\n");
+
+        simulationSummaryMessage.append("Simulated Patrols: ").append(StatisticsCounter.getInstance().getNumberOfPatrols()).append("\n");
+        simulationSummaryMessage.append("Simulated Interventions: ").append(StatisticsCounter.getInstance().getNumberOfInterventions()).append("\n");
+        simulationSummaryMessage.append("Simulated Firings: ").append(StatisticsCounter.getInstance().getNumberOfFirings()).append("\n");
+        simulationSummaryMessage.append("Neutralized Patrols: ").append(StatisticsCounter.getInstance().getNumberOfNeutralizedPatrols()).append("\n");
+        simulationSummaryMessage.append("Solved Interventions: ").append(StatisticsCounter.getInstance().getNumberOfSolvedInterventions()).append("\n");
+        simulationSummaryMessage.append("Solved Firings: ").append(StatisticsCounter.getInstance().getNumberOfSolvedFirings()).append("\n");
+
+        JOptionPane.showMessageDialog(frame, simulationSummaryMessage.toString());
+
+        frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
     }
 
 }
