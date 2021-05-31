@@ -28,11 +28,17 @@ public class SimulationThread extends Thread {
         }
 
         while (!world.hasSimulationDurationElapsed()) {
-            try {
-                HQAssignTasks();
-                updateStatesOfAgents();
-                performAgentsActions();
+            if (!world.isSimulationPaused()) {
+                try {
+                    HQAssignTasks();
+                    updateStatesOfAgents();
+                    performAgentsActions();
+                } catch (Exception e) {
+                    System.out.println(e);
+                }
+            }
 
+            try {
                 sleep(40);
             } catch (Exception e) {
                 System.out.println(e);

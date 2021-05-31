@@ -37,7 +37,10 @@ public class World {
     }
 
     private final List<Entity> allEntities = new ArrayList<>();
+
     private LocalDateTime startTime;
+    private double timePassedUntilPause = 0;
+    private boolean isSimulationPaused = false;
 
     private LatLon position;
 
@@ -111,8 +114,12 @@ public class World {
             return -1;
         }
 
+        if (isSimulationPaused) {
+            return  timePassedUntilPause;
+        }
+
         var duration = Duration.between(this.startTime, LocalDateTime.now());
-        return (duration.getSeconds() + duration.getNano() / Math.pow(10, 9)) * worldConfig.getTimeRate();
+        return ((duration.getSeconds() + duration.getNano() / Math.pow(10, 9)) * worldConfig.getTimeRate()) + timePassedUntilPause;
     }
 
     public Map getMap() {
@@ -123,6 +130,10 @@ public class World {
 
     public boolean hasSimulationDurationElapsed() {
         return getSimulationTime() > worldConfig.getSimulationDuration();
+    }
+
+    public boolean isSimulationPaused() {
+        return isSimulationPaused;
     }
 
     public void setMap(Map map) {
@@ -154,9 +165,24 @@ public class World {
 
     public void simulationStart() {
         startTime = LocalDateTime.now();
+        timePassedUntilPause = 0;
+        isSimulationPaused = false;
         hasSimulationStarted = true;
         new EventsDirector().start();
         new EventUpdater().start();
         Logger.getInstance().logNewMessage("Simulation has started.");
     }
+
+    public void pauseSimulation() {
+        timePassedUntilPause = getSimulationTime();
+        isSimulationPaused = true;
+        Logger.getInstance().logNewMessage("Simulation has been paused.");
+    }
+
+    public  void resumeSimulation() {
+        startTime = LocalDateTime.now();
+        isSimulationPaused = false;
+        Logger.getInstance().logNewMessage("Simulation has been resumed.");
+    }
+
 }

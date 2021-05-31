@@ -16,6 +16,8 @@ import utils.Logger;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
@@ -55,8 +57,10 @@ public class MapPanel {
         }
     }
 
-    private JFrame frame = new JFrame();
-    private JXMapViewer mapViewer = new JXMapViewer();
+    private final JFrame frame = new JFrame();
+    private final JXMapViewer mapViewer = new JXMapViewer();
+
+    private final JButton simulationPauseButton = new JButton("Pause");
 
     public MapPanel() {
         var info = new OSMTileFactoryInfo();
@@ -87,6 +91,30 @@ public class MapPanel {
         //mapViewer.setZoom(mapViewer.getZoom() / 2);
         //mapViewer.setZoom(mapViewer.getZoom());
         mapViewer.setZoom(7);
+
+        simulationPauseButton.setMaximumSize(new Dimension(50, 50));
+
+        simulationPauseButton.addActionListener(new ActionListener() {
+
+            private boolean showingPause = !World.getInstance().isSimulationPaused();
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (showingPause) {
+                    World.getInstance().pauseSimulation();
+                    JButton button = (JButton) e.getSource();
+                    button.setText("Resume");
+                    showingPause = false;
+                } else {
+                    World.getInstance().resumeSimulation();
+                    JButton button = (JButton) e.getSource();
+                    button.setText("Pause");
+                    showingPause = true;
+                }
+            }
+
+        });
+        mapViewer.add(simulationPauseButton);
 
         frame.getContentPane().add(mapViewer);
         frame.setVisible(true);

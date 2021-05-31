@@ -13,13 +13,15 @@ public class EventUpdater extends Thread {
     @Override
     public void run() {
         while (!world.hasSimulationDurationElapsed()) {
-            var activeEvents = world.getEvents();
-            for (var intervention : activeEvents) {
-                if (intervention.isActive()){
-                    intervention.updateState();
-                }
-                else {
-                    world.removeEntity((Incident)intervention);
+            if (!world.isSimulationPaused()) {
+                var activeEvents = world.getEvents();
+                for (var intervention : activeEvents) {
+                    if (intervention.isActive()){
+                        intervention.updateState();
+                    }
+                    else {
+                        world.removeEntity((Incident)intervention);
+                    }
                 }
             }
             try {
