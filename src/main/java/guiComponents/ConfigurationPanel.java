@@ -62,10 +62,10 @@ public class ConfigurationPanel {
     }
 
     private long getDurationFromInputs() {
-        var days = Long.parseLong(simulationDurationDaysTextField.getText());
-        var hours = Long.parseLong(simulationDurationHoursTextField.getText());
-        var minutes = Long.parseLong(simulationDurationMinutesTextField.getText());
-        var seconds = Long.parseLong(simulationDurationSecondsTextField.getText());
+        var days = simulationDurationDaysTextField.getText().equals("") ? 0 : Long.parseLong(simulationDurationDaysTextField.getText());
+        var hours = simulationDurationHoursTextField.getText().equals("") ? 0 : Long.parseLong(simulationDurationHoursTextField.getText());
+        var minutes = simulationDurationMinutesTextField.getText().equals("") ? 0 : Long.parseLong(simulationDurationMinutesTextField.getText());
+        var seconds = simulationDurationSecondsTextField.getText().equals("") ? 0 : Long.parseLong(simulationDurationSecondsTextField.getText());
         return seconds + minutes*60 + hours*3600 + days*86400;
     }
 
@@ -263,19 +263,19 @@ public class ConfigurationPanel {
         mapPanel.createMapWindow();
 
         var config = World.getInstance().getConfig();
-        config.setNumberOfPolicePatrols(Integer.parseInt(numberOfCityPatrolsTextField.getText()));
-        config.setTimeRate(Integer.parseInt(timeRateTextField.getText()));
+        config.setNumberOfPolicePatrols(numberOfCityPatrolsTextField.getText().equals("") ? 0 : Integer.parseInt(numberOfCityPatrolsTextField.getText()));
+        config.setTimeRate(timeRateTextField.getText().equals("") ? 0 : Integer.parseInt(timeRateTextField.getText()));
         config.setSimulationDuration(getDurationFromInputs());
         config.setDrawDistrictsBorders(drawDistrictsBoundariesCheckBox.isSelected());
         config.setDrawFiringDetails(drawFiringDetailsCheckBox.isSelected());
 
-        config.setMaxIncidentsForThreatLevel(District.ThreatLevelEnum.Safe, Integer.parseInt(threatLevelMaxIncidentsTextField_SAFE.getText()));
-        config.setMaxIncidentsForThreatLevel(District.ThreatLevelEnum.RatherSafe, Integer.parseInt(threatLevelMaxIncidentsTextField_RATHERSAFE.getText()));
-        config.setMaxIncidentsForThreatLevel(District.ThreatLevelEnum.NotSafe, Integer.parseInt(threatLevelMaxIncidentsTextField_NOTSAFE.getText()));
+        config.setMaxIncidentsForThreatLevel(District.ThreatLevelEnum.Safe, threatLevelMaxIncidentsTextField_SAFE.getText().equals("") ? 0 : Integer.parseInt(threatLevelMaxIncidentsTextField_SAFE.getText()));
+        config.setMaxIncidentsForThreatLevel(District.ThreatLevelEnum.RatherSafe, threatLevelMaxIncidentsTextField_RATHERSAFE.getText().equals("") ? 0 : Integer.parseInt(threatLevelMaxIncidentsTextField_RATHERSAFE.getText()));
+        config.setMaxIncidentsForThreatLevel(District.ThreatLevelEnum.NotSafe, threatLevelMaxIncidentsTextField_NOTSAFE.getText().equals("") ? 0 : Integer.parseInt(threatLevelMaxIncidentsTextField_NOTSAFE.getText()));
 
-        config.setFiringChanceForThreatLevel(District.ThreatLevelEnum.Safe, Double.parseDouble(threatLevelFiringChanceTextField_SAFE.getText()));
-        config.setFiringChanceForThreatLevel(District.ThreatLevelEnum.RatherSafe, Double.parseDouble(threatLevelFiringChanceTextField_RATHERSAFE.getText()));
-        config.setFiringChanceForThreatLevel(District.ThreatLevelEnum.NotSafe, Double.parseDouble(threatLevelFiringChanceTextField_NOTSAFE.getText()));
+        config.setFiringChanceForThreatLevel(District.ThreatLevelEnum.Safe, threatLevelFiringChanceTextField_SAFE.getText().equals("") ? 0 : Double.parseDouble(threatLevelFiringChanceTextField_SAFE.getText()));
+        config.setFiringChanceForThreatLevel(District.ThreatLevelEnum.RatherSafe, threatLevelFiringChanceTextField_RATHERSAFE.getText().equals("") ? 0 : Double.parseDouble(threatLevelFiringChanceTextField_RATHERSAFE.getText()));
+        config.setFiringChanceForThreatLevel(District.ThreatLevelEnum.NotSafe, threatLevelFiringChanceTextField_NOTSAFE.getText().equals("") ? 0 : Double.parseDouble(threatLevelFiringChanceTextField_NOTSAFE.getText()));
 
         Logger.getInstance().logNewMessage("World config has been set.");
 
