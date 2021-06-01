@@ -15,6 +15,6 @@ public class ImportDOTFileTest {
         // example of importing a DOT file into a graph:
         final String graphExportFile = "KrkGraph.gv";
         Graph<Node, ImportedEdge> importGraph = new SimpleDirectedWeightedGraph<>(ImportedEdge.class);
-        ImportedGraphToDOT.importGraph(importGraph, "src/main/java/OSMToGraph/exportedGraphs/" + graphExportFile);
+        ImportedGraphToDOT.importGraph(importGraph, "OSMToGraph/exportedGraphs/" + graphExportFile);
     }
 }

@@ -31,8 +31,8 @@ public class ImportGraphFromRawData {
     static String rawDataDistrictFile1 = "export";
     static String rawDataDistrictFile2 = "DistrictsRaw.osm";
     static String graphExportFile = "KrkGraph.gv";
-    static String rawDataPath = "src/main/java/OSMToGraph/rawData/";
-    static String graphExportPath = "src/main/java/OSMToGraph/exportedGraphs/";
+    static String rawDataPath = "OSMToGraph/rawData/";
+    static String graphExportPath = "OSMToGraph/exportedGraphs/";
     // area["admin_level"=6][name="Kraków"]->.a;(way(area.a)["highway"~"^(motorway|trunk|primary|secondary|tertiary|unclassified|residential|motorway_link|trunk_link|primary_link|secondary_link|tertiary_link|living_street|service|pedestrian|track|road)$"]["crossing"!~"."]["name"];);out meta;>;out meta qt;
     static String query1 = "area[\"admin_level\"=6][name=\"";
     static String query2 = "\"]->.a;(way(area.a)[\"highway\"~\"^(motorway|trunk|primary|secondary|tertiary|unclassified|residential|motorway_link|trunk_link|primary_link|secondary_link|tertiary_link|living_street|service|pedestrian|track|road)$\"][\"crossing\"!~\".\"][\"name\"];);out meta;>;out meta qt;";
