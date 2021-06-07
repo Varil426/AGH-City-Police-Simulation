@@ -52,6 +52,7 @@ public class EventsDirector extends Thread {
         for (Entity patrol : collect) {
             World.getInstance().removeEntity(patrol);
         }
+        world.setNeutralizedPatrolsTotal(collect.size());
     }
 
     private void generateNewEventsInDistrict(District district) {
