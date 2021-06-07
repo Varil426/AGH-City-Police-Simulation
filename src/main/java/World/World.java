@@ -5,6 +5,7 @@ import de.westnordost.osmapi.map.data.OsmLatLon;
 import entities.*;
 import org.jxmapviewer.viewer.GeoPosition;
 import simulation.EventUpdater;
+import simulation.ExportToCSV;
 import simulation.StatisticsCounter;
 import utils.Haversine;
 import simulation.EventsDirector;
@@ -50,6 +51,8 @@ public class World {
 
     // TODO let the user to choose durationOfTheShift
     private final double durationOfTheShift = 28800;
+
+    private int neutralizedPatrolsTotal = 0;
 
     private World() {
         this.startTime = LocalDateTime.now();
@@ -113,6 +116,14 @@ public class World {
         synchronized (allEntities){
             return allEntities.stream().filter(x -> x instanceof IEvent).map(x -> (IEvent)x).collect(Collectors.toList());
         }
+    }
+
+    public int getNeutralizedPatrolsTotal() {
+        return neutralizedPatrolsTotal;
+    }
+
+    public void setNeutralizedPatrolsTotal(int neutralizedPatrolsTotal) {
+        this.neutralizedPatrolsTotal += neutralizedPatrolsTotal;
     }
 
     public double getDurationOfTheShift(){
@@ -185,6 +196,7 @@ public class World {
         hasSimulationStarted = true;
         new EventsDirector().start();
         new EventUpdater().start();
+        new ExportToCSV().start();
         Logger.getInstance().logNewMessage("Simulation has started.");
     }
 
