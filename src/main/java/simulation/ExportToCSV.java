@@ -33,9 +33,9 @@ public class ExportToCSV extends Thread {
             "amountOfReturningToHqPatrols",
             "amountOfIncidents",
             "amountOfInterventions",
-            "amountOfInterventionsBeingSolving",
+            "amountOfInterventionsBeingSolved",
             "amountOfFirings",
-            "amountOfFiringBeingSolving"
+            "amountOfFiringBeingSolved"
     };
     private final DateTimeFormatter dateFormat = new DateTimeFormatterBuilder().appendPattern("dd-MM-yyyy_HH-mm-ss").toFormatter();
     private int exportCounter = 1;
