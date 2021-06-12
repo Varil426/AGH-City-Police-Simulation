@@ -1,5 +1,6 @@
 package entities;
 
+import CsvExport.ExportFiringDetails;
 import World.World;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.viewer.GeoPosition;
@@ -15,7 +16,7 @@ import java.util.stream.Collectors;
 public class Headquarters extends Entity implements IDrawable {
 
     //TODO improve value of 'range'
-    private final double range = 1000.0;
+    private final double range = 1200.0;
     private final double durationOfTheShift;
     private List<Patrol> patrols = new ArrayList<>();
     private List<Incident> incidents = new ArrayList<>();
@@ -53,7 +54,7 @@ public class Headquarters extends Entity implements IDrawable {
             List<Patrol> patrolsReaching = ((Firing) firing).getPatrolsReaching();
             if (requiredPatrols <= patrolsSolving.size()) {
                 for (int i = 0; i < patrolsReaching.size(); i++) {
-                    Logger.getInstance().logNewMessage(patrolsReaching.get(i) + " state set from "+ patrolsReaching.get(i).getState() +" to PATROLLING");
+                    Logger.getInstance().logNewMessage(patrolsReaching.get(i) + " state set from " + patrolsReaching.get(i).getState() + " to PATROLLING");
                     patrolsReaching.get(i).setState(Patrol.State.PATROLLING);
                     ((Firing) firing).removeReachingPatrol(patrolsReaching.get(i));
                 }
@@ -65,11 +66,7 @@ public class Headquarters extends Entity implements IDrawable {
                             .filter(x -> x instanceof Patrol && ((Patrol) x).getState() == Patrol.State.PATROLLING)
                             .map(x -> (Patrol) x)
                             .collect(Collectors.toList());
-                    for (Patrol p : foundPatrols) {
-                        Logger.getInstance().logNewMessage(p + " took order from HQ. State set from " + p.getState() + " to TRANSFER_TO_FIRING; target: " + firing);
-                        p.takeOrder(p.new Transfer(World.getInstance().getSimulationTimeLong(), firing, Patrol.State.TRANSFER_TO_FIRING));
-                        ((Firing) firing).addReachingPatrol(p);
-                    }
+                    giveOrdersToFoundPatrols(firing, foundPatrols);
                     if (foundPatrols.size() + patrolsSolving.size() + patrolsReaching.size() >= requiredPatrols) {
                         break;
                     }
@@ -80,11 +77,7 @@ public class Headquarters extends Entity implements IDrawable {
                             .filter(x -> x instanceof Patrol && ((Patrol) x).getState() == Patrol.State.TRANSFER_TO_INTERVENTION)
                             .map(x -> (Patrol) x)
                             .collect(Collectors.toList());
-                    for (Patrol p : foundTransferringToInterventionPatrols) {
-                        Logger.getInstance().logNewMessage(p + " took order from HQ. State set from " + p.getState() + " to TRANSFER_TO_FIRING; target: " + firing);
-                        p.takeOrder(p.new Transfer(World.getInstance().getSimulationTimeLong(), firing, Patrol.State.TRANSFER_TO_FIRING));
-                        ((Firing) firing).addReachingPatrol(p);
-                    }
+                    giveOrdersToFoundPatrols(firing, foundTransferringToInterventionPatrols);
                 }
             }
         }
@@ -115,6 +108,16 @@ public class Headquarters extends Entity implements IDrawable {
         }
     }
 
+    private void giveOrdersToFoundPatrols(Incident firing, List<Patrol> foundPatrols) {
+        for (Patrol p : foundPatrols) {
+            Logger.getInstance().logNewMessage(p + " took order from HQ. State set from " + p.getState() + " to TRANSFER_TO_FIRING; target: " + firing);
+            p.takeOrder(p.new Transfer(World.getInstance().getSimulationTimeLong(), firing, Patrol.State.TRANSFER_TO_FIRING));
+            ((Firing) firing).addReachingPatrol(p);
+        }
+        if (foundPatrols.size() > 0) {
+            ExportFiringDetails.getInstance().writeToCsvFile((Firing) firing, foundPatrols);
+        }
+    }
 
     private void updatePatrolsAndIncidents() {
         var allEntities = World.getInstance().getAllEntities();

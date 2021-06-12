@@ -39,6 +39,7 @@ public class EventsDirector extends Thread {
                     sleep((long) sleepTime, (int) ((sleepTime - (long) sleepTime) * 1000000));
                 } catch (InterruptedException e) {
                     // Ignore
+                    e.printStackTrace();
                 }
             }
         }

@@ -26,8 +26,8 @@ public class ImportedGraphToDOT {
                     edgeLabelProvider);
             dotExporter.exportGraph(g, fileWriter);
 
-        } catch (IOException ex) {
-            System.out.println(ex.getMessage());
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

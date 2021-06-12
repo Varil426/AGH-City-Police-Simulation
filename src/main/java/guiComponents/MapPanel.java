@@ -136,6 +136,7 @@ public class MapPanel {
                             Thread.sleep(1000/30);
                         } catch (Exception exception) {
                             // Ignore
+                            exception.printStackTrace();
                         }
                     }
 
