@@ -15,6 +15,7 @@ public class Firing extends Incident implements IDrawable {
     private double strength;
     private List<Patrol> patrolsSolving = new ArrayList<>();
     private List<Patrol> patrolsReaching = new ArrayList<>();
+    private District district;
 
     public Firing(double latitude, double longitude) {
         super(latitude, longitude);
@@ -24,10 +25,11 @@ public class Firing extends Incident implements IDrawable {
         this.strength = 500;
     }
 
-    public Firing(double latitude, double longitude, int requiredPatrols, double initialStrength) {
+    public Firing(double latitude, double longitude, int requiredPatrols, double initialStrength, District district) {
         super(latitude, longitude);
         this.requiredPatrols = requiredPatrols;
         this.strength = initialStrength;
+        this.district = district;
     }
 
     public int getRequiredPatrols() {
@@ -60,6 +62,10 @@ public class Firing extends Incident implements IDrawable {
 
     public double getStrength() {
         return strength;
+    }
+
+    public District getDistrict() {
+        return district;
     }
 
     @Override
