@@ -27,6 +27,7 @@ public class DelayedAction extends Thread {
             Thread.sleep(delayMillis, delayNanos);
         } catch (InterruptedException e) {
             // Ignore
+            e.printStackTrace();
         }
         function.apply();
     }

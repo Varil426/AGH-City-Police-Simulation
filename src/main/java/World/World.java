@@ -5,7 +5,7 @@ import de.westnordost.osmapi.map.data.OsmLatLon;
 import entities.*;
 import org.jxmapviewer.viewer.GeoPosition;
 import simulation.EventUpdater;
-import simulation.ExportToCSV;
+import CsvExport.ExportToCSV;
 import simulation.StatisticsCounter;
 import utils.Haversine;
 import simulation.EventsDirector;
